@@ -14,32 +14,28 @@
         /* [메인 배경] */
         #main-lab { background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); align-items: center; justify-content: center; }
         
-        /* [스케치 인장 - 주소 및 출력 보강] */
-        .signature-emblem {
-            width: 140px; height: 140px;
-            border-radius: 50%;
-            border: 3px solid rgba(0, 255, 204, 0.6);
-            /* 승인된 스케치 이미지의 직접 링크 */
-            background-image: url('https://r.jina.ai/i/6158227'); 
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            margin-bottom: 20px;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
-            background-color: #333; /* 이미지 로딩 전 배경색 */
-        }
-
+        /* 유리 패널 */
         .glass-panel { background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border-radius: 30px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.2); width: 80%; max-width: 350px; text-align: center; }
+        
         h1 { font-size: 24px; color: #fff; margin-bottom: 5px; }
-        .sub-title { font-size: 13px; color: #00ffcc; margin-bottom: 30px; font-weight: bold; }
+        .sub-title { font-size: 13px; color: #00ffcc; margin-bottom: 35px; font-weight: bold; }
+        
         .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .icon-box { width: 80px; height: 80px; background: rgba(255, 255, 255, 0.1); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 35px; border: 1px solid rgba(255,255,255,0.3); cursor: pointer; }
         .icon-label { margin-top: 10px; font-size: 13px; font-weight: bold; color: #fff; }
         
-        /* [번역 모듈] */
+        /* [소설 모듈] */
         #novel-module { transform: translateX(100%); background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=80'); overflow-y: auto; }
         .back-btn { position: absolute; top: 50px; left: 20px; color: #fff; font-size: 14px; background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); z-index: 10; cursor: pointer; }
+
+        .tab-container { display: flex; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 12px; margin: 80px 25px 20px; }
+        .tab { flex: 1; padding: 10px; text-align: center; color: #888; font-size: 14px; cursor: pointer; }
+        .tab.active { background: #ffcc00; color: #000; border-radius: 10px; font-weight: bold; }
+        .tab-content { display: none; padding: 0 25px 50px; }
+        .tab-content.active { display: block; }
+
+        input, textarea { width: 100%; padding: 18px; border-radius: 12px; border: 1px solid #444; background: #000 !important; color: #fff !important; box-sizing: border-box; font-size: 16px; margin-bottom: 15px; outline: none; }
+        .action-btn { width: 100%; padding: 18px; border-radius: 12px; border: none; background: #ffcc00; color: #000; font-weight: bold; font-size: 17px; cursor: pointer; }
 
         /* [히스토리 모달] */
         #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(10px); }
@@ -50,15 +46,15 @@
         .close-history { display: block; width: 100%; padding: 12px; background: #333; color: #fff; border: none; border-radius: 10px; margin-top: 20px; font-weight: bold; cursor: pointer; }
 
         /* [푸터] */
-        .footer { position: absolute; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.4); font-size: 10px; z-index: 5; }
-        .version-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); color: #00ffcc; font-weight: bold; padding: 4px 10px; border-radius: 12px; margin-left: 5px; cursor: pointer; font-size: 10px; }
+        .footer { position: absolute; bottom: 30px; width: 100%; text-align: center; color: rgba(255,255,255,0.4); font-size: 10px; }
+        .version-btn { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2); color: #00ffcc; font-weight: bold; padding: 4px 10px; border-radius: 12px; margin-left: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="main-lab" class="screen">
         <div class="glass-panel">
-            <div class="signature-emblem"></div>
+            <div style="font-size: 50px; margin-bottom: 15px;">🐾</div>
             <h1>나나 연구실</h1>
             <div class="sub-title">57과 HJ를 위하여</div>
             <div class="icon-grid">
@@ -74,16 +70,24 @@
         </div>
         <div class="footer">
             © 2026 NANA LAB. FOR 57 & HJ.<br>
-            <span id="current-ver">SYSTEM V2.1.2</span>
+            <span id="current-ver">SYSTEM V2.0 (RESTORED)</span>
             <button class="version-btn" onclick="toggleHistory()">🕒 HISTORY</button>
         </div>
     </div>
 
     <div id="novel-module" class="screen">
         <div class="back-btn" onclick="closeModule()">◀ 복귀</div>
-        <div style="padding-top: 100px; text-align: center; color: white;">
-            <h2 style="color:#ffcc00;">준비된 모듈이 작동 대기 중입니다.</h2>
-            <p>데이터를 투입해 주세요.</p>
+        <div class="tab-container">
+            <div class="tab active" id="tab-url" onclick="showTab('url')">주소 입력</div>
+            <div class="tab" id="tab-text" onclick="showTab('text')">본문 붙여넣기</div>
+        </div>
+        <div id="content-url" class="tab-content active">
+            <input type="text" id="novelUrl" placeholder="번역할 페이지 주소를 적어주세요.">
+            <button class="action-btn" onclick="alert('엔진 연결 준비 중...')">주소 분석 및 번역</button>
+        </div>
+        <div id="content-text" class="tab-content">
+            <textarea id="novelRawText" placeholder="소설 본문을 복사해서 붙여주세요..." style="height: 350px;"></textarea>
+            <button class="action-btn" onclick="alert('번역 공정 준비 중...')">즉시 번역 시작</button>
         </div>
     </div>
 
@@ -91,33 +95,31 @@
         <div class="history-card" onclick="event.stopPropagation()">
             <h3 style="color:#ffcc00; margin-top:0;">📜 연구실 개발 연대기</h3>
             <div class="history-item">
-                <div class="history-ver">V2.1.2 (Current)</div>
-                <div class="history-desc">이미지 로딩 최적화 및 히스토리 버튼 복구</div>
-            </div>
-            <div class="history-item">
-                <div class="history-ver">V2.1</div>
-                <div class="history-desc">시그니처 스케치 인장 적용</div>
+                <div class="history-ver">V2.0 (Rollback)</div>
+                <div class="history-desc">안정적인 V2.0으로 시스템 환원 완료</div>
             </div>
             <div class="history-item">
                 <div class="history-ver">V1.9</div>
-                <div class="history-desc">다크모드 입력창 및 뒤로가기 제스처 연동</div>
+                <div class="history-desc">다크모드 입력창 및 뒤로가기 연동</div>
+            </div>
+            <div class="history-item">
+                <div class="history-ver">V1.8</div>
+                <div class="history-desc">Unsplash 고화질 배경 적용</div>
+            </div>
+            <div class="history-item">
+                <div class="history-ver">V1.0</div>
+                <div class="history-desc">나나 연구실 기지 설립</div>
             </div>
             <button class="close-history" onclick="toggleHistory()">닫기</button>
         </div>
     </div>
 
     <script>
-        // 히스토리 모달 제어
         function toggleHistory() {
             const modal = document.getElementById('history-modal');
-            if (modal.style.display === 'flex') {
-                modal.style.display = 'none';
-            } else {
-                modal.style.display = 'flex';
-            }
+            modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
         }
 
-        // 모듈 전환 로직
         window.onpopstate = function(event) { closeModule(true); };
         
         function openModule() {
@@ -130,6 +132,13 @@
             if(!isPopState && window.location.hash === "#novel") { history.back(); }
             document.getElementById('main-lab').style.transform = 'translateX(0)';
             document.getElementById('novel-module').style.transform = 'translateX(100%)';
+        }
+
+        function showTab(type) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById('tab-' + type).classList.add('active');
+            document.getElementById('content-' + type).classList.add('active');
         }
     </script>
 </body>
