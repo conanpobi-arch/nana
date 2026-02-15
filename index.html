@@ -8,103 +8,84 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>나나 연구실 - 57과 HJ를 위하여</title>
     <style>
-        /* 기본 레이아웃 설정 */
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #000; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', sans-serif; background: #000; }
         .screen { 
             width: 100vw; height: 100vh; 
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1); 
-            position: absolute; 
-            background-size: cover; 
-            background-position: center;
-            display: flex;
-            flex-direction: column;
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1); 
+            position: absolute; background-size: cover; background-position: center;
+            display: flex; flex-direction: column;
         }
         
-        /* [메인 화면 배경] - 창밖으로 보이는 바다와 초원 느낌 */
+        /* 배경 설정 */
         #main-lab { 
-            background-image: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); 
+            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); 
             align-items: center; justify-content: center; 
         }
-        
-        /* [소설 모듈 배경] - 거대 도서관의 책들 사이 느낌 */
         #novel-module { 
             transform: translateX(100%); 
-            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=80'); 
+            background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1000&q=80'); 
         }
 
-        /* 유리창 효과 패널 (Glassmorphism) */
+        /* 유리 패널 */
         .glass-panel { 
-            background: rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(15px); 
-            -webkit-backdrop-filter: blur(15px); 
-            border-radius: 30px; 
-            padding: 40px 20px; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4); 
-            text-align: center;
-            width: 80%;
-            max-width: 350px;
+            background: rgba(255, 255, 255, 0.12); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); 
+            border-radius: 30px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.2); 
+            width: 80%; max-width: 350px; text-align: center;
         }
         
-        h1 { font-size: 26px; color: #fff; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); }
-        .sub-title { font-size: 14px; color: #00ffcc; margin-bottom: 35px; font-weight: bold; text-shadow: 0 1px 5px rgba(0,0,0,0.5); }
+        h1 { font-size: 24px; color: #fff; margin-bottom: 5px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .sub-title { font-size: 13px; color: #00ffcc; margin-bottom: 35px; font-weight: bold; }
 
-        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; }
-        .icon-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         .icon-box { 
-            width: 85px; height: 85px; 
-            background: rgba(255, 255, 255, 0.1); 
-            border-radius: 22px; 
-            display: flex; align-items: center; justify-content: center; 
-            font-size: 40px; border: 1px solid rgba(255,255,255,0.3); 
-            transition: all 0.2s; 
+            width: 80px; height: 80px; background: rgba(255, 255, 255, 0.1); border-radius: 22px; 
+            display: flex; align-items: center; justify-content: center; font-size: 35px; border: 1px solid rgba(255,255,255,0.3); 
         }
-        .icon-btn:active .icon-box { transform: scale(0.9); background: rgba(0, 255, 204, 0.3); }
-        .icon-label { margin-top: 12px; font-size: 14px; font-weight: bold; color: #fff; text-shadow: 0 2px 5px rgba(0,0,0,0.8); }
+        .icon-label { margin-top: 10px; font-size: 13px; font-weight: bold; color: #fff; }
 
-        /* 소설 모듈 내부 디자인 */
-        .module-header { padding: 50px 20px 20px; text-align: center; color: #fff; }
+        /* 뒤로가기 버튼 */
         .back-btn { 
-            position: absolute; top: 50px; left: 20px; 
-            color: #fff; font-size: 14px; text-decoration: none; 
-            background: rgba(0,0,0,0.5); padding: 8px 16px; border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.3);
+            position: absolute; top: 50px; left: 20px; color: #fff; font-size: 14px; 
+            background: rgba(0,0,0,0.6); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.3); z-index: 10;
         }
 
         /* 탭 시스템 */
-        .tab-container { display: flex; background: rgba(0,0,0,0.4); padding: 6px; border-radius: 12px; margin: 0 25px 20px; border: 1px solid rgba(255,255,255,0.1); }
-        .tab { flex: 1; padding: 12px; text-align: center; color: #aaa; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .tab-container { display: flex; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 12px; margin: 80px 25px 20px; }
+        .tab { flex: 1; padding: 10px; text-align: center; color: #888; font-size: 14px; cursor: pointer; }
         .tab.active { background: #ffcc00; color: #000; border-radius: 10px; font-weight: bold; }
         
         .tab-content { display: none; padding: 0 25px; }
-        .tab-content.active { display: block; animation: fadeIn 0.4s; }
-        
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content.active { display: block; }
 
+        /* 입력창 (다크 모드 최적화) */
         input, textarea { 
-            width: 100%; padding: 18px; border-radius: 12px; border: none; 
-            background: rgba(255,255,255,0.9); color: #000; 
-            box-sizing: border-box; font-size: 16px; margin-bottom: 15px;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+            width: 100%; padding: 18px; border-radius: 12px; border: 1px solid #444; 
+            background: #000 !important; color: #fff !important; 
+            box-sizing: border-box; font-size: 16px; margin-bottom: 15px; outline: none;
         }
+        input::placeholder, textarea::placeholder { color: #555; }
+
         .action-btn { 
-            width: 100%; padding: 18px; border-radius: 12px; border: none; 
-            background: #ffcc00; color: #000; font-weight: bold; font-size: 17px; 
-            box-shadow: 0 5px 15px rgba(255,204,0,0.4); transition: 0.2s;
+            width: 100%; padding: 18px; border-radius: 12px; border: none; background: #ffcc00; 
+            color: #000; font-weight: bold; font-size: 17px; box-shadow: 0 5px 15px rgba(255,204,0,0.3);
         }
-        .action-btn:active { transform: scale(0.97); }
         
-        .footer { position: absolute; bottom: 30px; width: 100%; font-size: 11px; color: rgba(255,255,255,0.4); text-align: center; }
+        /* 버전 표기 푸터 */
+        .footer { 
+            position: absolute; bottom: 30px; width: 100%; text-align: center; 
+            color: rgba(255,255,255,0.4); font-size: 10px; line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+        .version-tag { color: #00ffcc; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div id="main-lab" class="screen">
         <div class="glass-panel">
-            <div style="font-size: 55px; margin-bottom: 15px; filter: drop-shadow(0 0 10px rgba(0,255,204,0.5));">🐾</div>
+            <div style="font-size: 50px; margin-bottom: 15px;">🐾</div>
             <h1>나나 연구실</h1>
             <div class="sub-title">57과 HJ를 위하여</div>
-            
             <div class="icon-grid">
                 <div class="icon-btn" onclick="alert('동영상 수집 엔진 준비 중...')">
                     <div class="icon-box">📹</div>
@@ -116,49 +97,52 @@
                 </div>
             </div>
         </div>
-        <div class="footer">© 2026 NANA LAB. FOR 57 & HJ.</div>
+        <div class="footer">
+            © 2026 NANA LAB. FOR 57 & HJ.<br>
+            <span class="version-tag">SYSTEM V1.9.1</span> | LAST UPDATED: 2026-02-15
+        </div>
     </div>
 
     <div id="novel-module" class="screen">
-        <a href="#" class="back-btn" onclick="closeModule()">◀ 복귀</a>
-        <div class="module-header">
-            <h2 style="color: #ffcc00; margin-bottom: 5px; font-size: 24px;">📚 소설 번역 모듈</h2>
-            <p style="font-size: 12px; color: #ffcc00; opacity: 0.8; letter-spacing: 1px;">FOR 57 & HJ PROJECT</p>
-        </div>
-
+        <div class="back-btn" onclick="closeModule()">◀ 복귀</div>
         <div class="tab-container">
             <div class="tab active" id="tab-url" onclick="showTab('url')">주소 입력</div>
             <div class="tab" id="tab-text" onclick="showTab('text')">본문 붙여넣기</div>
         </div>
-
         <div id="content-url" class="tab-content active">
             <input type="text" id="novelUrl" placeholder="번역할 페이지 주소를 적어주세요.">
             <button class="action-btn" onclick="startTranslation('url')">주소 분석 및 번역</button>
         </div>
-
         <div id="content-text" class="tab-content">
-            <textarea id="novelRawText" placeholder="소설 본문을 복사해서 붙여주세요..." style="height: 300px;"></textarea>
+            <textarea id="novelRawText" placeholder="소설 본문을 복사해서 붙여주세요..." style="height: 350px;"></textarea>
             <button class="action-btn" onclick="startTranslation('text')">즉시 번역 시작</button>
         </div>
     </div>
 
     <script>
+        window.onpopstate = function(event) { closeModule(true); };
+
         function openModule() {
+            history.pushState({page: 'novel'}, "Novel Module", "#novel");
             document.getElementById('main-lab').style.transform = 'translateX(-100%)';
             document.getElementById('novel-module').style.transform = 'translateX(0)';
         }
-        function closeModule() {
+
+        function closeModule(isPopState) {
+            if(!isPopState && window.location.hash === "#novel") { history.back(); }
             document.getElementById('main-lab').style.transform = 'translateX(0)';
             document.getElementById('novel-module').style.transform = 'translateX(100%)';
         }
+
         function showTab(type) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             document.getElementById('tab-' + type).classList.add('active');
             document.getElementById('content-' + type).classList.add('active');
         }
+
         function startTranslation(mode) {
-            alert(mode === 'url' ? '주소로부터 지혜를 추출합니다...' : '입력된 본문의 의미를 당대의 언어로 번역합니다...');
+            alert(mode === 'url' ? '주소로부터 지혜를 추출합니다...' : '본문을 당대의 언어로 번역 공정 시작...');
         }
     </script>
 </body>
