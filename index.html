@@ -3,114 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>나나 연구실 V9.0 - 은하수 기지</title>
+    <title>나나 연구실 V5.0 - Original Look</title>
     <style>
-        :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.08); }
+        :root { --neon: #00ffcc; --bg: #0d0d0d; }
         body { 
-            margin: 0; padding: 0; background: #000; color: #fff; 
+            margin: 0; padding: 0; background: var(--bg); color: #fff; 
             font-family: 'Apple SD Gothic Neo', sans-serif;
-            background-image: url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200'); /* 은하수 배경 */
-            background-size: cover; background-position: center; background-attachment: fixed;
-            height: 100vh; overflow: hidden;
+            display: flex; align-items: center; justify-content: center; height: 100vh;
         }
 
-        .main-container {
-            width: 100vw; height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(0, 0, 0, 0.4); 
+        .container {
+            width: 90%; max-width: 400px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 40px; padding: 30px;
+            text-align: center; backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
         }
 
-        /* [핵심] 깃허브 프로필 이미지 복원 */
-        .couple-circle {
-            width: 110px; height: 110px;
-            border-radius: 50%;
-            border: 2px solid var(--neon);
-            /* 포비의 깃허브 프로필 이미지 경로 */
-            background-image: url('https://raw.githubusercontent.com/Pobi-NANA/Pobi-NANA.github.io/main/profile.png'); 
+        /* 깃허브 profile.png 중앙 배치 */
+        .profile-img {
+            width: 100px; height: 100px;
+            border-radius: 50%; border: 2px solid var(--neon);
+            margin: 0 auto 20px;
+            background-image: url('https://raw.githubusercontent.com/Pobi-NANA/Pobi-NANA.github.io/main/profile.png');
             background-size: cover; background-position: center;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
-            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
         }
 
-        .glass-box {
-            background: var(--glass); backdrop-filter: blur(25px);
-            border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15);
-            width: 85%; max-width: 380px; padding: 25px; text-align: center;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-
-        /* 하단 4대 앱 아이콘 (소설, 동영상, 모아듣기, 미제) */
-        .app-bar {
-            display: flex; justify-content: space-between;
-            width: 100%; margin-top: 25px;
-        }
-        .app-item {
-            text-decoration: none; color: #fff; font-size: 9px;
-            display: flex; flex-direction: column; align-items: center; gap: 6px; opacity: 0.8;
-            transition: 0.3s;
-        }
-        .app-item:hover { opacity: 1; transform: translateY(-3px); }
-        .app-icon { font-size: 22px; color: var(--neon); filter: drop-shadow(0 0 5px var(--neon)); }
+        h2 { font-size: 22px; margin-bottom: 25px; font-weight: 300; letter-spacing: -1px; }
 
         textarea { 
-            width: 100%; height: 120px; background: rgba(0,0,0,0.5); border: 1px solid #444;
-            border-radius: 15px; color: #fff; padding: 12px; box-sizing: border-box; font-size: 14px;
-            outline: none; margin-bottom: 12px;
+            width: 100%; height: 130px; background: rgba(0,0,0,0.3); border: 1px solid #333;
+            border-radius: 15px; color: #fff; padding: 15px; box-sizing: border-box; 
+            font-size: 15px; outline: none; margin-bottom: 12px;
         }
 
-        .util-row { display: flex; gap: 6px; margin-bottom: 12px; }
+        /* 유틸리티 버튼 세트 */
+        .util-btns { display: flex; gap: 5px; margin-bottom: 15px; }
         .u-btn { 
-            flex: 1; padding: 9px; font-size: 11px; border-radius: 10px; border: 1px solid #555;
-            background: rgba(255,255,255,0.05); color: #ccc; cursor: pointer;
+            flex: 1; padding: 10px; font-size: 11px; border-radius: 10px; border: 1px solid #444;
+            background: rgba(255,255,255,0.05); color: #aaa; cursor: pointer;
         }
-        .u-btn:hover { background: var(--neon); color: #000; font-weight: bold; }
+        .u-btn:hover { background: var(--neon); color: #000; border-color: var(--neon); }
 
-        .btn-fire { 
+        .btn-main { 
             background: var(--neon); color: #000; border: none; border-radius: 15px;
             padding: 18px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px;
         }
 
         #output { 
-            display: none; background: rgba(0,0,0,0.7); border: 1px solid var(--neon);
-            padding: 15px; border-radius: 15px; text-align: left; font-size: 14px;
-            max-height: 180px; overflow-y: auto; margin-top: 12px; line-height: 1.8;
+            display: none; background: rgba(0, 255, 204, 0.05); border: 1px solid var(--neon);
+            padding: 15px; border-radius: 15px; text-align: left; font-size: 15px;
+            max-height: 200px; overflow-y: auto; margin-top: 15px; line-height: 1.8;
         }
+
+        /* 4대 앱 아이콘 (소설, 동영상, 모아듣기, 미제) */
+        .bottom-nav {
+            display: flex; justify-content: space-around; margin-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;
+        }
+        .nav-link {
+            text-decoration: none; color: #fff; font-size: 9px;
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+        }
+        .nav-link span { font-size: 20px; color: var(--neon); }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <div class="couple-circle"></div>
+<div class="container">
+    <div class="profile-img"></div>
+    <h2>NANA <span style="color:var(--neon); font-weight: 900;">V5.0</span> REBORN</h2>
+    
+    <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
+    
+    <div class="util-btns">
+        <button class="u-btn" onclick="copyInp()">원문 복사</button>
+        <button class="u-btn" onclick="copyLink()">링크 복사</button>
+        <button class="u-btn" onclick="clearAll()" style="color:#ff5555;">지우기</button>
+    </div>
 
-    <div class="glass-box">
-        <h3 style="margin: 0 0 18px 0; font-weight: 300;">NANA <span style="color:var(--neon); font-weight: 900;">OROW V9.0</span></h3>
-        
-        <textarea id="inp" placeholder="번역할 무협 소설 원문을 입력..."></textarea>
-        
-        <div class="util-row">
-            <button class="u-btn" onclick="copyText('inp')">원문 복사</button>
-            <button class="u-btn" onclick="copyUrl()">링크 복사</button>
-            <button class="u-btn" onclick="clearAll()" style="color:#ff6b6b;">지우기</button>
-        </div>
+    <button class="btn-main" id="run-btn" onclick="ignite()">나나 엔진 기동</button>
+    
+    <div id="output"></div>
 
-        <button class="btn-fire" id="run-btn" onclick="startNANA()">나나 엔진 가동</button>
-        
-        <div id="output"></div>
-
-        <div class="app-bar">
-            <a href="index.html" class="app-item">
-                <span class="app-icon">📚</span>소설 번역기
-            </a>
-            <a href="#" class="app-item" onclick="alert('동영상 다운로더 준비 중...')">
-                <span class="app-icon">🎥</span>동영상 다운
-            </a>
-            <a href="#" class="app-item" onclick="alert('모아듣기 시스템 가동 준비 중...')">
-                <span class="app-icon">🎧</span>모아듣기
-            </a>
-            <a href="#" class="app-item">
-                <span class="app-icon">❓</span>미제
-            </a>
-        </div>
+    <div class="bottom-nav">
+        <a href="#" class="nav-link"><span>📚</span>소설 번역기</a>
+        <a href="#" class="nav-link" onclick="alert('동영상 다운로더 준비 중')"><span>🎥</span>동영상 다운</a>
+        <a href="#" class="nav-link" onclick="alert('모아듣기 시스템 준비 중')"><span>🎧</span>모아듣기</a>
+        <a href="#" class="nav-link"><span>❓</span>미제</a>
     </div>
 </div>
 
@@ -121,39 +103,42 @@
         document.getElementById('inp').value = "";
         document.getElementById('output').style.display = "none";
     }
-    function copyText(id) {
-        const val = document.getElementById(id).value;
-        if(!val) return;
-        navigator.clipboard.writeText(val);
-        alert("복사 완료!");
+    function copyInp() {
+        navigator.clipboard.writeText(document.getElementById('inp').value);
+        alert("원문 복사 완료!");
     }
-    function copyUrl() {
+    function copyLink() {
         navigator.clipboard.writeText(window.location.href);
         alert("기지 주소 복사 완료!");
     }
 
-    async function startNANA() {
+    async function ignite() {
         const text = document.getElementById('inp').value;
         const out = document.getElementById('output');
         const btn = document.getElementById('run-btn');
         if(!text) return;
 
-        btn.disabled = true; btn.innerText = "데이터 분석 중...";
-        out.style.display = "block"; out.innerText = "나나 엔진이 무협의 세계로 접속 중입니다...";
+        btn.disabled = true; btn.innerText = "분석 중...";
+        out.style.display = "block"; out.innerText = "나나 엔진이 고전의 길을 여는 중...";
 
         try {
+            // 포비가 성공한 2.5 호환 경로 고정
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
             const resp = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `[지침: 무협 소설 전문 번역, No Omission, 대한민국 한자음 사용]\n\n${text}` }] }]
+                    contents: [{ parts: [{ text: `[지침: 무협 전문 번역, No Omission, 대한민국 한자음]\n\n${text}` }] }]
                 })
             });
             const data = await resp.json();
             out.innerText = data.candidates[0].content.parts[0].text;
-            btn.innerText = "나나 엔진 가동 완료";
+            btn.innerText = "나나 엔진 기동 완료";
         } catch (e) {
-            out.innerText = "오류: 엔진 통로를 다시 확인하세요.";
+            out.innerText = "오류: 엔진 연결을 확인하세요.";
             btn.innerText = "재시도";
-        } finally {
+        } finally { btn.disabled = false; }
+    }
+</script>
+</body>
+</html>
