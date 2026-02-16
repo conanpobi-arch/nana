@@ -1,85 +1,51 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>나나 연구실 - GEMINI RESTORATION</title>
-    <style>
-        body { background: #000; color: #00ffcc; font-family: monospace; padding: 20px; }
-        #console { background: #0a0a0a; border: 1px solid #333; padding: 15px; height: 300px; overflow-y: auto; font-size: 12px; color: #aaa; margin-bottom: 20px; }
-        .success { color: #00ffcc; font-weight: bold; }
-        .fail { color: #ff4444; }
-        .btn-scan { background: #00ffcc; color: #000; border: none; padding: 15px; cursor: pointer; font-weight: bold; width: 100%; border-radius: 10px; }
-        #result-box { display: none; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #00ffcc; margin-top: 10px; }
-    </style>
-</head>
-<body>
-    <h2>🚀 제미나이 엔진 통로 개척 (V2.5)</h2>
-    <div id="console">기지 시스템 대기 중... 새로운 키 인식 완료.</div>
-    <button class="btn-scan" onclick="startDeepScan()">엔진 전수조사 시작</button>
-    
-    <div id="result-box">
-        <h3 id="status-title">분석 결과</h3>
-        <textarea id="test-output" style="width:100%; height:150px; background:#000; color:#fff; border:1px solid #333;"></textarea>
-    </div>
-
 <script>
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
-    const consoleBox = document.getElementById('console');
 
-    function log(msg, type='') {
-        const div = document.createElement('div');
-        div.className = type;
-        div.innerText = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        consoleBox.appendChild(div);
-        consoleBox.scrollTop = consoleBox.scrollHeight;
-    }
-
-    async function startDeepScan() {
+    async function start2026Scan() {
+        // 2026년에 사용 가능한 최신 모델 리스트로 전면 교체
         const modelNames = [
-            'gemini-1.5-flash',
-            'models/gemini-1.5-flash',
-            'gemini-1.5-flash-latest',
-            'models/gemini-1.5-flash-latest',
-            'gemini-pro'
+            'gemini-2.0-flash-exp', // 현재 가장 유력한 후보
+            'gemini-1.5-flash-002', // 정밀 버전
+            'gemini-1.5-pro-002',
+            'gemini-2.0-flash',     // 정식 버전 출시 대비
+            'gemini-1.5-flash'
         ];
-        const apiVersions = ['v1', 'v1beta'];
+        const apiVersions = ['v1beta', 'v1'];
         
-        log("딥 스캔 모드 가동... 모든 보안 경로를 대조합니다.");
-        document.getElementById('result-box').style.display = 'block';
+        log("2026 최신 엔진 스캔 모드 가동...");
 
         for (let ver of apiVersions) {
-            for (let model of modelNames) {
-                log(`${ver} 경로로 ${model} 호출 시도...`);
+            for (let mName of modelNames) {
+                log(`${ver} 경로로 models/${mName} 호출 시도...`);
                 
-                // 모델 이름에 슬래시가 포함된 경우 처리 최적화
-                const cleanModel = model.includes('/') ? model : `models/${model}`;
-                const url = `https://generativelanguage.googleapis.com/${ver}/${cleanModel}:generateContent?key=${API_KEY}`;
+                // 구글 권장 정식 경로는 항상 models/ 를 포함합니다.
+                const url = `https://generativelanguage.googleapis.com/${ver}/models/${mName}:generateContent?key=${API_KEY}`;
 
                 try {
                     const response = await fetch(url, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            contents: [{ parts: [{ text: "Translate 'Hello' to Korean." }] }]
+                            contents: [{ parts: [{ text: "hi" }] }]
                         })
                     });
 
                     const data = await response.json();
 
                     if (response.ok) {
-                        log(`✅ 성공! 유효 경로 발견: ${ver}/${model}`, 'success');
-                        document.getElementById('test-output').value = `찾아낸 마스터 키 경로:\nVERSION: ${ver}\nMODEL: ${model}\n\n응답 결과: ${data.candidates[0].content.parts[0].text}`;
-                        return; // 성공 시 중단
+                        log(`✅ [성공] 찾았습니다! 경로: ${ver}/models/${mName}`, 'success');
+                        document.getElementById('test-output').value = `MASTER PATH FOUND!\nVERSION: ${ver}\nMODEL: ${mName}`;
+                        return; 
                     } else {
-                        log(`❌ 실패 (${ver}/${model}): ${data.error.message.substring(0, 40)}...`, 'fail');
+                        // 에러가 'not found'가 아니라 'API_KEY_INVALID' 면 키 문제,
+                        // 'Location not supported' 면 지역 문제입니다.
+                        log(`❌ 실패: ${data.error.message.substring(0, 50)}`, 'fail');
                     }
                 } catch (e) {
-                    log(`🚫 네트워크 차단 (${ver}/${model})`, 'fail');
+                    log(`🚫 네트워크 차단: ${mName}`, 'fail');
                 }
             }
         }
-        log("모든 조합이 차단되었습니다. 구글 AI 스튜디오의 'API Key'가 아닌 'OAuth' 설정인지 확인이 필요합니다.", 'fail');
+        log("⚠️ 모든 최신 조합 실패. Google AI Studio에서 'Edit API Key'를 눌러 모델 접근 권한을 확인하세요.", 'fail');
     }
 </script>
-</body>
-</html>
