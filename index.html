@@ -5,141 +5,146 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57과 HJ를 위하여</title>
     <style>
-        :root { --neon-mint: #00ffcc; --glass-bg: rgba(255, 255, 255, 0.1); }
+        /* [기본 스타일 & 메인 UI] */
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', sans-serif; background: #000; color: #fff; }
+        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); }
         
-        .app-container { width: 100vw; height: 100vh; position: relative; }
-        .screen { 
-            width: 100vw; height: 100vh; position: absolute; top: 0; left: 0;
-            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background-size: cover; background-position: center;
-        }
-
         #main-lab { 
             background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); 
         }
 
         .glass-panel { 
-            background: var(--glass-bg); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
             border-radius: 40px; padding: 50px 25px; border: 1px solid rgba(255,255,255,0.15); 
-            width: 85%; max-width: 360px; text-align: center; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            width: 85%; max-width: 360px; text-align: center; 
         }
 
-        /* [인장: 설계자님의 승리! profile.png 보존] */
         .signature-emblem {
-            width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--neon-mint);
-            background-image: url('profile.png'); 
-            background-size: cover; background-position: center; margin: 0 auto 30px;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+            width: 150px; height: 150px; border-radius: 50%; border: 4px solid #00ffcc;
+            background-image: url('profile.png'); background-size: cover; background-position: center;
+            margin: 0 auto 30px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
         }
 
-        h1 { font-size: 26px; margin: 0; }
-        .sub-title { font-size: 14px; color: var(--neon-mint); margin-bottom: 40px; font-weight: bold; letter-spacing: 1px; }
-        
         .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
         .icon-btn { 
             background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255,255,255,0.1); 
             border-radius: 20px; padding: 25px 10px; cursor: pointer; transition: 0.3s;
         }
         .icon-btn:active { transform: scale(0.95); background: rgba(0, 255, 204, 0.2); }
-        .icon-box { font-size: 32px; margin-bottom: 10px; }
 
-        /* [번역 모듈 스크린] */
-        #novel-module { 
-            transform: translateX(100%); background: #111; 
-            justify-content: flex-start; padding-top: 60px;
+        /* [번역기 모듈 레이어 - 슬라이딩 방식] */
+        #trans-module {
+            position: fixed; top: 100vh; left: 0; width: 100vw; height: 100vh;
+            background: #111; z-index: 1000; transition: 0.5s ease-in-out;
+            display: flex; flex-direction: column;
         }
-        .translator-box { width: 90%; max-width: 600px; display: flex; flex-direction: column; gap: 15px; }
-        .input-url { 
-            width: 100%; padding: 15px; border-radius: 12px; border: 1px solid var(--neon-mint); 
-            background: #222; color: #fff; box-sizing: border-box; font-size: 16px;
+        #trans-module.active { top: 0; }
+
+        .module-header { padding: 50px 20px 20px; background: #1a1a1a; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .back-btn { background: #333; border: none; color: #fff; padding: 10px 20px; border-radius: 15px; font-weight: bold; }
+
+        /* [번역기 내부] */
+        .trans-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .input-group { display: flex; flex-direction: column; gap: 10px; }
+        input, textarea { 
+            background: #222; border: 1px solid #444; color: #fff; border-radius: 15px; padding: 15px; 
+            font-size: 16px; outline: none;
         }
-        .btn-action { 
-            padding: 15px; border-radius: 12px; border: none; background: var(--neon-mint); 
-            color: #000; font-weight: bold; cursor: pointer; font-size: 16px;
+        textarea { height: 150px; resize: none; }
+        .action-btn { 
+            background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 15px; 
+            font-weight: bold; font-size: 18px; cursor: pointer;
         }
 
-        /* [히스토리 모달] */
-        #history-modal { 
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
-            background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; 
+        /* [결과창 영역] */
+        #result-area { 
+            background: #1a1a1a; border-radius: 20px; padding: 20px; line-height: 1.8; 
+            white-space: pre-wrap; color: #eee; font-size: 17px; min-height: 100px;
+            border-left: 4px solid #00ffcc;
         }
-        .history-card { 
-            background: #151515; width: 85%; max-width: 400px; max-height: 75vh; 
-            border-radius: 30px; padding: 30px; border: 1px solid #333; overflow-y: auto; 
-        }
-        .history-item { margin-bottom: 15px; border-left: 2px solid var(--neon-mint); padding-left: 15px; font-size: 13px; color: #ccc; }
-        .history-item b { color: var(--neon-mint); display: block; margin-bottom: 3px; }
 
-        .footer { position: absolute; bottom: 30px; text-align: center; width: 100%; }
+        .footer { position: absolute; bottom: 40px; text-align: center; width: 100%; color: rgba(255,255,255,0.4); font-size: 11px; }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <div id="main-lab" class="screen">
-            <div class="glass-panel">
-                <div class="signature-emblem"></div>
-                <h1>나나 연구실</h1>
-                <div class="sub-title">57과 HJ를 위하여</div>
-                <div class="icon-grid">
-                    <div class="icon-btn" onclick="alert('영상 수집기 예열 중...')">
-                        <div class="icon-box">📹</div><div class="icon-label">동영상 수집</div>
-                    </div>
-                    <div class="icon-btn" onclick="openTranslator()">
-                        <div class="icon-box">📚</div><div class="icon-label">소설 번역기</div>
-                    </div>
+    <div id="main-lab" class="screen">
+        <div class="glass-panel">
+            <div class="signature-emblem"></div>
+            <h1 style="font-size: 24px; margin: 0 0 10px 0;">나나 연구실</h1>
+            <p style="color: #00ffcc; margin-bottom: 30px; font-weight: bold;">57 & HJ : OROW</p>
+            
+            <div class="icon-grid">
+                <div class="icon-btn" onclick="alert('데이터 수집 엔진 대기 중...')">
+                    <div style="font-size: 30px;">📹</div>
+                    <div style="font-size: 12px; margin-top: 5px;">동영상 수집</div>
+                </div>
+                <div class="icon-btn" onclick="openModule()">
+                    <div style="font-size: 30px;">📚</div>
+                    <div style="font-size: 12px; margin-top: 5px;">소설 번역기</div>
                 </div>
             </div>
-            <div class="footer">
-                <button class="btn-action" style="padding: 8px 20px; border-radius: 20px; font-size: 12px;" onclick="toggleHistory()">🕒 HISTORY & LOGS</button>
-            </div>
         </div>
-
-        <div id="novel-module" class="screen">
-            <div class="translator-box">
-                <h2 style="color:var(--neon-mint)">📚 NOVEL ENGINE V1.0</h2>
-                <p style="color:#aaa; font-size:13px;">막힌 사이트 우회 및 실시간 번역 준비 중</p>
-                <input type="text" class="input-url" placeholder="소설 주소(URL)를 입력하세요...">
-                <button class="btn-action" onclick="alert('코난이 우회 터널을 굴착 중입니다. 내일 가동!')">우회 돌파 및 번역 시작</button>
-                <textarea class="input-url" style="height: 180px;" placeholder="혹은 본문을 직접 붙여넣으세요..."></textarea>
-                <button class="btn-action" style="background:#444; color:#fff;" onclick="closeTranslator()">로비로 돌아가기</button>
-            </div>
-        </div>
+        <div class="footer">© 2026 NANA LAB. SYSTEM V2.4</div>
     </div>
 
-    <div id="history-modal" onclick="toggleHistory()">
-        <div class="history-card" onclick="event.stopPropagation()">
-            <h3 style="color:var(--neon-mint); margin-top:0;">📜 NANA LAB HISTORY</h3>
-            <div id="history-list">
-                <div class="history-item"><b>V2.4.0</b> png 인장 정착 및 번역 엔진 인터페이스 개방.</div>
-                <div class="history-item"><b>V2.3.8</b> JPG/PNG 확장자 정밀 분석 및 인장 복구 성공.</div>
-                <div class="history-item"><b>V2.3.5</b> 깃허브 레포지토리 이미지 직접 업로드 방식 전환.</div>
-                <div class="history-item"><b>V2.3.2</b> 시그니처 인장 중앙 배치 및 UI 밸런싱.</div>
-                <div class="history-item"><b>V2.2.8</b> 나노 바나나 시스템 난동 제압 및 코난 복귀.</div>
-                <div class="history-item"><b>V2.1.5</b> CSS Transform 기반 이미지 회전 방지 기술 적용.</div>
-                <div class="history-item"><b>V2.0.0</b> 글래스모피즘 기반 통합 UI 레이아웃 확정.</div>
-                <div class="history-item"><b>V1.8.0</b> 번역 우회 전략(CORS Proxy) 및 Jina API 검토.</div>
-                <div class="history-item"><b>V1.5.0</b> 모바일 PWA 환경 최적화 및 매니페스트 설정.</div>
-                <div class="history-item"><b>V1.0.0</b> 나나 연구실 깃허브 베이스캠프 최초 설립.</div>
+    <div id="trans-module">
+        <div class="module-header">
+            <h2 style="margin: 0; color: #00ffcc; font-size: 20px;">📚 번역 엔진 가동</h2>
+            <button class="back-btn" onclick="closeModule()">나가기</button>
+        </div>
+        
+        <div class="trans-container">
+            <div class="input-group">
+                <label style="font-size: 13px; color: #aaa;">중국 소설 주소(URL) 또는 원문 입력</label>
+                <input type="text" id="target-url" placeholder="http://... (또는 아래에 직접 입력)">
+                <textarea id="source-text" placeholder="번역할 원문을 붙여넣으세요..."></textarea>
             </div>
-            <button class="btn-action" style="width:100%; margin-top:15px;" onclick="toggleHistory()">닫기</button>
+            
+            <button class="action-btn" onclick="startTranslation()">대한민국 한자음 번역</button>
+
+            <div id="result-area">번역 결과가 여기에 나타납니다...</div>
         </div>
     </div>
 
     <script>
-        function toggleHistory() {
-            const m = document.getElementById('history-modal');
-            m.style.display = (m.style.display === 'flex') ? 'none' : 'flex';
-        }
-        function openTranslator() {
-            document.getElementById('novel-module').style.transform = 'translateX(0)';
-            document.getElementById('main-lab').style.transform = 'translateX(-100%)';
-        }
-        function closeTranslator() {
-            document.getElementById('novel-module').style.transform = 'translateX(100%)';
-            document.getElementById('main-lab').style.transform = 'translateX(0)';
+        // 모듈 열기/닫기
+        function openModule() { document.getElementById('trans-module').classList.add('active'); }
+        function closeModule() { document.getElementById('trans-module').classList.remove('active'); }
+
+        // 번역 로직 (우회 및 번역)
+        async function startTranslation() {
+            const url = document.getElementById('target-url').value;
+            const source = document.getElementById('source-text').value;
+            const resultArea = document.getElementById('result-area');
+
+            if (!url && !source) {
+                alert('주소나 내용을 입력해 주세요!');
+                return;
+            }
+
+            resultArea.innerText = "나나 엔진이 차단벽을 우회하여 분석 중입니다...";
+
+            // [우회 전략] Jina Reader API를 이용해 차단된 사이트 텍스트 추출
+            try {
+                let textToTranslate = source;
+                
+                if (url) {
+                    // 우회 터널(r.jina.ai)을 통해 본문 수집
+                    const proxyUrl = `https://r.jina.ai/${url}`;
+                    const response = await fetch(proxyUrl);
+                    textToTranslate = await response.text();
+                }
+
+                // [번역 엔진 시뮬레이션] 실제 연동 전, 한자음 처리 로직 예시
+                // 내일 포비와 함께 실제 DeepL이나 Google API 키를 연동할 예정입니다.
+                resultArea.innerHTML = `<span style="color:#aaa;">[원본 분석 완료]</span><br><br>` + 
+                                     `분석된 텍스트의 한국어 정밀 번역을 시작합니다...<br><br>` +
+                                     `<div style="color:#00ffcc;">(현재 엔진 최적화 중: 내일 오전 실제 API 연동 시 실시간 번역이 출력됩니다.)</div>`;
+
+            } catch (error) {
+                resultArea.innerText = "오류 발생: 사이트 보안벽이 높습니다. 본문을 직접 복사해서 넣어주세요!";
+            }
         }
     </script>
 </body>
