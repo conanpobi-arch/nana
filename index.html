@@ -5,86 +5,50 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', sans-serif; background: #000; color: #fff; }
-        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        #main-lab { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); z-index: 10; }
-        .glass-panel { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.15); width: 85%; max-width: 360px; text-align: center; }
-        .signature-emblem { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #00ffcc; background-image: url('profile.png'); background-size: cover; background-position: center; margin: 0 auto 20px; }
-        
-        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 20px; }
-        .icon-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 25px 10px; cursor: pointer; }
-
-        #trans-module { position: fixed; top: 100vh; left: 0; width: 100vw; height: 100vh; background: #0d0d0d; z-index: 100; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); display: flex; flex-direction: column; }
-        #trans-module.active { top: 0; }
-        .module-header { padding: 50px 20px 15px; background: #151515; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #333; border: none; color: #00ffcc; padding: 8px 15px; border-radius: 12px; font-weight: bold; }
-        
-        .trans-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        textarea { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 15px; padding: 18px; font-size: 16px; min-height: 150px; width: 100%; box-sizing: border-box; resize: none; }
-        .action-btn { background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; cursor: pointer; }
-        #result-area { background: #111; border-radius: 20px; padding: 25px; line-height: 1.9; color: #ddd; font-size: 17px; min-height: 200px; border: 1px solid #222; white-space: pre-wrap; }
-        .v-tag { position: absolute; bottom: 35px; text-align: center; width: 100%; color: rgba(0, 255, 204, 0.4); font-size: 11px; }
+        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
+        .screen { 
+            width: 100vw; height: 100vh; 
+            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1000&q=80');
+            background-size: cover; background-position: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .glass-panel { 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            border-radius: 40px; padding: 45px 25px; border: 1px solid rgba(255,255,255,0.2); 
+            width: 80%; max-width: 340px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+        .signature-emblem {
+            width: 120px; height: 120px; border-radius: 50%; border: 3px solid #00ffcc;
+            background: #222; margin: 0 auto 25px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3);
+            display: flex; align-items: center; justify-content: center; font-size: 40px;
+        }
+        h1 { font-size: 24px; margin: 0; letter-spacing: -1px; }
+        .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; font-size: 13px; letter-spacing: 2px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+        .menu-item { 
+            background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 20px 10px;
+            cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05);
+        }
+        .menu-item:active { transform: scale(0.92); background: rgba(0, 255, 204, 0.1); }
+        .menu-item i { font-size: 28px; display: block; margin-bottom: 8px; }
+        .menu-item span { font-size: 11px; color: #ccc; }
+        .footer { position: absolute; bottom: 40px; color: rgba(255,255,255,0.3); font-size: 10px; }
     </style>
 </head>
 <body>
-
-    <div id="main-lab" class="screen">
+    <div class="screen">
         <div class="glass-panel">
-            <div class="signature-emblem"></div>
+            <div class="signature-emblem">🐱</div>
             <h1>나나 연구실</h1>
-            <p style="color: #00ffcc; font-weight: bold;">FOR 57 & HJ : OROW</p>
-            <div class="icon-grid">
-                <div class="icon-btn" onclick="window.open('https://translate.google.com')"><div style="font-size: 32px;">🌐</div><div style="font-size: 12px; margin-top: 8px; color:#aaa;">외부 워프</div></div>
-                <div class="icon-btn" onclick="toggleModule(true)"><div style="font-size: 32px;">📚</div><div style="font-size: 12px; margin-top: 8px; font-weight: bold; color:#00ffcc;">나나 디코더</div></div>
+            <div class="sub-title">57 & HJ : OROW</div>
+            <div class="menu-grid">
+                <div class="menu-item" onclick="alert('소설 사이트로 이동합니다.')"><i>📚</i><span>소설 게이트</span></div>
+                <div class="menu-item" onclick="alert('준비 중입니다.')"><i>📹</i><span>영상 수집</span></div>
+                <div class="menu-item" onclick="alert('준비 중입니다.')"><i>📷</i><span>추억 보관</span></div>
+                <div class="menu-item" onclick="location.reload()"><i>🔄</i><span>새로고침</span></div>
             </div>
         </div>
-        <div class="v-tag">── SYSTEM V15.0 HYBRID DECODER ──</div>
+        <div class="footer">ORIGINAL BASECAMP V1.0 PREVIEW</div>
     </div>
-
-    <div id="trans-module">
-        <div class="module-header">
-            <span style="color: #00ffcc; font-weight: bold;">NANA HYBRID DECODER</span>
-            <button class="back-btn" onclick="toggleModule(false)">기지 복귀</button>
-        </div>
-        <div class="trans-content">
-            <p style="font-size:12px; color:#888;">소설 사이트의 본문을 복사해서 아래에 붙여넣으세요.<br>나나 전용 한자음 필터가 즉시 적용됩니다.</p>
-            <textarea id="raw-input" placeholder="여기에 소설 본문을 붙여넣으세요..."></textarea>
-            <button class="action-btn" onclick="decodeText()">나나 필터 가동</button>
-            <div id="result-area">텍스트 입력을 대기 중입니다.</div>
-        </div>
-    </div>
-
-    <script>
-        function toggleModule(s) { document.getElementById('trans-module').classList.toggle('active', s); }
-
-        async function decodeText() {
-            const input = document.getElementById('raw-input').value;
-            const res = document.getElementById('result-area');
-            if(!input) return alert("복사한 텍스트를 넣어주세요!");
-
-            res.innerHTML = "<div style='color:#00ffcc;'>[디코딩] 나나 고유 한자음 및 문맥 교정 중...</div>";
-
-            try {
-                // 구글 번역 엔진 호출 (텍스트 직접 전달 방식은 차단되지 않음)
-                const trRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(input.substring(0, 4500))}`);
-                const trData = await trRes.json();
-                let translated = trData[0].map(x => x[0]).join('');
-
-                // 나나 연구실 전용 팩트체크 및 한자음 필터
-                const filter = (t) => t
-                    .replace(/예천/g, "엽진")
-                    .replace(/공간을 찢고/g, "파공(破空)하여")
-                    .replace(/기운/g, "진기(眞氣)")
-                    .replace(/소염/g, "소염")
-                    .replace(/진격/g, "돌파")
-                    .replace(/노인/g, "장로");
-
-                res.innerHTML = `<div style="color:#00ffcc; font-size:11px; margin-bottom:10px;">[디코딩 성공]</div>` + filter(translated);
-
-            } catch (e) {
-                res.innerHTML = `<div style="color:#ffcc00;">[오류]</div><br>번역 엔진 연결에 실패했습니다. 잠시 후 다시 시도하세요.`;
-            }
-        }
-    </script>
 </body>
 </html>
