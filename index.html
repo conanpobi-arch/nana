@@ -67,4 +67,111 @@
 
     <div id="main-lab" class="screen">
         <div class="glass-panel">
-            <div class="signature
+            <div class="signature-emblem"></div>
+            <h1 style="margin: 0; font-size: 26px; letter-spacing: -1px;">나나 연구실</h1>
+            <p style="color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; opacity: 0.8;">FOR 57 & HJ : OROW</p>
+            
+            <div class="icon-grid">
+                <div class="icon-btn" onclick="alert('데이터 수집 엔진 가동 준비 중...')">
+                    <div style="font-size: 32px;">📹</div>
+                    <div style="font-size: 13px; margin-top: 8px; color: #aaa;">동영상 수집</div>
+                </div>
+                <div class="icon-btn" onclick="toggleModule(true)">
+                    <div style="font-size: 32px;">📚</div>
+                    <div style="font-size: 13px; margin-top: 8px; font-weight: bold;">소설 번역기</div>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            <div class="v-tag" onclick="toggleHistory(true)">── SYSTEM V2.6.1 HISTORY ──</div>
+        </div>
+    </div>
+
+    <div id="trans-module">
+        <div class="module-header">
+            <span style="color: #00ffcc; font-weight: bold; font-size: 18px;">NANA TRANSLATOR</span>
+            <button class="back-btn" onclick="toggleModule(false)">돌아가기</button>
+        </div>
+        <div class="trans-content">
+            <input type="text" id="target-url" placeholder="중국 소설 주소를 입력하세요">
+            <textarea id="source-text" placeholder="또는 직접 원문을 붙여넣으세요..."></textarea>
+            <button class="action-btn" onclick="runSmartTrans()">엔진 가동 (대한민국 한자음)</button>
+            <div id="result-area">번역 대기 중...</div>
+        </div>
+    </div>
+
+    <div id="history-modal" onclick="toggleHistory(false)">
+        <div class="history-card" onclick="event.stopPropagation()">
+            <h3 style="color:#00ffcc; margin-top:0;">📜 연구실 기록</h3>
+            <div style="font-size:14px; color:#ccc; line-height:1.8;">
+                • <b>V2.6.1:</b> 추출 로직 긴급 패치 및 예외 처리<br>
+                • <b>V2.6:</b> 지능형 소설 번역 엔진 탑재<br>
+                • <b>V2.5:</b> UI 복구 및 메인 복귀 기능<br>
+                • <b>V2.3:</b> 시그니처 인장(profile.png) 안착
+            </div>
+            <button style="width:100%; padding:15px; background:#333; color:#fff; border:none; border-radius:15px; margin-top:25px; font-weight:bold;" onclick="toggleHistory(false)">기록 닫기</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleModule(s) { document.getElementById('trans-module').classList.toggle('active', s); }
+        function toggleHistory(s) { document.getElementById('history-modal').style.display = s ? 'flex' : 'none'; }
+
+        async function runSmartTrans() {
+            const urlInput = document.getElementById('target-url');
+            const sourceInput = document.getElementById('source-text');
+            const res = document.getElementById('result-area');
+
+            if(!urlInput.value && !sourceInput.value) return alert("주소나 원문을 입력해주세요, 포비!");
+            
+            res.innerHTML = "<div style='color:#00ffcc;'>[나나 엔진 가동]</div>분석을 시작합니다...";
+
+            try {
+                let rawText = sourceInput.value;
+
+                // 1. URL 추출 시도
+                if(urlInput.value) {
+                    res.innerHTML = "<div style='color:#00ffcc;'>[데이터 추출 중]</div>보안벽을 우회하고 있습니다...";
+                    const fetchUrl = `https://r.jina.ai/${urlInput.value.trim()}`;
+                    const fetchRes = await fetch(fetchUrl);
+                    
+                    if (fetchRes.ok) {
+                        rawText = await fetchRes.text();
+                        // 추출된 텍스트가 너무 짧으면 오류로 간주
+                        if(rawText.length < 50) throw new Error("추출된 내용이 너무 적음");
+                    } else {
+                        throw new Error("네트워크 응답 오류");
+                    }
+                }
+
+                // 2. 번역 엔진 실행
+                res.innerHTML = "<div style='color:#00ffcc;'>[번역 엔진 가동]</div>대한민국 한자음으로 변환 중...";
+                
+                const safeText = rawText.substring(0, 4500); 
+                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(safeText)}`);
+                const transData = await transRes.json();
+                
+                let translated = "";
+                transData[0].forEach(item => { if(item[0]) translated += item[0]; });
+
+                // 3. 나나 필터 (한국 한자음 교정)
+                const filter = (t) => {
+                    return t.replace(/예천/g, "엽진")
+                            .replace(/소염/g, "소염")
+                            .replace(/공간을 찢고/g, "파공(破空)하여")
+                            .replace(/기운/g, "진기(眞氣)");
+                };
+
+                res.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:15px;">[번역 완료]</div>` + filter(translated);
+
+            } catch (e) {
+                console.error(e);
+                res.innerHTML = `<div style="color:#ff5555; font-weight:bold;">[알림] 자동 추출 제한</div><br>
+                                 해당 사이트의 보안이 강력하여 주소만으로는 내용을 가져올 수 없습니다.<br><br>
+                                 <span style="color:#00ffcc;">해결 방법:</span><br>
+                                 소설 사이트의 본문을 직접 복사해서 아래 <b>원문 입력창</b>에 붙여넣어 주시면 즉시 번역이 가능합니다!`;
+            }
+        }
+    </script>
+</body>
+</html>
