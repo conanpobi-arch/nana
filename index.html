@@ -3,143 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>나나 연구실 V5.0 - REBORN</title>
+    <title>나나 연구실 V10.0 - INTEGRATED</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #0d0d0d; }
-        body { 
-            margin: 0; padding: 0; background: var(--bg); color: #fff; 
-            font-family: 'Apple SD Gothic Neo', sans-serif;
-            display: flex; align-items: center; justify-content: center; height: 100vh;
+        :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.1); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
+
+        /* 배경: 은하수 고정 */
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
+            background-size: cover; background-position: center; z-index: -1;
         }
-        .container {
-            width: 90%; max-width: 400px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 40px; padding: 30px;
-            text-align: center; backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: -1; }
+
+        /* 화면 전환용 섹션 설정 */
+        .section {
+            display: none; width: 100vw; height: 100vh;
+            flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.5s ease;
         }
-        .profile-img {
-            width: 100px; height: 100px;
-            border-radius: 50%; border: 2px solid var(--neon);
-            margin: 0 auto 20px;
+        .active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* [1. 메인 화면 스타일] */
+        .couple-main {
+            width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--neon);
             background-image: url('https://raw.githubusercontent.com/Pobi-NANA/Pobi-NANA.github.io/main/profile.png');
             background-size: cover; background-position: center;
-            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); margin-bottom: 25px;
         }
-        h2 { font-size: 22px; margin-bottom: 25px; font-weight: 300; letter-spacing: -1px; }
+        .welcome-title { font-size: 26px; font-weight: 200; letter-spacing: 4px; margin-bottom: 40px; text-shadow: 0 0 15px var(--neon); }
+        .app-grid { display: flex; gap: 25px; }
+        .app-btn {
+            text-decoration: none; color: #fff; font-size: 11px;
+            display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer;
+        }
+        .app-icon { 
+            font-size: 28px; background: var(--glass); width: 65px; height: 65px; 
+            display: flex; align-items: center; justify-content: center; border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;
+        }
+        .app-btn:hover .app-icon { background: var(--neon); color: #000; transform: scale(1.1); }
+
+        /* [2. 번역기 화면 스타일] */
+        .glass-panel {
+            background: var(--glass); backdrop-filter: blur(20px);
+            border-radius: 35px; border: 1px solid rgba(255,255,255,0.15);
+            width: 85%; max-width: 380px; padding: 25px; text-align: center;
+        }
         textarea { 
-            width: 100%; height: 130px; background: rgba(0,0,0,0.3); border: 1px solid #333;
-            border-radius: 15px; color: #fff; padding: 15px; box-sizing: border-box; 
-            font-size: 15px; outline: none; margin-bottom: 12px;
+            width: 100%; height: 150px; background: rgba(0,0,0,0.4); border: 1px solid #444;
+            border-radius: 15px; color: #fff; padding: 12px; box-sizing: border-box; font-size: 15px;
+            outline: none; margin-bottom: 10px;
         }
-        .util-btns { display: flex; gap: 5px; margin-bottom: 15px; }
-        .u-btn { 
-            flex: 1; padding: 10px; font-size: 11px; border-radius: 10px; border: 1px solid #444;
-            background: rgba(255,255,255,0.05); color: #aaa; cursor: pointer;
-        }
-        .u-btn:hover { background: var(--neon); color: #000; border-color: var(--neon); }
-        .btn-main { 
-            background: var(--neon); color: #000; border: none; border-radius: 15px;
-            padding: 18px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px;
-        }
-        #output { 
-            display: none; background: rgba(0, 255, 204, 0.05); border: 1px solid var(--neon);
-            padding: 15px; border-radius: 15px; text-align: left; font-size: 15px;
-            max-height: 200px; overflow-y: auto; margin-top: 15px; line-height: 1.8;
-        }
-        .bottom-nav {
-            display: flex; justify-content: space-around; margin-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;
-        }
-        .nav-link {
-            text-decoration: none; color: #fff; font-size: 9px;
-            display: flex; flex-direction: column; align-items: center; gap: 5px;
-        }
-        .nav-link span { font-size: 20px; color: var(--neon); }
+        .util-set { display: flex; gap: 5px; margin-bottom: 10px; }
+        .u-btn { flex: 1; padding: 9px; font-size: 11px; border-radius: 8px; border: 1px solid #555; background: rgba(255,255,255,0.05); color: #ccc; cursor: pointer; }
+        .u-btn:hover { background: var(--neon); color: #000; }
+        .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 15px; padding: 16px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
+        #res-box { display: none; background: rgba(0,0,0,0.6); border: 1px solid var(--neon); padding: 15px; border-radius: 15px; text-align: left; font-size: 14px; max-height: 150px; overflow-y: auto; margin-top: 10px; line-height: 1.8; }
+        .back-btn { margin-top: 20px; color: #aaa; cursor: pointer; font-size: 12px; text-decoration: underline; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="profile-img"></div>
-    <h2>NANA <span style="color:var(--neon); font-weight: 900;">V5.0</span> REBORN</h2>
-    
-    <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
-    
-    <div class="util-btns">
-        <button class="u-btn" onclick="copyInp()">원문 복사</button>
-        <button class="u-btn" onclick="copyLink()">링크 복사</button>
-        <button class="u-btn" onclick="clearAll()" style="color:#ff5555;">지우기</button>
-    </div>
+    <div class="bg-layer"></div>
+    <div class="overlay"></div>
 
-    <button class="btn-main" id="run-btn" onclick="ignite()">나나 엔진 기동</button>
-    
-    <div id="output"></div>
+    <section id="main-page" class="section active">
+        <div class="couple-main"></div>
+        <div class="welcome-title">POBI & NANA LAB</div>
+        <div class="app-grid">
+            <div class="app-btn" onclick="showPage('work-page')">
+                <div class="app-icon">📚</div>소설 번역기
+            </div>
+            <div class="app-btn" onclick="alert('동영상 다운로더 준비 중')">
+                <div class="app-icon">🎥</div>동영상 다운
+            </div>
+            <div class="app-btn" onclick="alert('모아듣기 준비 중')">
+                <div class="app-icon">🎧</div>모아듣기
+            </div>
+            <div class="app-btn">
+                <div class="app-icon">❓</div>미제
+            </div>
+        </div>
+    </section>
 
-    <div class="bottom-nav">
-        <a href="#" class="nav-link"><span>📚</span>소설 번역기</a>
-        <a href="#" class="nav-link"><span>🎥</span>동영상 다운</a>
-        <a href="#" class="nav-link"><span>🎧</span>모아듣기</a>
-        <a href="#" class="nav-link"><span>❓</span>미제</a>
-    </div>
-</div>
+    <section id="work-page" class="section">
+        <div class="glass-panel">
+            <h3 style="margin: 0 0 15px 0; font-weight: 300; letter-spacing: 2px;">NOVEL <span style="color:var(--neon)">TRANSLATOR</span></h3>
+            <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
+            <div class="util-set">
+                <button class="u-btn" onclick="copyInp()">원문 복사</button>
+                <button class="u-btn" onclick="resetInp()" style="color:#ff6b6b;">지우기</button>
+            </div>
+            <button class="btn-fire" id="ignite-btn" onclick="fireEngine()">나나 엔진 가동</button>
+            <div id="res-box"></div>
+            <div class="back-btn" onclick="showPage('main-page')">메인 기지로 돌아가기</div>
+        </div>
+    </section>
 
 <script>
+    // 화면 전환 함수
+    function showPage(pageId) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+    }
+
+    // 번역 관련 기능
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
-    function clearAll() {
-        document.getElementById('inp').value = "";
-        document.getElementById('output').style.display = "none";
+    function resetInp() { 
+        document.getElementById('inp').value = ""; 
+        document.getElementById('res-box').style.display = "none"; 
     }
-    function copyInp() {
-        navigator.clipboard.writeText(document.getElementById('inp').value);
-        alert("원문 복사 완료!");
-    }
-    function copyLink() {
-        navigator.clipboard.writeText(window.location.href);
-        alert("기지 주소 복사 완료!");
+    function copyInp() { 
+        navigator.clipboard.writeText(document.getElementById('inp').value); 
+        alert("복사되었습니다."); 
     }
 
-    async function ignite() {
+    async function fireEngine() {
         const text = document.getElementById('inp').value;
-        const out = document.getElementById('output');
-        const btn = document.getElementById('run-btn');
+        const resBox = document.getElementById('res-box');
+        const btn = document.getElementById('ignite-btn');
         if(!text) return;
 
         btn.disabled = true; btn.innerText = "분석 중...";
-        out.style.display = "block"; out.innerText = "엔진 가동 중...";
+        resBox.style.display = "block"; resBox.innerText = "제미나이 엔진이 길을 찾는 중...";
 
-        // [핵심] 아까 성공했던 두 가지 후보군을 순차적으로 시도
-        const models = ['gemini-1.5-flash', 'gemini-2.0-flash-exp'];
-        let success = false;
-
-        for (let model of models) {
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `당신은 전문 번역가입니다. 무협 소설의 문체를 살려 번역하되, 한 문장도 빼놓지 마십시오. 한자음은 한국식으로 표기하십시오.\n\n${text}` }] }]
-                    })
-                });
-                const data = await resp.json();
-                
-                if (resp.ok) {
-                    out.innerText = data.candidates[0].content.parts[0].text;
-                    btn.innerText = "나나 엔진 기동 완료";
-                    success = true;
-                    break; 
-                }
-            } catch (e) { console.error(`${model} 시도 중 에러 발생`); }
-        }
-
-        if (!success) {
-            out.innerText = "오류: 모든 엔진 경로가 응답하지 않습니다. 모델 ID를 확인하세요.";
+        try {
+            // 포비가 성공한 2026 최신 안정 경로
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `[지침: 무협 소설 전문 번역, No Omission, 대한민국 한자음]\n\n${text}` }] }]
+                })
+            });
+            const data = await resp.json();
+            resBox.innerText = data.candidates[0].content.parts[0].text;
+            btn.innerText = "엔진 가동 완료";
+        } catch (e) {
+            resBox.innerText = "엔진 오류가 발생했습니다.";
             btn.innerText = "재시도";
-        }
-        btn.disabled = false;
+        } finally { btn.disabled = false; }
     }
 </script>
 </body>
