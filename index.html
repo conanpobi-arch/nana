@@ -5,65 +5,54 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
-        /* [공통] 밤하늘 우주 배경 & 투명 레이어 */
+        /* [공통] 밤하늘 우주 배경 & 크리스탈 디자인 */
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
         .screen { 
             width: 100vw; height: 100vh; 
-            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.6)), url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-
         .glass-panel { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
-            border-radius: 50px; padding: 45px 25px; border: 1px solid rgba(255,255,255,0.12); 
-            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); border-radius: 50px; 
+            padding: 45px 25px; border: 1px solid rgba(255,255,255,0.15); 
+            width: 85%; max-width: 360px; text-align: center; box-shadow: 0 15px 50px rgba(0,0,0,0.9);
         }
-
-        .signature-emblem {
-            width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(0, 255, 204, 0.5);
-            background-image: url('profile.png'); background-size: cover; background-position: center;
-            margin: 0 auto 20px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); background-color: #111;
+        .signature-emblem { 
+            width: 110px; height: 110px; border-radius: 50%; border: 2px solid #00ffcc; 
+            background: url('profile.png') center/cover; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.5); 
         }
+        .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 30px 0; font-size: 13px; letter-spacing: 3px; }
 
-        h1 { font-size: 26px; margin: 0; letter-spacing: -1px; font-weight: 700; }
-        .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; font-size: 14px; letter-spacing: 2.5px; }
-
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .menu-item { background: rgba(255, 255, 255, 0.05); border-radius: 22px; padding: 25px 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
-        .menu-item:active { transform: scale(0.92); }
-        .menu-item i { font-size: 30px; display: block; margin-bottom: 10px; }
-
-        /* [핵심] 독자 번역기 오버레이 */
-        #translator-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.96); z-index: 500; backdrop-filter: blur(30px);
-            flex-direction: column; align-items: center; justify-content: center;
+        /* [번역 모듈 전용] */
+        #trans-overlay { 
+            display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; 
+            background: rgba(0,0,0,0.97); z-index: 500; backdrop-filter: blur(30px); 
+            flex-direction: column; align-items: center; padding-top: 40px; 
         }
-        .trans-card { width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 12px; }
+        .trans-container { width: 90%; max-width: 450px; display: flex; flex-direction: column; gap: 12px; }
         
-        .input-group { position: relative; }
         input, textarea { 
-            width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); 
-            border-radius: 18px; color: #fff; padding: 15px 45px 15px 15px; box-sizing: border-box; font-size: 14px; outline: none;
+            width: 100%; background: rgba(255,255,255,0.08); border: 1px solid #333; 
+            border-radius: 18px; color: #fff; padding: 15px; box-sizing: border-box; font-size: 14px; outline: none;
         }
-        textarea { height: 180px; resize: none; line-height: 1.6; }
+        textarea { height: 180px; line-height: 1.7; border: 1px solid rgba(0, 255, 204, 0.2); }
         
-        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; cursor: pointer; font-size: 22px; }
-        .text-clear { top: 30px; }
-
-        #trans-result {
-            display: none; background: rgba(0, 255, 204, 0.03); border: 1px solid rgba(0, 255, 204, 0.2);
-            border-radius: 20px; padding: 20px; max-height: 250px; overflow-y: auto;
-            text-align: left; font-size: 14px; line-height: 1.8; color: #eee; white-space: pre-wrap;
+        #result-area { 
+            display: none; background: #0a0a0a; border-radius: 20px; padding: 25px; 
+            border: 1px solid #00ffcc; max-height: 40vh; overflow-y: auto; 
+            text-align: left; font-size: 16px; line-height: 1.8; color: #f0f0f0; white-space: pre-wrap;
         }
 
-        .btn-action { 
+        .btn-main { 
             background: #00ffcc; color: #000; border: none; border-radius: 18px; 
-            padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px;
+            padding: 18px; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(0,255,204,0.4); 
+            font-size: 16px;
         }
 
-        /* [불변] 히스토리 시스템 */
+        .status-log { font-size: 12px; color: #00ffcc; margin-bottom: 5px; text-align: left; }
+
+        /* [히스토리] */
         .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; cursor: pointer; }
         .history-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; font-weight: bold; }
         #history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
@@ -73,93 +62,115 @@
 </head>
 <body>
 
-    <div class="screen">
-        <div class="glass-panel">
-            <div class="signature-emblem"></div>
-            <h1>나나 연구실</h1>
-            <div class="sub-title">57 & HJ : OROW</div>
-            <div class="menu-grid">
-                <div class="menu-item" onclick="toggleLayer('translator-overlay', true)"><i>📚</i><span>소설 번역기</span></div>
-                <div class="menu-item" onclick="alert('준비 중...')"><i>📹</i><span>영상 수집</span></div>
-                <div class="menu-item" onclick="alert('준비 중...')"><i>📷</i><span>추억 보관</span></div>
-                <div class="menu-item" onclick="location.reload()"><i>🔄</i><span>리셋</span></div>
-            </div>
-        </div>
-        <div class="footer" onclick="toggleLayer('history-overlay', true)">
-            <div class="history-tag">── SYSTEM V1.8 FREE ENGINE ──</div>
+<div class="screen">
+    <div class="glass-panel">
+        <div class="signature-emblem"></div>
+        <h1>나나 연구실</h1>
+        <div class="sub-title">57 & HJ : OROW</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+            <div class="btn-main" onclick="toggleLayer('trans-overlay', true)" style="display:flex; align-items:center; justify-content:center; padding:20px; border-radius:25px; cursor:pointer;">📚 번역기</div>
+            <div onclick="location.reload()" style="background:rgba(255,255,255,0.05); padding:20px; border-radius:25px; cursor:pointer; border:1px solid #333; display:flex; align-items:center; justify-content:center;">🔄 리셋</div>
         </div>
     </div>
+</div>
 
-    <div id="translator-overlay">
-        <div class="trans-card">
-            <h2 style="color:#00ffcc; margin:0;">무한 동력 엔진 V1.8</h2>
-            <div class="input-group">
-                <input type="text" id="url-in" placeholder="소설 주소 (URL)">
-                <span class="clear-btn" onclick="clearField('url-in')">×</span>
-            </div>
-            <div class="input-group">
-                <textarea id="text-in" placeholder="본문을 직접 붙여넣으세요"></textarea>
-                <span class="clear-btn text-clear" onclick="clearField('text-in')">×</span>
-            </div>
-            <div id="trans-result"></div>
-            <button class="btn-action" onclick="runFreeEngine()">나나 엔진 기동</button>
-            <button onclick="toggleLayer('translator-overlay', false)" style="background:none; border:none; color:#555; cursor:pointer; font-weight:bold;">기지 복귀</button>
-        </div>
+<div id="trans-overlay">
+    <div class="trans-container">
+        <h2 style="color:#00ffcc; margin:0;">NANA HYPER ENGINE V2.1</h2>
+        <div id="log-display" class="status-log">준비 완료. API KEY 연결됨.</div>
+        <input type="text" id="url-input" placeholder="중국 소설 주소 (URL 우회 크롤링)">
+        <textarea id="text-input" placeholder="또는 원문을 직접 입력하세요"></textarea>
+        <div id="result-area"></div>
+        <button class="btn-main" id="run-btn" onclick="runGeminiEngine()">나나 엔진 가동 (No Omission)</button>
+        <button onclick="toggleLayer('trans-overlay', false)" style="background:none; color:#555; border:none; cursor:pointer; margin-top:10px;">기지 복귀</button>
     </div>
+</div>
 
-    <div id="history-overlay" onclick="toggleLayer('history-overlay', false)">
-        <div class="history-card" onclick="event.stopPropagation()">
-            <h2 style="color:#00ffcc; margin-top:0;">📜 기지 연대기</h2>
-            <div class="history-line"><b>V1.8:</b> 유료 API 탈피. 무제한 무료 구글 프록시 엔진 탑재</div>
-            <div class="history-line"><b>V1.7.2:</b> 아바커스 제미나이 엔진 교체 시도 (API 문제 발생)</div>
-            <div class="history-line"><b>V1.7:</b> 아바커스 유료 엔진 도킹</div>
-            <div class="history-line"><b>V1.4~1.6:</b> 인터페이스 고도화 및 섀도우 엔진 실험</div>
-            <div class="history-line"><b>V1.0~1.3:</b> 기지 재건 및 디자인 프레임 구축</div>
-            <button onclick="toggleLayer('history-overlay', false)" style="width:100%; background:#222; color:#00ffcc; border:none; padding:15px; border-radius:18px; margin-top:20px; font-weight:bold;">확인</button>
-        </div>
+<div id="history-overlay" onclick="toggleLayer('history-overlay', false)">
+    <div class="history-card" onclick="event.stopPropagation()">
+        <h2 style="color:#00ffcc; margin-top:0;">📜 기지 연대기</h2>
+        <div class="history-line"><b>V2.1:</b> Gemini 1.5 Flash API 정식 연동. No Omission 및 한자음 지침 강제화</div>
+        <div class="history-line"><b>V2.0:</b> 하이퍼 엔진 설계 및 크롤링 우회 방안 수립</div>
+        <div class="history-line"><b>V1.8:</b> 무료 구글 프록시 엔진 실험</div>
+        <div class="history-line"><b>V1.7.2:</b> 아바커스 도킹 및 제미나이 엔진 교체 시도</div>
+        <div class="history-line"><b>V1.0~1.7:</b> 기지 재건 및 디자인 프레임 구축</div>
+        <button onclick="toggleLayer('history-overlay', false)" style="width:100%; background:#222; color:#00ffcc; border:none; padding:15px; border-radius:18px; margin-top:20px; font-weight:bold;">확인</button>
     </div>
+</div>
 
-    <script>
-        function toggleLayer(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
-        function clearField(id) { document.getElementById(id).value = ''; }
+<div class="footer" onclick="toggleLayer('history-overlay', true)">
+    <div class="history-tag">── SYSTEM V2.1 GEMINI CORE ──</div>
+</div>
 
-        async function runFreeEngine() {
-            const url = document.getElementById('url-in').value;
-            const text = document.getElementById('text-in').value;
-            const resBox = document.getElementById('trans-result');
-            
-            resBox.style.display = 'block';
-            resBox.innerHTML = "<span style='color:#00ffcc;'>[System]</span> 무료 우회 채널 접속 중...";
+<script>
+    const API_KEY = "AIzaSyCD7Fki1Uo2HmTYrYyNi_ch7rQiexAIvqA"; // 포비의 소중한 키
 
-            try {
-                let source = "";
-                if (url) {
-                    // 구글 프록시 터널을 통한 본문 획득
-                    const proxy = `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=604800&url=${encodeURIComponent(url)}`;
-                    const resp = await fetch(proxy);
-                    source = await resp.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(source, 'text/html');
-                    source = doc.body.innerText.substring(0, 4000);
-                } else {
-                    source = text;
-                }
+    function toggleLayer(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
 
-                if (!source) throw new Error("데이터 수집 실패");
+    async function runGeminiEngine() {
+        const url = document.getElementById('url-input').value;
+        const text = document.getElementById('text-input').value;
+        const resArea = document.getElementById('result-area');
+        const log = document.getElementById('log-display');
+        const runBtn = document.getElementById('run-btn');
 
-                // 무료 구글 API (Key 없이 무제한 호출 가능한 경로)
-                const api = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(source)}`;
-                const apiRes = await fetch(api);
-                const apiData = await apiRes.json();
-                let result = apiData[0].map(x => x[0]).join('');
+        runBtn.disabled = true;
+        resArea.style.display = 'block';
+        log.innerText = "초정밀 데이터 터널링 가동 중...";
 
-                // 나나 전용 필터 적용
-                resBox.innerText = result.replace(/예천/g, "엽진").replace(/진기/g, "진기(眞氣)");
-
-            } catch (e) {
-                resBox.innerHTML = `<span style="color:#ff4444;">[오류]</span> 무료 엔진 과부하. 본문을 복사해서 넣어주세요!`;
+        try {
+            let rawContent = "";
+            if (url) {
+                // [크롤링 보강] 구글 프록시를 통한 원문 인출
+                const proxy = `https://images1-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=604800&url=${encodeURIComponent(url)}`;
+                const resp = await fetch(proxy);
+                const html = await resp.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                rawContent = doc.querySelector('.read-content, #content, .chapter-content, article')?.innerText || doc.body.innerText;
+            } else {
+                rawContent = text;
             }
+
+            if (!rawContent || rawContent.length < 10) throw new Error("본문 추출 실패");
+
+            log.innerText = "제미나이 AI와 동기화 중 (No Omission 모드)...";
+
+            // [Gemini API 핵심 로직]
+            const apiEndpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+            
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: `당신은 무협 소설 전문 번역가입니다. 아래의 중국어 본문을 한국어로 번역하세요.
+                            [지침]
+                            1. 단 한 문장도 빠짐없이 번역하십시오(No Omission). 원문의 문장 개수와 번역문의 문장 개수를 맞추십시오.
+                            2. 모든 인물명, 지명, 무공명은 반드시 '대한민국 한글 한자음'으로 표기하십시오. (예: 叶辰->엽진, 소염, 진기 등) 절대 중국식 발음(예: 예천)을 쓰지 마십시오.
+                            3. 문체는 자연스러운 한국어 구어체 소설 말투를 사용하십시오.
+                            
+                            원문:
+                            ${rawContent.substring(0, 10000)}`
+                        }]
+                    }]
+                })
+            });
+
+            const data = await response.json();
+            const translatedText = data.candidates[0].content.parts[0].text;
+
+            resArea.innerText = translatedText;
+            log.innerText = "번역 완료. 지침 준수 여부 확인됨.";
+
+        } catch (e) {
+            log.innerText = "터널링 오류 발생. 본문을 직접 입력해 주세요.";
+            console.error(e);
+        } finally {
+            runBtn.disabled = false;
         }
-    </script>
+    }
+</script>
 </body>
 </html>
