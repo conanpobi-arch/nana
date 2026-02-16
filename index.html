@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
-        /* [공통] 밤하늘 우주 배경 & 투명 레이어 베이스 */
+        /* [공통] 밤하늘 우주 배경 & 투명 레이어 */
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
         .screen { 
             width: 100vw; height: 100vh; 
@@ -14,66 +14,80 @@
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
+        /* [불변] 투명 크리스탈 레이어 패널 */
         .glass-panel { 
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
-            border-radius: 50px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.1); 
-            width: 85%; max-width: 350px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            border-radius: 50px; padding: 45px 25px; border: 1px solid rgba(255,255,255,0.1); 
+            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
         }
 
         .signature-emblem {
             width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(0, 255, 204, 0.4);
             background-image: url('profile.png'); background-size: cover; background-position: center;
-            margin: 0 auto 15px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.2); background-color: rgba(255,255,255,0.05);
+            margin: 0 auto 20px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); background-color: rgba(255,255,255,0.05);
         }
 
-        .sub-title { color: #00ffcc; font-weight: bold; margin: 5px 0 25px 0; font-size: 13px; letter-spacing: 2.5px; }
+        h1 { font-size: 26px; margin: 0; letter-spacing: -1px; font-weight: 700; }
+        .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; font-size: 14px; letter-spacing: 2.5px; }
 
         /* 메뉴 그리드 */
-        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
         .menu-item { 
-            background: rgba(255, 255, 255, 0.05); border-radius: 22px; padding: 22px 10px;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+            background: rgba(255, 255, 255, 0.05); border-radius: 22px; padding: 25px 10px;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: 0.3s;
         }
-        .menu-item i { font-size: 28px; display: block; margin-bottom: 8px; }
+        .menu-item:active { transform: scale(0.92); background: rgba(0, 255, 204, 0.15); }
+        .menu-item i { font-size: 30px; display: block; margin-bottom: 10px; }
+        .menu-item span { font-size: 12px; color: #ddd; }
 
-        /* [신규] 소설 번역기 전용 화면 */
+        /* [전용] 소설 번역기 모듈 */
         #translator-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.92); z-index: 200; backdrop-filter: blur(30px);
+            background: rgba(0,0,0,0.95); z-index: 500; backdrop-filter: blur(30px);
             flex-direction: column; align-items: center; justify-content: center;
         }
-        .trans-card { width: 85%; max-width: 360px; display: flex; flex-direction: column; gap: 20px; }
-        .input-group { position: relative; width: 100%; }
+        .trans-card { width: 88%; max-width: 380px; display: flex; flex-direction: column; gap: 15px; }
+        .input-wrapper { position: relative; width: 100%; }
         
         input, textarea { 
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; color: #fff; padding: 15px 40px 15px 15px; box-sizing: border-box; font-size: 14px;
+            width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; color: #fff; padding: 15px 40px 15px 15px; box-sizing: border-box; font-size: 14px; outline: none;
         }
-        textarea { height: 120px; resize: none; }
+        textarea { height: 150px; resize: none; line-height: 1.6; }
         
-        /* 삭제 버튼 (X 아이콘) */
+        /* 삭제 아이콘 (X) */
         .clear-btn { 
-            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-            color: #888; cursor: pointer; font-size: 18px; font-weight: bold;
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            color: #666; cursor: pointer; font-size: 20px;
         }
-        .text-clear { top: 25px; } /* 텍스트영역용 위치 */
+        .text-clear { top: 25px; }
 
-        .trans-btn { 
+        /* 번역 결과창 */
+        #trans-result-box {
+            display: none; background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 15px; padding: 20px; max-height: 250px; overflow-y: auto;
+            text-align: left; font-size: 14px; line-height: 1.8; color: #eee; white-space: pre-wrap;
+        }
+
+        .action-btn { 
             background: #00ffcc; color: #000; border: none; border-radius: 15px; 
-            padding: 18px; font-weight: bold; cursor: pointer; transition: 0.3s;
+            padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px;
         }
-        .trans-btn:active { transform: scale(0.95); opacity: 0.8; }
 
-        /* 히스토리 & 하단 고정 */
+        /* [절대 불변] 히스토리 시스템 */
         .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; cursor: pointer; }
-        .history-tag { color: rgba(0, 255, 204, 0.3); font-size: 10px; font-weight: bold; }
+        .history-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; font-weight: bold; letter-spacing: 1.5px; }
         
         #history-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.9); z-index: 300; align-items: center; justify-content: center; backdrop-filter: blur(15px);
+            background: rgba(0,0,0,0.92); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(20px);
         }
-        .history-card { background: #111; width: 85%; max-height: 70vh; border-radius: 35px; padding: 30px; border: 1px solid #333; overflow-y: auto; }
-        .history-line { padding: 12px 0; border-bottom: 1px solid #222; font-size: 12px; color: #aaa; }
+        .history-card {
+            background: #111; width: 85%; max-height: 75vh; border-radius: 35px; 
+            padding: 30px; border: 1px solid #333; overflow-y: auto;
+        }
+        .history-line { padding: 12px 0; border-bottom: 1px solid #222; font-size: 12px; color: #999; }
+        .history-line b { color: #00ffcc; }
     </style>
 </head>
 <body>
@@ -85,7 +99,7 @@
             <div class="sub-title">57 & HJ : OROW</div>
             
             <div class="menu-grid">
-                <div class="menu-item" onclick="toggleTranslator(true)">
+                <div class="menu-item" onclick="toggleModule('translator-overlay', true)">
                     <i>📚</i><span>소설 번역기</span>
                 </div>
                 <div class="menu-item" onclick="alert('영상 수집 엔진 준비 중...')"><i>📹</i><span>영상 수집</span></div>
@@ -93,36 +107,38 @@
                 <div class="menu-item" onclick="location.reload()"><i>🔄</i><span>시스템 리셋</span></div>
             </div>
         </div>
-        <div class="footer" onclick="toggleHistory(true)">
-            <div class="history-tag">── SYSTEM V1.4 HISTORY ──</div>
+        
+        <div class="footer" onclick="toggleModule('history-overlay', true)">
+            <div class="history-tag">── SYSTEM V1.5 HISTORY ──</div>
         </div>
     </div>
 
     <div id="translator-overlay">
         <div class="trans-card">
-            <h2 style="color:#00ffcc; margin:0;">소설 번역 모듈</h2>
+            <h2 style="color:#00ffcc; margin:0;">소설 번역기</h2>
             
-            <div class="input-group">
-                <input type="text" id="novel-url" placeholder="소설 주소(URL)를 입력하세요">
-                <span class="clear-btn" onclick="clearInput('novel-url')">×</span>
+            <div class="input-wrapper">
+                <input type="text" id="input-url" placeholder="중국 소설 주소를 입력하세요">
+                <span class="clear-btn" onclick="clearField('input-url')">×</span>
             </div>
 
-            <div style="color:#444; font-size:12px; text-align:center;">OR</div>
-
-            <div class="input-group">
-                <textarea id="novel-text" placeholder="또는 소설 본문을 직접 붙여넣으세요"></textarea>
-                <span class="clear-btn text-clear" onclick="clearInput('novel-text')">×</span>
+            <div class="input-wrapper">
+                <textarea id="input-text" placeholder="또는 본문을 직접 복사해 넣으세요"></textarea>
+                <span class="clear-btn text-clear" onclick="clearField('input-text')">×</span>
             </div>
 
-            <button class="trans-btn" onclick="runTranslation()">나나 엔진 가동</button>
-            <button onclick="toggleTranslator(false)" style="background:none; border:none; color:#555; cursor:pointer;">창 닫기</button>
+            <div id="trans-result-box"></div>
+
+            <button class="action-btn" onclick="runInternalTranslation()">나나 엔진 가동</button>
+            <button onclick="toggleModule('translator-overlay', false)" style="background:none; border:none; color:#666; cursor:pointer; font-weight:bold;">메인으로 돌아가기</button>
         </div>
     </div>
 
-    <div id="history-overlay" onclick="toggleHistory(false)">
+    <div id="history-overlay" onclick="toggleModule('history-overlay', false)">
         <div class="history-card" onclick="event.stopPropagation()">
             <h2 style="color:#00ffcc; margin-top:0; font-size:20px;">📜 기지 연대기</h2>
-            <div class="history-line"><b>V1.4:</b> 소설 번역기 전용 인터페이스 및 한 번에 지우기(X) 기능 탑재</div>
+            <div class="history-line"><b>V1.5:</b> 인터널 번역 엔진 탑재 (구글 페이지 이동 제거)</div>
+            <div class="history-line"><b>V1.4:</b> 소설 번역기 인터페이스 및 입력값 개별 삭제(X) 추가</div>
             <div class="history-line"><b>V1.3.1:</b> 히스토리 전면 복원 및 소설 번역기 이름 고정</div>
             <div class="history-line"><b>V1.2.2:</b> 투명 레이어(Crystal Hull) 디자인 적용</div>
             <div class="history-line"><b>V1.2.1:</b> 우주 배경 경로 최적화 및 복구</div>
@@ -130,29 +146,61 @@
             <div class="history-line"><b>V1.1:</b> 시그니처 및 하단 히스토리 시스템 구축</div>
             <div class="history-line"><b>V1.0:</b> 오리지널 베이스캠프 재건</div>
             <div class="history-line"><b>PAST:</b> 번역 엔진(V8~15) 우회 실험 및 아바커스 분석</div>
-            <button onclick="toggleHistory(false)" style="width:100%; background:rgba(0,255,204,0.1); color:#00ffcc; border:1px solid #00ffcc; padding:15px; border-radius:18px; margin-top:20px;">닫기</button>
+            <button onclick="toggleModule('history-overlay', false)" style="width:100%; background:rgba(0,255,204,0.1); color:#00ffcc; border:1px solid #00ffcc; padding:15px; border-radius:18px; margin-top:20px; font-weight:bold;">확인</button>
         </div>
     </div>
 
     <script>
-        function toggleTranslator(s) { document.getElementById('translator-overlay').style.display = s ? 'flex' : 'none'; }
-        function toggleHistory(s) { document.getElementById('history-overlay').style.display = s ? 'flex' : 'none'; }
-        
-        // 입력창 비우기 기능 (X 아이콘)
-        function clearInput(id) { document.getElementById(id).value = ''; }
+        function toggleModule(id, show) { 
+            document.getElementById(id).style.display = show ? 'flex' : 'none'; 
+            if(!show && id === 'translator-overlay') {
+                document.getElementById('trans-result-box').style.display = 'none';
+            }
+        }
 
-        function runTranslation() {
-            const url = document.getElementById('novel-url').value;
-            const text = document.getElementById('novel-text').value;
+        function clearField(id) { document.getElementById(id).value = ''; }
 
-            if (url) {
-                // 주소가 있으면 구글 프록시 터널로 이동
-                window.open(`https://translate.google.com/translate?sl=zh-CN&tl=ko&u=${encodeURIComponent(url)}`, '_blank');
-            } else if (text) {
-                // 텍스트만 있으면 구글 번역 페이지로 전달
-                window.open(`https://translate.google.com/?sl=zh-CN&tl=ko&text=${encodeURIComponent(text)}&op=translate`, '_blank');
-            } else {
-                alert("주소를 넣거나 글을 복사해 주세요!");
+        async function runInternalTranslation() {
+            const url = document.getElementById('input-url').value;
+            const text = document.getElementById('input-text').value;
+            const resBox = document.getElementById('trans-result-box');
+            
+            resBox.style.display = 'block';
+            resBox.innerHTML = "<span style='color:#00ffcc;'>[시스템]</span> 엔진 예열 중... 잠시만 기다려주세요.";
+
+            try {
+                let source = "";
+                if (url) {
+                    // 아바커스 방식의 대리 호출 (Proxy)
+                    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const resp = await fetch(proxy);
+                    const data = await resp.json();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(data.contents, 'text/html');
+                    source = doc.body.innerText.substring(0, 3000);
+                } else {
+                    source = text;
+                }
+
+                if (!source) throw new Error("입력된 데이터가 없습니다.");
+
+                // 구글 API 직결 (페이지 이동 없음)
+                const api = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(source)}`;
+                const apiResp = await fetch(api);
+                const apiData = await apiResp.json();
+                let resultText = apiData[0].map(x => x[0]).join('');
+
+                // 나나 전용 필터 적용
+                const filtered = resultText
+                    .replace(/예천/g, "엽진")
+                    .replace(/진기/g, "진기(眞氣)")
+                    .replace(/소염/g, "소염")
+                    .replace(/노인/g, "장로");
+
+                resBox.innerHTML = filtered;
+
+            } catch (e) {
+                resBox.innerHTML = `<span style="color:#ff4444;">[오류]</span> 데이터를 가져오지 못했습니다. 본문을 직접 복사해 넣어보세요.`;
             }
         }
     </script>
