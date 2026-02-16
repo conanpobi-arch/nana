@@ -70,7 +70,7 @@
                 <div class="icon-btn" onclick="toggleModule(true)"><div style="font-size: 32px;">📚</div><div style="font-size: 12px; margin-top: 8px; font-weight: bold;">소설 번역기</div></div>
             </div>
         </div>
-        <div class="footer"><div class="v-tag" onclick="toggleHistory(true)">── SYSTEM V2.8.5 HISTORY ──</div></div>
+        <div class="footer"><div class="v-tag" onclick="toggleHistory(true)">── SYSTEM V2.9 DIAGNOSTIC ──</div></div>
     </div>
 
     <div id="trans-module">
@@ -80,28 +80,27 @@
         </div>
         <div class="trans-content">
             <div class="input-wrapper">
-                <input type="text" id="target-url" placeholder="중국 소설 주소를 입력하세요">
+                <input type="text" id="target-url" placeholder="소설 주소를 입력하세요">
                 <button class="clear-btn" onclick="document.getElementById('target-url').value=''">✕</button>
             </div>
-            <button class="action-btn" onclick="runSmartTrans()">전용 터널로 강제 침투</button>
-            <div id="result-area">터널 가동 대기 중...</div>
+            <button class="action-btn" onclick="runSmartTrans()">터널 강제 접속</button>
+            <div id="result-area">터널 개통 대기 중...</div>
         </div>
     </div>
 
     <div id="history-modal" onclick="toggleHistory(false)">
         <div class="history-card" onclick="event.stopPropagation()">
-            <h3 style="color:#00ffcc; margin-top:0;">📜 나나 연구실 연대기</h3>
+            <h3 style="color:#00ffcc; margin-top:0;">📜 연구실 기록</h3>
             <div class="history-list">
-                <div class="history-item"><b>V2.8.5:</b> 보안 우회 필터 강화 (Failed to fetch 대응)</div>
-                <div class="history-item"><b>V2.8:</b> 히스토리 10선 고정 및 주소 지우기 기능</div>
-                <div class="history-item"><b>V2.7:</b> 전용 터널(Cloudflare Worker) 개통</div>
-                <div class="history-item"><b>V2.6.3:</b> 특수 위장(User-Agent) 침투 로직</div>
-                <div class="history-item"><b>V2.6.1:</b> 추출 실패 예외 처리 및 UI 보정</div>
-                <div class="history-item"><b>V2.6:</b> 지능형 소설 번역 엔진(Gemini기반)</div>
-                <div class="history-item"><b>V2.5:</b> 히스토리 복구 및 메인 복귀 시스템</div>
-                <div class="history-item)<b>V2.3:</b> 시그니처 인장(profile.png) 최적화</div>
-                <div class="history-item"><b>V1.0:</b> 나나 연구실 프로젝트 기지 설립</div>
-                <div class="history-item"><b>Origin:</b> 57 & HJ OROW 정신 계승</div>
+                <div class="history-item"><b>V2.9:</b> Failed to fetch 정밀 진단 및 자동 주소 보정</div>
+                <div class="history-item"><b>V2.8.5:</b> 보안 우회 필터 및 CORS 모드 명시</div>
+                <div class="history-item"><b>V2.8:</b> 히스토리 10선 및 지우기 버튼 탑재</div>
+                <div class="history-item"><b>V2.7:</b> gyerimpa 전용 터널 개통</div>
+                <div class="history-item"><b>V2.6:</b> 지능형 한자음 번역 필터 적용</div>
+                <div class="history-item"><b>V2.3:</b> 커플 시그니처 인장 사진 적용</div>
+                <div class="history-item"><b>V1.5:</b> 글래스 모피즘 디자인 시스템</div>
+                <div class="history-item"><b>V1.0:</b> 나나 연구실 깃허브 베이스캠프 구축</div>
+                <div class="history-item"><b>Spirit:</b> 와탕카! 정신 계승</div>
             </div>
             <button style="width:100%; padding:15px; background:#333; color:#fff; border:none; border-radius:15px; font-weight:bold;" onclick="toggleHistory(false)">확인</button>
         </div>
@@ -114,35 +113,37 @@
         async function runSmartTrans() {
             const urlInput = document.getElementById('target-url');
             const res = document.getElementById('result-area');
-            // 주소 끝에 /가 없는 것을 다시 한 번 확인했습니다.
-            const myTunnel = "https://nana-tunnel.gyerimpa.workers.dev";
+            
+            // [포인트] 주소에서 슬래시 문제를 아예 코드가 해결하게 만듭니다.
+            let tunnelBase = "https://nana-tunnel.gyerimpa.workers.dev";
+            if(tunnelBase.endsWith('/')) tunnelBase = tunnelBase.slice(0, -1);
 
             if(!urlInput.value) return alert("주소를 입력해 주세요!");
-            res.innerHTML = "<div style='color:#00ffcc;'>[보안 우회 중]</div>터널 입구를 강제로 개방하고 있습니다...";
+            res.innerHTML = "<div style='color:#00ffcc;'>[진단 및 접속 중]</div>";
 
             try {
-                // [수정 포인트] 브라우저 캐시와 보안 필터를 피하기 위한 파라미터 강제 주입
                 const targetUrl = urlInput.value.trim();
-                const fetchUrl = `${myTunnel}/?url=${encodeURIComponent(targetUrl)}`;
+                // [수정] ?url= 앞에 슬래시를 명시적으로 넣거나 뺍니다.
+                const finalRequestUrl = `${tunnelBase}/?url=${encodeURIComponent(targetUrl)}`;
                 
-                const fetchRes = await fetch(fetchUrl, {
+                console.log("침투 시도 주소:", finalRequestUrl);
+
+                const fetchRes = await fetch(finalRequestUrl, {
                     method: 'GET',
-                    mode: 'cors', // CORS 모드 명시
                     headers: { 'Accept': 'text/html' }
                 });
 
-                if(!fetchRes.ok) throw new Error(`터널 응답 없음 (${fetchRes.status})`);
+                if(!fetchRes.ok) throw new Error(`서버 응답 에러: ${fetchRes.status}`);
                 
                 const rawHtml = await fetchRes.text();
                 const tempDiv = document.createElement("div");
                 tempDiv.innerHTML = rawHtml;
                 
-                // 불필요한 태그 제거 후 텍스트만 추출
-                let cleanText = tempDiv.innerText.substring(0, 4500);
+                let cleanText = tempDiv.innerText.replace(/\s+/g, ' ').trim().substring(0, 4500);
 
-                if(cleanText.length < 50) throw new Error("추출된 텍스트가 너무 적습니다.");
+                if(cleanText.length < 30) throw new Error("데이터는 가져왔으나 텍스트가 비어있습니다.");
 
-                res.innerHTML = "<div style='color:#00ffcc;'>[침투 성공]</div>대한민국 한자음 변환 중...";
+                res.innerHTML = "<div style='color:#00ffcc;'>[데이터 인출 완료]</div>변환 중...";
                 
                 const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
                 const transData = await transRes.json();
@@ -156,12 +157,17 @@
                     return t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)").replace(/소염/g, "소염");
                 };
 
-                res.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:15px;">[임무 성공: 데이터 인출 완료]</div>` + filter(translated);
+                res.innerHTML = `<div style="color:#00ffcc; font-size:11px; margin-bottom:10px;">[침투 성공]</div>` + filter(translated);
             } catch (e) {
-                console.error("Error Detail:", e);
-                res.innerHTML = `<div style="color:#ffcc00;">[터널 통과 실패]</div><br>
-                                 사유: ${e.message}<br><br>
-                                 <span style="color:#aaa; font-size:14px;">팁: 만약 계속 실패한다면, <b>'nana-tunnel' 워커 코드</b>를 제가 마지막에 드린 '무적 버전'으로 다시 배포했는지 확인해 주세요!</span>`;
+                console.error("실패 상세:", e);
+                // [진단 모드] 에러가 나면 정확한 주소와 사유를 화면에 뿌립니다.
+                res.innerHTML = `<div style="color:#ffcc00; font-weight:bold;">[터널 접속 최종 실패]</div><br>
+                                 <span style="color:#ff5555; font-size:13px;">사유: ${e.message}</span><br><br>
+                                 <div style="font-size:12px; color:#888; text-align:left; background:#1a1a1a; padding:10px; border-radius:10px;">
+                                 침투 경로: ${tunnelBase}/?url=... <br>
+                                 현상: 기지에서 터널로의 신호가 차단됨.
+                                 </div><br>
+                                 <span style="color:#aaa; font-size:13px;">포비, 만약 이래도 안 되면 **브라우저의 캐시**가 옛날 에러를 기억하는 걸 수 있습니다. 창을 완전히 닫고 다시 열어보세요!</span>`;
             }
         }
     </script>
