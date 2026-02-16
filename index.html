@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>나나 연구실 V10.0 - INTEGRATED</title>
+    <title>나나 연구실 V11.0</title>
     <style>
         :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.1); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
 
-        /* 배경: 은하수 고정 */
+        /* 배경 및 오버레이 */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
@@ -16,52 +16,30 @@
         }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(3px); z-index: -1; }
 
-        /* 화면 전환용 섹션 설정 */
-        .section {
-            display: none; width: 100vw; height: 100vh;
-            flex-direction: column; align-items: center; justify-content: center;
-            animation: fadeIn 0.5s ease;
-        }
+        .section { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.5s ease; }
         .active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* [1. 메인 화면 스타일] */
+        /* [수정] profile.png 이미지 경로 처리 */
         .couple-main {
             width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--neon);
-            background-image: url('https://raw.githubusercontent.com/Pobi-NANA/Pobi-NANA.github.io/main/profile.png');
+            /* 같은 폴더에 있을 경우 './profile.png'로 호출 */
+            background-image: url('./profile.png'), url('https://raw.githubusercontent.com/Pobi-NANA/Pobi-NANA.github.io/main/profile.png');
             background-size: cover; background-position: center;
             box-shadow: 0 0 30px rgba(0, 255, 204, 0.5); margin-bottom: 25px;
         }
+
         .welcome-title { font-size: 26px; font-weight: 200; letter-spacing: 4px; margin-bottom: 40px; text-shadow: 0 0 15px var(--neon); }
         .app-grid { display: flex; gap: 25px; }
-        .app-btn {
-            text-decoration: none; color: #fff; font-size: 11px;
-            display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer;
-        }
-        .app-icon { 
-            font-size: 28px; background: var(--glass); width: 65px; height: 65px; 
-            display: flex; align-items: center; justify-content: center; border-radius: 20px; 
-            border: 1px solid rgba(255,255,255,0.2); transition: 0.3s;
-        }
-        .app-btn:hover .app-icon { background: var(--neon); color: #000; transform: scale(1.1); }
-
-        /* [2. 번역기 화면 스타일] */
-        .glass-panel {
-            background: var(--glass); backdrop-filter: blur(20px);
-            border-radius: 35px; border: 1px solid rgba(255,255,255,0.15);
-            width: 85%; max-width: 380px; padding: 25px; text-align: center;
-        }
-        textarea { 
-            width: 100%; height: 150px; background: rgba(0,0,0,0.4); border: 1px solid #444;
-            border-radius: 15px; color: #fff; padding: 12px; box-sizing: border-box; font-size: 15px;
-            outline: none; margin-bottom: 10px;
-        }
-        .util-set { display: flex; gap: 5px; margin-bottom: 10px; }
-        .u-btn { flex: 1; padding: 9px; font-size: 11px; border-radius: 8px; border: 1px solid #555; background: rgba(255,255,255,0.05); color: #ccc; cursor: pointer; }
-        .u-btn:hover { background: var(--neon); color: #000; }
+        .app-btn { text-decoration: none; color: #fff; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
+        .app-icon { font-size: 28px; background: var(--glass); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; }
+        
+        /* 번역기 패널 */
+        .glass-panel { background: var(--glass); backdrop-filter: blur(20px); border-radius: 35px; border: 1px solid rgba(255,255,255,0.15); width: 85%; max-width: 380px; padding: 25px; text-align: center; }
+        textarea { width: 100%; height: 150px; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 15px; color: #fff; padding: 12px; box-sizing: border-box; font-size: 15px; outline: none; margin-bottom: 10px; }
         .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 15px; padding: 16px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
         #res-box { display: none; background: rgba(0,0,0,0.6); border: 1px solid var(--neon); padding: 15px; border-radius: 15px; text-align: left; font-size: 14px; max-height: 150px; overflow-y: auto; margin-top: 10px; line-height: 1.8; }
-        .back-btn { margin-top: 20px; color: #aaa; cursor: pointer; font-size: 12px; text-decoration: underline; }
+        .back-btn { margin-top: 20px; color: #aaa; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -76,14 +54,11 @@
             <div class="app-btn" onclick="showPage('work-page')">
                 <div class="app-icon">📚</div>소설 번역기
             </div>
-            <div class="app-btn" onclick="alert('동영상 다운로더 준비 중')">
+            <div class="app-btn" onclick="alert('준비 중입니다.')">
                 <div class="app-icon">🎥</div>동영상 다운
             </div>
-            <div class="app-btn" onclick="alert('모아듣기 준비 중')">
+            <div class="app-btn" onclick="alert('준비 중입니다.')">
                 <div class="app-icon">🎧</div>모아듣기
-            </div>
-            <div class="app-btn">
-                <div class="app-icon">❓</div>미제
             </div>
         </div>
     </section>
@@ -92,34 +67,20 @@
         <div class="glass-panel">
             <h3 style="margin: 0 0 15px 0; font-weight: 300; letter-spacing: 2px;">NOVEL <span style="color:var(--neon)">TRANSLATOR</span></h3>
             <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
-            <div class="util-set">
-                <button class="u-btn" onclick="copyInp()">원문 복사</button>
-                <button class="u-btn" onclick="resetInp()" style="color:#ff6b6b;">지우기</button>
-            </div>
             <button class="btn-fire" id="ignite-btn" onclick="fireEngine()">나나 엔진 가동</button>
             <div id="res-box"></div>
-            <div class="back-btn" onclick="showPage('main-page')">메인 기지로 돌아가기</div>
+            <div class="back-btn" onclick="showPage('main-page')">← 메인 기지로 돌아가기</div>
         </div>
     </section>
 
 <script>
-    // 화면 전환 함수
     function showPage(pageId) {
         document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
         document.getElementById(pageId).classList.add('active');
     }
 
-    // 번역 관련 기능
+    // [수정] 번역 엔진 연결부 보강
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
-
-    function resetInp() { 
-        document.getElementById('inp').value = ""; 
-        document.getElementById('res-box').style.display = "none"; 
-    }
-    function copyInp() { 
-        navigator.clipboard.writeText(document.getElementById('inp').value); 
-        alert("복사되었습니다."); 
-    }
 
     async function fireEngine() {
         const text = document.getElementById('inp').value;
@@ -127,26 +88,40 @@
         const btn = document.getElementById('ignite-btn');
         if(!text) return;
 
-        btn.disabled = true; btn.innerText = "분석 중...";
-        resBox.style.display = "block"; resBox.innerText = "제미나이 엔진이 길을 찾는 중...";
+        btn.disabled = true; btn.innerText = "나나 엔진 예열 중...";
+        resBox.style.display = "block"; resBox.innerText = "제미나이 엔진에 접속 중...";
 
         try {
-            // 포비가 성공한 2026 최신 안정 경로
+            // URL을 최신 안정 버전으로 다시 확인 (v1beta -> generateContent)
             const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-            const resp = await fetch(url, {
+            
+            const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{ parts: [{ text: `[지침: 무협 소설 전문 번역, No Omission, 대한민국 한자음]\n\n${text}` }] }]
+                    contents: [{
+                        parts: [{
+                            text: `[역할: 중국 무협 소설 전문 번역가]\n[지침: No Omission, 대한민국 한자음 사용, 구어체 반영]\n\n원문: ${text}`
+                        }]
+                    }]
                 })
             });
-            const data = await resp.json();
-            resBox.innerText = data.candidates[0].content.parts[0].text;
-            btn.innerText = "엔진 가동 완료";
+
+            const data = await response.json();
+            
+            if (data.candidates && data.candidates[0].content) {
+                resBox.innerText = data.candidates[0].content.parts[0].text;
+                btn.innerText = "번역 성공";
+            } else {
+                throw new Error("Invalid Response");
+            }
         } catch (e) {
-            resBox.innerText = "엔진 오류가 발생했습니다.";
-            btn.innerText = "재시도";
-        } finally { btn.disabled = false; }
+            console.error(e);
+            resBox.innerText = "연결 실패: API 키 또는 네트워크 상태를 확인하세요.";
+            btn.innerText = "다시 시도";
+        } finally {
+            btn.disabled = false;
+        }
     }
 </script>
 </body>
