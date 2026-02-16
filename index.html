@@ -33,9 +33,9 @@
 
 <div id="trans-overlay">
     <div class="trans-container">
-        <h2 style="color:#00ffcc; margin:0; text-align:center;">GEMINI CORE V2.3.1</h2>
-        <div id="log-display" class="status-log">v1 Stable 엔진 대기 중...</div>
-        <textarea id="text-input" placeholder="중국어 원문을 입력하세요"></textarea>
+        <h2 style="color:#00ffcc; margin:0; text-align:center;">GEMINI CORE V2.3.2</h2>
+        <div id="log-display" class="status-log">신규 API 키 인식 완료. 대기 중...</div>
+        <textarea id="text-input" placeholder="중국어 본문을 붙여넣으세요"></textarea>
         <div id="result-area"></div>
         <button class="btn-main" id="run-btn" onclick="runGeminiEngine()">나나 엔진 기동</button>
         <button onclick="toggleLayer('trans-overlay', false)" style="background:none; color:#555; border:none; cursor:pointer; margin-top:10px;">기지 복귀</button>
@@ -43,7 +43,8 @@
 </div>
 
 <script>
-    const API_KEY = "AIzaSyCD7Fki1Uo2HmTYrYyNi_ch7rQiexAIvqA";
+    // 포비의 신규 API 키
+    const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
     function toggleLayer(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
 
@@ -57,9 +58,9 @@
 
         runBtn.disabled = true;
         resArea.style.display = 'block';
-        log.innerText = "v1 정식 채널 접속 중...";
+        log.innerText = "제미나이 신규 코어와 동기화 중...";
 
-        // [최종 전략] v1 경로와 정석 모델명 사용
+        // [최종 최적화] 정식 v1 경로와 gemini-1.5-flash 모델 조합
         const apiEndpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         try {
@@ -70,9 +71,10 @@
                     contents: [{
                         parts: [{
                             text: `당신은 무협 소설 전문 번역가입니다. 아래 지침을 반드시 지켜 번역하세요.
-                            1. No Omission: 단 한 문장도 빼먹지 말고 번역하라.
-                            2. 대한민국 한자음: 인명, 지명은 반드시 한국식 한자음으로 표기하라. (예: 叶辰->엽진)
-                            3. 자연스러운 한국어 구어체 소설 문체를 사용하라.
+                            [필수 지침]
+                            1. No Omission: 단 한 문장도 빠짐없이 번역하라. 원문의 문장 개수와 번역문의 문장 개수를 동일하게 유지하라.
+                            2. 대한민국 한자음: 이름, 지명, 무공은 반드시 한국식 한자음으로 표기하라. (예: 叶辰->엽진, 林->임, 眞氣->진기). 중국어 발음 표기는 절대 하지 마라.
+                            3. 구어체: 소설 독자가 읽기 편한 자연스러운 한국어 문체로 번역하라.
 
                             본문:
                             ${text}`
@@ -84,27 +86,21 @@
             const resultData = await response.json();
 
             if (resultData.error) {
-                // [2차 시도] 만약 flash가 안된다면 pro 모델로 즉시 스위칭
-                log.innerText = "Flash 엔진 우회, Pro 엔진 시도 중...";
-                const proEndpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key=${API_KEY}`;
-                const proRes = await fetch(proEndpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `번역하라: ${text}` }] }]
-                    })
-                });
-                const proData = await proRes.json();
-                if(proData.error) throw new Error(proData.error.message);
-                resArea.innerText = proData.candidates[0].content.parts[0].text;
+                throw new Error(`[API 오류] ${resultData.error.message}`);
+            }
+
+            if (resultData.candidates && resultData.candidates[0].content) {
+                const translated = resultData.candidates[0].content.parts[0].text;
+                resArea.innerText = translated;
+                log.innerText = "번역 완료 - 대한민국 한자음 및 No Omission 적용";
             } else {
-                resArea.innerText = resultData.candidates[0].content.parts[0].text;
-                log.innerText = "번역 완료 (v1 Flash)";
+                throw new Error("응답이 비어있습니다. 본문 양을 조금 줄여서 다시 시도해보세요.");
             }
 
         } catch (e) {
-            log.innerText = "최종 호출 실패";
-            resArea.innerHTML = `<span style="color:#ff4444;">[긴급 진단]</span><br>${e.message}<br><br>포비, 혹시 구글 AI 스튜디오에서 'API KEY' 생성 시 프로젝트를 새로 만들어서 하셨나요? 키 설정 문제일 수 있으니 확인 부탁드립니다!`;
+            console.error(e);
+            log.innerText = "연결 오류 발생";
+            resArea.innerHTML = `<span style="color:#ff4444;">[긴급 오류 보고]</span><br>${e.message}<br><br><b>조치 사항:</b> 모델명을 찾을 수 없다고 나오면, 구글 AI Studio에서 해당 모델을 사용할 수 있는지 확인이 필요합니다.`;
         } finally {
             runBtn.disabled = false;
         }
