@@ -3,73 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>나나 연구실 V4.0 - 2026 NEXT</title>
+    <title>나나 연구실 V5.0 - GEMINI 3</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
-        .screen { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #111 0%, #000 100%); }
-        .panel { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border-radius: 30px; padding: 30px; border: 1px solid rgba(0, 255, 204, 0.2); width: 85%; max-width: 380px; text-align: center; }
-        textarea { width: 100%; height: 120px; background: #000; border: 1px solid #333; border-radius: 12px; color: #fff; padding: 12px; box-sizing: border-box; font-size: 14px; margin-bottom: 15px; }
-        #result-box { display: none; background: #000; border: 1px solid var(--neon); padding: 15px; border-radius: 12px; text-align: left; font-size: 14px; line-height: 1.7; max-height: 200px; overflow-y: auto; margin-bottom: 15px; }
-        .btn { background: var(--neon); color: #000; border: none; padding: 15px; border-radius: 12px; font-weight: bold; width: 100%; cursor: pointer; }
-        .status { font-size: 11px; color: #666; margin-top: 10px; }
+        :root { --neon: #00ffcc; --bg: #030303; }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; }
+        .screen { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, #151515 0%, #000 100%); }
+        .panel { background: rgba(255,255,255,0.02); backdrop-filter: blur(25px); border-radius: 35px; padding: 35px; border: 1px solid rgba(0, 255, 204, 0.3); width: 88%; max-width: 400px; text-align: center; box-shadow: 0 0 40px rgba(0, 255, 204, 0.1); }
+        .title { font-size: 26px; font-weight: 900; margin-bottom: 25px; letter-spacing: -1px; }
+        textarea { width: 100%; height: 140px; background: rgba(0,0,0,0.5); border: 1px solid #222; border-radius: 18px; color: #fff; padding: 18px; box-sizing: border-box; font-size: 15px; margin-bottom: 20px; outline: none; transition: 0.3s; }
+        textarea:focus { border-color: var(--neon); }
+        #result-box { display: none; background: #000; border: 1px solid var(--neon); padding: 20px; border-radius: 18px; text-align: left; font-size: 15px; line-height: 1.9; max-height: 250px; overflow-y: auto; margin-bottom: 20px; white-space: pre-wrap; }
+        .btn-ignite { background: var(--neon); color: #000; border: none; padding: 20px; border-radius: 18px; font-weight: bold; width: 100%; cursor: pointer; font-size: 17px; box-shadow: 0 5px 15px rgba(0, 255, 204, 0.3); }
+        .log { font-size: 11px; color: #555; margin-top: 15px; text-transform: uppercase; letter-spacing: 1px; }
     </style>
 </head>
 <body>
 
 <div class="screen">
     <div class="panel">
-        <h2 style="margin-top:0;">NANA NEXT <span style="color:var(--neon)">V4.0</span></h2>
-        <textarea id="input-text" placeholder="번역할 원문을 입력하세요..."></textarea>
+        <div class="title">NANA <span style="color:var(--neon)">GEN-3</span></div>
+        <textarea id="input-text" placeholder="번역할 무협 소설 본문을 입력..."></textarea>
         <div id="result-box"></div>
-        <button class="btn" onclick="igniteEngine()">엔진 가동 (2.5 Flash)</button>
-        <div class="status" id="log">2026년형 2.5 엔진 대기 중...</div>
+        <button class="btn-ignite" onclick="fireGemini3()">엔진 기동 (Gemini 3 Flash)</button>
+        <div class="log" id="status-log">2026.02.17 CORE ONLINE</div>
     </div>
 </div>
 
 <script>
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
-    async function igniteEngine() {
+    async function fireGemini3() {
         const text = document.getElementById('input-text').value;
-        const log = document.getElementById('log');
+        const log = document.getElementById('status-log');
         const resBox = document.getElementById('result-box');
-        
         if(!text) return alert("원문을 입력하세요!");
 
-        log.innerText = "2026 NEXT 엔진 경로 최적화 중...";
+        log.innerText = "GEMINI 3 FLASH 엔진 접속 중...";
         resBox.style.display = "block";
-        resBox.innerText = "통신 개시...";
+        resBox.innerText = "데이터 스트리밍 시작...";
 
-        // 2026년 최신 모델 리스트 (1.5 시리즈 제외)
-        const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.5-flash-lite'];
-        
-        for (let m of models) {
-            log.innerText = `${m} 엔진 접속 시도...`;
-            try {
-                const url = `https://generativelanguage.googleapis.com/v1/models/${m}:generateContent?key=${API_KEY}`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `[지침: 무협 소설 번역, No Omission, 대한민국 한자음 사용]\n\n본문: ${text}` }] }]
-                    })
-                });
+        // 2026년 표준 모델명: gemini-3-flash
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-3-flash:generateContent?key=${API_KEY}`;
 
-                const data = await resp.json();
-                if (resp.ok) {
-                    resBox.innerText = data.candidates[0].content.parts[0].text;
-                    log.innerText = `✅ ${m} 엔진 연결 성공!`;
-                    return;
-                } else {
-                    console.error(`${m} 실패:`, data.error.message);
-                }
-            } catch (e) {
-                console.error(e);
+        try {
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `지침: 당신은 최고의 무협 번역가입니다.
+                    1. No Omission: 문장을 하나도 빠짐없이 번역하라.
+                    2. 대한민국 한자음: 인명, 지명, 무공은 한국 한자음으로 표기하라.
+                    3. 문체: 장중한 무협 구어체를 사용하라.
+                    
+                    본문: ${text}` }] }]
+                })
+            });
+
+            const data = await resp.json();
+            if (resp.ok) {
+                resBox.innerText = data.candidates[0].content.parts[0].text;
+                log.innerText = "✅ GEMINI 3 번역 완료";
+            } else {
+                resBox.innerText = `에러: ${data.error.message}`;
+                log.innerText = "❌ 엔진 응답 오류";
             }
+        } catch (e) {
+            resBox.innerText = "네트워크 차단됨. (CORS 또는 지역 제한)";
+            log.innerText = "🚫 통신 실패";
         }
-        log.innerText = "❌ 모든 2.5 엔진 차단. 구글 AI 스튜디오 설정을 확인하세요.";
-        resBox.innerText = "에러: 사용 가능한 모델을 찾을 수 없습니다. (2026년 규격 미달)";
     }
 </script>
 </body>
