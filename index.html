@@ -116,4 +116,37 @@
             try {
                 const target = urlInput.value.trim();
                 
-                // AllOrigins
+                // AllOrigins 보안 우회 엔진 사용
+                const crackUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`;
+                
+                const response = await fetch(crackUrl);
+                const data = await response.json();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(data.contents, 'text/html');
+                
+                // 텍스트 추출 및 정제
+                doc.querySelectorAll('script, style, iframe, ads').forEach(el => el.remove());
+                let cleanText = doc.body.innerText.replace(/\s+/g, ' ').trim().substring(0, 4000);
+
+                if(cleanText.length < 50) throw new Error("보안망이 너무 강력합니다. 주소를 다시 확인하세요.");
+
+                res.innerHTML = "<div style='color:#00ffcc;'>[데이터 인출] 나나 필터 번역 가동 중...</div>";
+
+                // 구글 익명 번역 통로
+                const trRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
+                const trData = await trRes.json();
+                let translated = trData[0].map(x => x[0]).join('');
+
+                // 한글 한자음 필터
+                const filter = (t) => t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)").replace(/소염/g, "소염");
+
+                res.innerHTML = `<div style="color:#00ffcc; font-size:11px; margin-bottom:10px;">[침투 성공: 해체된 데이터]</div>` + filter(translated);
+
+            } catch (e) {
+                res.innerHTML = `<div style="color:#ffcc00;">[침투 중단]</div><br>사유: ${e.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
