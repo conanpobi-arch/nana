@@ -2,66 +2,134 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>나나 연구실 V7.0 - 2026 FINAL</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>나나 연구실 V8.0 - OROW</title>
     <style>
-        :root { --neon: #00ffcc; --bg: #050505; }
-        body { margin: 0; background: var(--bg); color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; }
-        .panel { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 25px; border: 1px solid var(--neon); width: 350px; text-align: center; }
-        textarea { width: 100%; height: 100px; background: #000; color: #fff; border: 1px solid #333; border-radius: 10px; padding: 10px; box-sizing: border-box; }
-        #res { display: none; background: #000; border: 1px solid #444; padding: 15px; border-radius: 10px; margin-top: 15px; text-align: left; font-size: 14px; max-height: 150px; overflow-y: auto; }
-        .btn { background: var(--neon); color: #000; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; margin-top: 15px; cursor: pointer; }
-        .log { font-size: 10px; color: #666; margin-top: 10px; }
+        :root { --neon: #00ffcc; --bg: #0a0a0b; --panel: rgba(255, 255, 255, 0.05); }
+        body { margin: 0; background: var(--bg); color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow-x: hidden; }
+        
+        /* 상단 아이콘 바 (4종 복원) */
+        .top-nav { display: flex; justify-content: space-around; padding: 20px 10px; background: rgba(0,0,0,0.5); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid rgba(0,255,204,0.1); }
+        .nav-item { text-align: center; color: var(--neon); text-decoration: none; font-size: 10px; transition: 0.3s; opacity: 0.7; }
+        .nav-item:hover { opacity: 1; transform: translateY(-3px); }
+        .nav-icon { font-size: 24px; display: block; margin-bottom: 5px; }
+
+        .container { padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .glass-panel { background: var(--panel); backdrop-filter: blur(20px); border-radius: 30px; padding: 25px; border: 1px solid rgba(0, 255, 204, 0.2); width: 100%; max-width: 450px; box-sizing: border-box; }
+        
+        h2 { font-size: 20px; text-align: center; margin-bottom: 20px; letter-spacing: -1px; }
+        textarea { width: 100%; height: 150px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 15px; color: #fff; padding: 15px; box-sizing: border-box; font-size: 15px; outline: none; transition: 0.3s; margin-bottom: 10px; }
+        textarea:focus { border-color: var(--neon); }
+
+        /* 소설 유틸리티 버튼 세트 */
+        .util-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
+        .btn-small { background: rgba(255,255,255,0.1); border: 1px solid #444; color: #ccc; padding: 8px; border-radius: 10px; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .btn-small:hover { background: var(--neon); color: #000; border-color: var(--neon); }
+        .btn-clear { color: #ff5555; border-color: #552222; }
+
+        #result-area { display: none; background: rgba(0, 255, 204, 0.05); border-radius: 15px; padding: 15px; border: 1px solid rgba(0, 255, 204, 0.3); text-align: left; font-size: 15px; line-height: 1.8; color: #e0e0e0; max-height: 300px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 15px; }
+        
+        .btn-main { background: var(--neon); color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; box-shadow: 0 5px 15px rgba(0,255,204,0.2); }
+        
+        /* 히스토리 섹션 */
+        .history-section { width: 100%; max-width: 450px; margin-top: 30px; }
+        .history-title { font-size: 12px; color: #666; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; border-left: 3px solid var(--neon); padding-left: 10px; }
+        .history-card { background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; margin-bottom: 8px; font-size: 13px; border: 1px solid #222; }
+        .version-tag { color: var(--neon); font-size: 10px; font-weight: bold; margin-right: 5px; }
     </style>
 </head>
 <body>
-    <div class="panel">
-        <h3>NANA <span style="color:var(--neon)">V7.0</span> (2026)</h3>
-        <textarea id="inp" placeholder="원문을 입력하세요..."></textarea>
-        <div id="res"></div>
-        <button class="btn" onclick="ignite()">2026 신형 엔진 가동</button>
-        <div class="log" id="status">READY: Gemini 2.5 / 3.0</div>
+
+<nav class="top-nav">
+    <a href="index.html" class="nav-item"><span class="nav-icon">🏠</span>INDEX</a>
+    <a href="#" class="nav-item" onclick="toggleHistory()"><span class="nav-icon">📜</span>HISTORY</a>
+    <a href="https://Pobi-NANA.github.io" class="nav-item"><span class="nav-icon">🌐</span>PAGE</a>
+    <a href="https://github.com/Pobi-NANA" class="nav-item"><span class="nav-icon">🛠️</span>GITHUB</a>
+</nav>
+
+<div class="container">
+    <div class="glass-panel">
+        <h2>NANA <span style="color:var(--neon)">V8.0</span> OROW</h2>
+        
+        <textarea id="input-text" placeholder="번역할 원문을 입력하세요..."></textarea>
+        
+        <div class="util-bar">
+            <button class="btn-small" onclick="copyInput()">원문 복사</button>
+            <button class="btn-small" onclick="copyLink()">링크 복사</button>
+            <button class="btn-small btn-clear" onclick="clearAll()">내용 지우기</button>
+        </div>
+
+        <div id="result-area"></div>
+        
+        <button class="btn-main" id="btn-run" onclick="runNANA()">엔진 가동 (Gemini 2.5 Flash)</button>
+        <div style="text-align:center; font-size:10px; color:#444; margin-top:10px;">Status: CORE STABLE 2026.02.17</div>
     </div>
 
+    <div class="history-section" id="history-box">
+        <div class="history-title">Project Version History</div>
+        <div class="history-card"><span class="version-tag">V8.0</span> 초기 아이콘 복원 및 유틸리티(복사/삭제) 기능 통합</div>
+        <div class="history-card"><span class="version-tag">V7.0</span> 2026년형 Gemini 2.5/3.0 엔진 경로 최종 돌파 성공</div>
+        <div class="history-card"><span class="version-tag">V4.0~V6.0</span> 엔진 경로 스캐닝 및 과도기적 모델 대조 작업</div>
+        <div class="history-card"><span class="version-tag">V1.0~V3.0</span> 나나 연구실 프로젝트 기동 및 UI 기반 구축</div>
+    </div>
+</div>
+
 <script>
-    const KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
+    const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
-    async function ignite() {
-        const text = document.getElementById('inp').value;
-        const log = document.getElementById('status');
-        const resBox = document.getElementById('res');
-        if(!text) return;
+    function clearAll() {
+        document.getElementById('input-text').value = "";
+        document.getElementById('result-area').style.display = "none";
+        document.getElementById('result-area').innerText = "";
+    }
 
-        resBox.style.display = "block";
-        resBox.innerText = "연결 중...";
+    function copyInput() {
+        const text = document.getElementById('input-text').value;
+        navigator.clipboard.writeText(text);
+        alert("원문이 복사되었습니다.");
+    }
 
-        // 2026년 2월 현재, 가장 확실히 작동하는 모델 순서
-        const models = ['gemini-2.5-flash', 'gemini-3-flash-preview', 'gemini-1.5-flash-002'];
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        alert("페이지 링크가 복사되었습니다.");
+    }
 
-        for (let m of models) {
-            log.innerText = `시도 중: ${m}...`;
-            try {
-                // v1beta 경로와 models/ 접두사 결합
-                const url = `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${KEY}`;
-                const resp = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `[지침: 무협 전문 번역, No Omission, 대한민국 한자음]\n\n원문: ${text}` }] }]
-                    })
-                });
+    function toggleHistory() {
+        const box = document.getElementById('history-box');
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
 
-                const data = await resp.json();
-                if (resp.ok) {
-                    resBox.innerText = data.candidates[0].content.parts[0].text;
-                    log.innerText = `✅ 연결 성공: ${m}`;
-                    return;
-                } else {
-                    console.log(`${m} 실패: ${data.error.message}`);
-                }
-            } catch (e) { console.error(e); }
+    async function runNANA() {
+        const input = document.getElementById('input-text').value;
+        const resArea = document.getElementById('result-area');
+        const btn = document.getElementById('btn-run');
+        if(!input) return;
+
+        btn.disabled = true;
+        btn.innerText = "연결 중...";
+        resArea.style.display = "block";
+        resArea.innerText = "나나 엔진 분석 중...";
+
+        try {
+            // 포비가 성공한 2.5/3.0 호환 경로
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${API_KEY}`;
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `[지침: 무협 전문 번역, No Omission, 대한민국 한자음]\n\n${input}` }] }]
+                })
+            });
+
+            const data = await response.json();
+            resArea.innerText = data.candidates[0].content.parts[0].text;
+            btn.innerText = "엔진 가동 (Gemini 2.5 Flash)";
+        } catch (e) {
+            resArea.innerText = "오류 발생: 엔진 설정을 다시 확인하세요.";
+            btn.innerText = "재시도 하기";
+        } finally {
+            btn.disabled = false;
         }
-        log.innerText = "❌ 모든 신형 모델 차단됨. (지역 또는 키 권한 문제)";
-        resBox.innerText = "구글 AI 스튜디오에서 'Gemini 2.5' 혹은 'Gemini 3' 모델이 활성화되었는지 확인하십시오.";
     }
 </script>
 </body>
