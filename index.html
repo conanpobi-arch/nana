@@ -21,12 +21,6 @@
             margin: 0 auto 20px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
         }
 
-        .icon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .icon-btn { 
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1); 
-            border-radius: 20px; padding: 25px 10px; cursor: pointer; transition: 0.2s;
-        }
-
         #trans-module {
             position: fixed; top: 100vh; left: 0; width: 100vw; height: 100vh;
             background: #0d0d0d; z-index: 100; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
@@ -36,26 +30,19 @@
         .module-header { padding: 50px 20px 15px; background: #151515; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
         .back-btn { background: #333; border: none; color: #00ffcc; padding: 8px 15px; border-radius: 12px; font-weight: bold; }
 
+        .trans-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .input-wrapper { position: relative; width: 100%; }
         input { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 15px; padding: 15px 45px 15px 15px; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .clear-btn { 
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            background: #333; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px;
-            font-size: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
+        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #333; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        .trans-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .action-btn { background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; font-size: 18px; cursor: pointer; }
-        #result-area { background: #111; border-radius: 20px; padding: 25px; line-height: 1.9; color: #ddd; font-size: 17px; min-height: 200px; border: 1px solid #222; white-space: pre-wrap; }
+        #result-area { flex: 1; background: #111; border-radius: 20px; border: 1px solid #222; margin-top: 10px; overflow: hidden; }
+        
+        /* 구글 프레임 스타일 */
+        #trans-frame { width: 100%; height: 100%; border: none; }
 
         .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; z-index: 10; }
         .v-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; cursor: pointer; letter-spacing: 1px; }
-
-        #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-        .history-card { background: #1a1a1a; width: 85%; max-height: 70vh; border-radius: 30px; padding: 30px; border: 1px solid #333; display: flex; flex-direction: column; }
-        .history-list { overflow-y: auto; flex: 1; margin: 15px 0; padding-right: 5px; }
-        .history-item { padding: 10px 0; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; line-height: 1.6; }
-        .history-item b { color: #00ffcc; }
     </style>
 </head>
 <body>
@@ -65,103 +52,46 @@
             <div class="signature-emblem"></div>
             <h1 style="margin: 0; font-size: 26px;">나나 연구실</h1>
             <p style="color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; opacity: 0.8;">FOR 57 & HJ : OROW</p>
-            <div class="icon-grid">
-                <div class="icon-btn" onclick="alert('데이터 수집 엔진 대기 중...')"><div style="font-size: 32px;">📹</div><div style="font-size: 12px; margin-top: 8px; color:#aaa;">동영상 수집</div></div>
-                <div class="icon-btn" onclick="toggleModule(true)"><div style="font-size: 32px;">📚</div><div style="font-size: 12px; margin-top: 8px; font-weight: bold;">소설 번역기</div></div>
+            <div onclick="toggleModule(true)" style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
+                <div style="font-size: 32px;">📚</div>
+                <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">소설 무적 번역기</div>
             </div>
         </div>
-        <div class="footer"><div class="v-tag" onclick="toggleHistory(true)">── SYSTEM V3.0 NO-TRACE ──</div></div>
+        <div class="footer"><div class="v-tag">── SYSTEM V3.5 GOOGLE ENGINE ──</div></div>
     </div>
 
     <div id="trans-module">
         <div class="module-header">
-            <span style="color: #00ffcc; font-weight: bold;">NANA PRIVATE ENGINE</span>
+            <span style="color: #00ffcc; font-weight: bold;">NANA ULTIMATE ENGINE</span>
             <button class="back-btn" onclick="toggleModule(false)">돌아가기</button>
         </div>
         <div class="trans-content">
             <div class="input-wrapper">
-                <input type="text" id="target-url" placeholder="중국 소설 주소를 입력하세요">
+                <input type="text" id="target-url" placeholder="중국 소설 주소를 넣어주세요">
                 <button class="clear-btn" onclick="document.getElementById('target-url').value=''">✕</button>
             </div>
-            <button class="action-btn" onclick="runSmartTrans()">우회 침투 가동</button>
-            <div id="result-area">터널 가동 대기 중...</div>
-        </div>
-    </div>
-
-    <div id="history-modal" onclick="toggleHistory(false)">
-        <div class="history-card" onclick="event.stopPropagation()">
-            <h3 style="color:#00ffcc; margin-top:0;">📜 연구실 기록</h3>
-            <div class="history-list">
-                <div class="history-item"><b>V3.0:</b> No-Trace 우회 시스템 (브라우저 차단 무력화)</div>
-                <div class="history-item"><b>V2.9:</b> 터널 정밀 진단기 탑재</div>
-                <div class="history-item"><b>V2.8.5:</b> CORS 보안 우회 필터 적용</div>
-                <div class="history-item"><b>V2.8:</b> 히스토리 10선 및 지우기 버튼</div>
-                <div class="history-item"><b>V2.7:</b> 전용 터널 개통 (gyerimpa.workers.dev)</div>
-                <div class="history-item"><b>V2.3:</b> 커플 시그니처 인장 사진</div>
-                <div class="history-item"><b>V1.0:</b> 나나 연구실 기지 설립</div>
+            <button class="action-btn" onclick="openMagicTrans()">무적 번역 가동</button>
+            <div id="result-area">
+                <iframe id="trans-frame" src="about:blank"></iframe>
             </div>
-            <button style="width:100%; padding:15px; background:#333; color:#fff; border:none; border-radius:15px; font-weight:bold;" onclick="toggleHistory(false)">확인</button>
         </div>
     </div>
 
     <script>
         function toggleModule(s) { document.getElementById('trans-module').classList.toggle('active', s); }
-        function toggleHistory(s) { document.getElementById('history-modal').style.display = s ? 'flex' : 'none'; }
 
-        async function runSmartTrans() {
+        function openMagicTrans() {
             const urlInput = document.getElementById('target-url');
-            const res = document.getElementById('result-area');
+            const frame = document.getElementById('trans-frame');
             
-            // [V3.0 핵심] 주소 끝에 /를 생략하고 깔끔하게 신호 전송
-            const tunnelBase = "https://nana-tunnel.gyerimpa.workers.dev";
-
             if(!urlInput.value) return alert("주소를 입력해 주세요!");
-            res.innerHTML = "<div style='color:#00ffcc;'>[보안 레이더 우회 중]</div>적진 깊숙이 침투하고 있습니다...";
 
-            try {
-                const targetUrl = urlInput.value.trim();
-                // 쿼리 파라미터를 더 정밀하게 구성
-                const finalRequestUrl = `${tunnelBase}/?url=${encodeURIComponent(targetUrl)}`;
-                
-                // [V3.0 핵심] fetch 옵션을 극단적으로 단순화하여 브라우저의 의심을 피함
-                const fetchRes = await fetch(finalRequestUrl);
-
-                if(!fetchRes.ok) throw new Error(`터널 응답 없음 (${fetchRes.status})`);
-                
-                const rawHtml = await fetchRes.text();
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = rawHtml;
-                
-                let cleanText = tempDiv.innerText.replace(/\s+/g, ' ').trim().substring(0, 4500);
-
-                if(cleanText.length < 30) throw new Error("텍스트를 찾을 수 없습니다.");
-
-                res.innerHTML = "<div style='color:#00ffcc;'>[데이터 인출 완료]</div>한글 한자음으로 치환 중...";
-                
-                // 번역 API 호출
-                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
-                const transData = await transRes.json();
-                
-                let translated = "";
-                if(transData && transData[0]) {
-                    transData[0].forEach(item => { if(item[0]) translated += item[0]; });
-                }
-
-                const filter = (t) => {
-                    return t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)").replace(/소염/g, "소염");
-                };
-
-                res.innerHTML = `<div style="color:#00ffcc; font-size:11px; margin-bottom:10px;">[임무 완수]</div>` + filter(translated);
-            } catch (e) {
-                console.error(e);
-                res.innerHTML = `<div style="color:#ffcc00;">[침투 경로 차단]</div><br>
-                                 <span style="color:#ff5555; font-size:13px;">현상: 브라우저가 전용 터널 접속을 막았습니다.</span><br><br>
-                                 <div style="font-size:12px; color:#888; text-align:left; background:#1a1a1a; padding:10px; border-radius:10px;">
-                                 <b>포비, 해결 방법:</b><br>
-                                 1. 아이폰/아이패드 설정 ➔ Safari ➔ 고급 ➔ '모든 쿠키 차단' 해제<br>
-                                 2. 또는 브라우저의 <b>개인정보 보호 모드(시크릿 창)</b>를 끄고 일반 모드에서 시도해 보세요.
-                                 </div>`;
-            }
+            // [V3.5 핵심] 구글 번역기 인프라를 직접 활용하여 차단을 원천 봉쇄
+            // 브라우저는 구글 주소로 인식하기 때문에 절대 막지 않습니다.
+            const googleTransBase = "https://translate.google.com/translate?sl=zh-CN&tl=ko&u=";
+            const target = urlInput.value.trim();
+            
+            frame.src = googleTransBase + encodeURIComponent(target);
         }
     </script>
 </body>
