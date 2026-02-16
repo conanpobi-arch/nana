@@ -9,83 +9,51 @@
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
         .screen { 
             width: 100vw; height: 100vh; 
-            background-image: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
 
-        /* [불변] 투명 크리스탈 레이어 패널 */
         .glass-panel { 
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); 
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
             border-radius: 50px; padding: 45px 25px; border: 1px solid rgba(255,255,255,0.1); 
-            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         }
 
         .signature-emblem {
-            width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(0, 255, 204, 0.4);
+            width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(0, 255, 204, 0.5);
             background-image: url('profile.png'); background-size: cover; background-position: center;
-            margin: 0 auto 20px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); background-color: rgba(255,255,255,0.05);
+            margin: 0 auto 20px; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); background-color: #111;
         }
 
-        h1 { font-size: 26px; margin: 0; letter-spacing: -1px; font-weight: 700; }
         .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; font-size: 14px; letter-spacing: 2.5px; }
 
-        /* 메뉴 그리드 */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
-        .menu-item { 
-            background: rgba(255, 255, 255, 0.05); border-radius: 22px; padding: 25px 10px;
-            cursor: pointer; border: 1px solid rgba(255,255,255,0.08); transition: 0.3s;
-        }
+        .menu-item { background: rgba(255, 255, 255, 0.05); border-radius: 22px; padding: 25px 10px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.3s; }
         .menu-item:active { transform: scale(0.92); background: rgba(0, 255, 204, 0.15); }
         .menu-item i { font-size: 30px; display: block; margin-bottom: 10px; }
-        .menu-item span { font-size: 12px; color: #ddd; }
 
-        /* [전용] 소설 번역기 모듈 */
+        /* [핵심] 아바커스 도킹 인터페이스 */
         #translator-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.95); z-index: 500; backdrop-filter: blur(30px);
-            flex-direction: column; align-items: center; justify-content: center;
+            flex-direction: column; align-items: center;
         }
-        .trans-card { width: 88%; max-width: 380px; display: flex; flex-direction: column; gap: 15px; }
-        .input-wrapper { position: relative; width: 100%; }
         
-        input, textarea { 
-            width: 100%; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; color: #fff; padding: 15px 40px 15px 15px; box-sizing: border-box; font-size: 14px; outline: none;
-        }
-        textarea { height: 150px; resize: none; line-height: 1.6; }
-        
-        /* 삭제 아이콘 (X) */
-        .clear-btn { 
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            color: #666; cursor: pointer; font-size: 20px;
-        }
-        .text-clear { top: 25px; }
-
-        /* 번역 결과창 */
-        #trans-result-box {
-            display: none; background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2);
-            border-radius: 15px; padding: 20px; max-height: 250px; overflow-y: auto;
-            text-align: left; font-size: 14px; line-height: 1.8; color: #eee; white-space: pre-wrap;
+        /* 아바커스 엔진이 표시될 프레임 */
+        #abacus-frame {
+            width: 100%; height: 85vh; border: none; background: #fff; border-radius: 0 0 30px 30px;
         }
 
-        .action-btn { 
-            background: #00ffcc; color: #000; border: none; border-radius: 15px; 
-            padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px;
+        .docking-header {
+            width: 100%; padding: 15px 0; background: #111; display: flex; justify-content: space-around; align-items: center;
         }
 
-        /* [절대 불변] 히스토리 시스템 */
+        /* 히스토리 시스템 (불변) */
         .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; cursor: pointer; }
-        .history-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; font-weight: bold; letter-spacing: 1.5px; }
-        
-        #history-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.92); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(20px);
-        }
-        .history-card {
-            background: #111; width: 85%; max-height: 75vh; border-radius: 35px; 
-            padding: 30px; border: 1px solid #333; overflow-y: auto;
-        }
+        .history-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; font-weight: bold; }
+        #history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.92); z-index: 600; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+        .history-card { background: #111; width: 85%; max-height: 75vh; border-radius: 35px; padding: 30px; border: 1px solid #333; overflow-y: auto; }
         .history-line { padding: 12px 0; border-bottom: 1px solid #222; font-size: 12px; color: #999; }
         .history-line b { color: #00ffcc; }
     </style>
@@ -97,111 +65,52 @@
             <div class="signature-emblem"></div>
             <h1>나나 연구실</h1>
             <div class="sub-title">57 & HJ : OROW</div>
-            
             <div class="menu-grid">
-                <div class="menu-item" onclick="toggleModule('translator-overlay', true)">
-                    <i>📚</i><span>소설 번역기</span>
-                </div>
-                <div class="menu-item" onclick="alert('영상 수집 엔진 준비 중...')"><i>📹</i><span>영상 수집</span></div>
-                <div class="menu-item" onclick="alert('추억 보관함 동기화 중...')"><i>📷</i><span>추억 보관</span></div>
-                <div class="menu-item" onclick="location.reload()"><i>🔄</i><span>시스템 리셋</span></div>
+                <div class="menu-item" onclick="openAbacusEngine()"><i>📚</i><span>소설 번역기</span></div>
+                <div class="menu-item" onclick="alert('준비 중...')"><i>📹</i><span>영상 수집</span></div>
+                <div class="menu-item" onclick="alert('준비 중...')"><i>📷</i><span>추억 보관</span></div>
+                <div class="menu-item" onclick="location.reload()"><i>🔄</i><span>리셋</span></div>
             </div>
         </div>
-        
-        <div class="footer" onclick="toggleModule('history-overlay', true)">
-            <div class="history-tag">── SYSTEM V1.5 HISTORY ──</div>
+        <div class="footer" onclick="toggleView('history-overlay', true)">
+            <div class="history-tag">── SYSTEM V1.7 ABACUS DOCKING ──</div>
         </div>
     </div>
 
     <div id="translator-overlay">
-        <div class="trans-card">
-            <h2 style="color:#00ffcc; margin:0;">소설 번역기</h2>
-            
-            <div class="input-wrapper">
-                <input type="text" id="input-url" placeholder="중국 소설 주소를 입력하세요">
-                <span class="clear-btn" onclick="clearField('input-url')">×</span>
-            </div>
-
-            <div class="input-wrapper">
-                <textarea id="input-text" placeholder="또는 본문을 직접 복사해 넣으세요"></textarea>
-                <span class="clear-btn text-clear" onclick="clearField('input-text')">×</span>
-            </div>
-
-            <div id="trans-result-box"></div>
-
-            <button class="action-btn" onclick="runInternalTranslation()">나나 엔진 가동</button>
-            <button onclick="toggleModule('translator-overlay', false)" style="background:none; border:none; color:#666; cursor:pointer; font-weight:bold;">메인으로 돌아가기</button>
+        <div class="docking-header">
+            <span style="color:#00ffcc; font-weight:bold;">ABACUS ENGINE ACTIVE</span>
+            <button onclick="toggleView('translator-overlay', false)" style="background:#333; color:#fff; border:none; padding:8px 15px; border-radius:10px;">기지 복귀</button>
         </div>
+        <iframe id="abacus-frame" src=""></iframe>
     </div>
 
-    <div id="history-overlay" onclick="toggleModule('history-overlay', false)">
+    <div id="history-overlay" onclick="toggleView('history-overlay', false)">
         <div class="history-card" onclick="event.stopPropagation()">
-            <h2 style="color:#00ffcc; margin-top:0; font-size:20px;">📜 기지 연대기</h2>
-            <div class="history-line"><b>V1.5:</b> 인터널 번역 엔진 탑재 (구글 페이지 이동 제거)</div>
-            <div class="history-line"><b>V1.4:</b> 소설 번역기 인터페이스 및 입력값 개별 삭제(X) 추가</div>
-            <div class="history-line"><b>V1.3.1:</b> 히스토리 전면 복원 및 소설 번역기 이름 고정</div>
-            <div class="history-line"><b>V1.2.2:</b> 투명 레이어(Crystal Hull) 디자인 적용</div>
+            <h2 style="color:#00ffcc; margin-top:0;">📜 기지 연대기</h2>
+            <div class="history-line"><b>V1.7:</b> 아바커스 유료 엔진 다이렉트 도킹 (플랫폼 통합)</div>
+            <div class="history-line"><b>V1.6:</b> 아바커스 우회 로직 분석 및 섀도우 엔진 이식 시도</div>
+            <div class="history-line"><b>V1.5:</b> 인터널 번역 엔진 실험 (실패)</div>
+            <div class="history-line"><b>V1.4:</b> 전용 인터페이스 및 삭제 아이콘 추가</div>
+            <div class="history-line"><b>V1.3.1:</b> 히스토리 전면 복원 및 이름 고정</div>
+            <div class="history-line"><b>V1.2.2:</b> 투명 레이어 디자인 적용</div>
             <div class="history-line"><b>V1.2.1:</b> 우주 배경 경로 최적화 및 복구</div>
             <div class="history-line"><b>V1.2:</b> 밤하늘 우주 배경 1차 적용</div>
             <div class="history-line"><b>V1.1:</b> 시그니처 및 하단 히스토리 시스템 구축</div>
             <div class="history-line"><b>V1.0:</b> 오리지널 베이스캠프 재건</div>
-            <div class="history-line"><b>PAST:</b> 번역 엔진(V8~15) 우회 실험 및 아바커스 분석</div>
-            <button onclick="toggleModule('history-overlay', false)" style="width:100%; background:rgba(0,255,204,0.1); color:#00ffcc; border:1px solid #00ffcc; padding:15px; border-radius:18px; margin-top:20px; font-weight:bold;">확인</button>
+            <div class="history-line"><b>PAST:</b> 번역 엔진 우회 실험 및 아바커스 계정 정보 연동 시작</div>
+            <button onclick="toggleView('history-overlay', false)" style="width:100%; background:#222; color:#00ffcc; border:none; padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;">확인</button>
         </div>
     </div>
 
     <script>
-        function toggleModule(id, show) { 
-            document.getElementById(id).style.display = show ? 'flex' : 'none'; 
-            if(!show && id === 'translator-overlay') {
-                document.getElementById('trans-result-box').style.display = 'none';
-            }
-        }
+        function toggleView(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
 
-        function clearField(id) { document.getElementById(id).value = ''; }
-
-        async function runInternalTranslation() {
-            const url = document.getElementById('input-url').value;
-            const text = document.getElementById('input-text').value;
-            const resBox = document.getElementById('trans-result-box');
-            
-            resBox.style.display = 'block';
-            resBox.innerHTML = "<span style='color:#00ffcc;'>[시스템]</span> 엔진 예열 중... 잠시만 기다려주세요.";
-
-            try {
-                let source = "";
-                if (url) {
-                    // 아바커스 방식의 대리 호출 (Proxy)
-                    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    const resp = await fetch(proxy);
-                    const data = await resp.json();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(data.contents, 'text/html');
-                    source = doc.body.innerText.substring(0, 3000);
-                } else {
-                    source = text;
-                }
-
-                if (!source) throw new Error("입력된 데이터가 없습니다.");
-
-                // 구글 API 직결 (페이지 이동 없음)
-                const api = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(source)}`;
-                const apiResp = await fetch(api);
-                const apiData = await apiResp.json();
-                let resultText = apiData[0].map(x => x[0]).join('');
-
-                // 나나 전용 필터 적용
-                const filtered = resultText
-                    .replace(/예천/g, "엽진")
-                    .replace(/진기/g, "진기(眞氣)")
-                    .replace(/소염/g, "소염")
-                    .replace(/노인/g, "장로");
-
-                resBox.innerHTML = filtered;
-
-            } catch (e) {
-                resBox.innerHTML = `<span style="color:#ff4444;">[오류]</span> 데이터를 가져오지 못했습니다. 본문을 직접 복사해 넣어보세요.`;
-            }
+        function openAbacusEngine() {
+            const frame = document.getElementById('abacus-frame');
+            // 포비의 아바커스 전용 앱 주소를 프레임에 로드합니다.
+            frame.src = "https://chinese-novel-transl-gkmyoe.abacusai.app/";
+            toggleView('translator-overlay', true);
         }
     </script>
 </body>
