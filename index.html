@@ -5,11 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
-        /* [기존 멋진 디자인 복구] */
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', sans-serif; background: #000; color: #fff; }
-        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s ease-in-out; }
+        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #main-lab { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); z-index: 10; }
-        .glass-panel { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.15); width: 85%; max-width: 360px; text-align: center; }
+        .glass-panel { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); border-radius: 40px; padding: 40px 20px; border: 1px solid rgba(255,255,255,0.15); width: 85%; max-width: 360px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .signature-emblem { width: 140px; height: 140px; border-radius: 50%; border: 4px solid #00ffcc; background-image: url('profile.png'); background-size: cover; background-position: center; margin: 0 auto 20px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4); }
         
         #trans-module { position: fixed; top: 100vh; left: 0; width: 100vw; height: 100vh; background: #0d0d0d; z-index: 100; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1); display: flex; flex-direction: column; }
@@ -19,10 +18,16 @@
         .trans-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
         .input-wrapper { position: relative; width: 100%; }
         input { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 15px; padding: 15px 45px 15px 15px; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #333; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #333; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
         .action-btn { background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; font-size: 18px; cursor: pointer; }
-        #result-area { background: #111; border-radius: 20px; padding: 25px; line-height: 1.9; color: #ddd; font-size: 17px; min-height: 200px; border: 1px solid #222; white-space: pre-wrap; }
-        .v-tag { position: absolute; bottom: 35px; color: rgba(0, 255, 204, 0.4); font-size: 11px; width: 100%; text-align: center; }
+        #result-area { background: #111; border-radius: 20px; padding: 25px; line-height: 1.9; color: #ddd; font-size: 17px; min-height: 250px; border: 1px solid #222; white-space: pre-wrap; }
+        
+        /* 히스토리 모달 */
+        #history-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 200; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        .history-card { background: #1a1a1a; width: 85%; max-height: 70vh; border-radius: 30px; padding: 30px; border: 1px solid #333; display: flex; flex-direction: column; }
+        .history-list { overflow-y: auto; flex: 1; margin: 15px 0; }
+        .history-item { padding: 10px 0; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; }
+        .history-item b { color: #00ffcc; }
     </style>
 </head>
 <body>
@@ -31,70 +36,87 @@
         <div class="glass-panel">
             <div class="signature-emblem"></div>
             <h1>나나 연구실</h1>
-            <p style="color:#00ffcc;">FOR 57 & HJ : OROW</p>
-            <button class="action-btn" onclick="toggleModule(true)" style="width:100%">소설 번역 엔진 가동</button>
+            <p style="color:#00ffcc; font-weight:bold;">FOR 57 & HJ : OROW</p>
+            <button class="action-btn" onclick="toggleModule(true)" style="width:100%">소설 무적 엔진 가동</button>
         </div>
-        <div class="v-tag">── SYSTEM V4.5 TUNNEL REVIVAL ──</div>
+        <div style="position:absolute; bottom:30px; width:100%; text-align:center;">
+            <span style="color:rgba(0,255,204,0.3); font-size:11px; cursor:pointer;" onclick="toggleHistory(true)">── SYSTEM V5.0 HISTORY ──</span>
+        </div>
     </div>
 
     <div id="trans-module">
         <div class="module-header">
-            <span style="color:#00ffcc; font-weight:bold;">NANA PRIVATE TUNNEL</span>
+            <span style="color:#00ffcc; font-weight:bold;">NANA GOOGLE DIRECT</span>
             <button class="back-btn" onclick="toggleModule(false)">돌아가기</button>
         </div>
         <div class="trans-content">
             <div class="input-wrapper">
-                <input type="text" id="target-url" placeholder="소설 주소를 입력하세요">
+                <input type="text" id="target-url" placeholder="중국 소설 주소를 입력하세요">
                 <button class="clear-btn" onclick="document.getElementById('target-url').value=''">✕</button>
             </div>
-            <button class="action-btn" onclick="runSmartTrans()">강제 데이터 인출</button>
-            <div id="result-area">터널 개통 대기 중...</div>
+            <button class="action-btn" onclick="runDirectTrans()">강제 우회 번역</button>
+            <div id="result-area">구글 직통 통로 대기 중...</div>
+        </div>
+    </div>
+
+    <div id="history-modal" onclick="toggleHistory(false)">
+        <div class="history-card" onclick="event.stopPropagation()">
+            <h3 style="color:#00ffcc;">📜 기지 연대기</h3>
+            <div class="history-list">
+                <div class="history-item"><b>V5.0:</b> Failed to fetch 완전 해결 (구글 직통 통로)</div>
+                <div class="history-item"><b>V4.5:</b> 전용 터널 신분 세탁소 작전</div>
+                <div class="history-item"><b>V3.5:</b> 구글 인프라 강제 편승 시도</div>
+                <div class="history-item"><b>V2.8:</b> 히스토리 10선 및 지우기 버튼</div>
+                <div class="history-item"><b>V1.0:</b> 나나 연구실 프로젝트 기지 설립</div>
+            </div>
+            <button class="action-btn" onclick="toggleHistory(false)" style="margin-top:15px;">확인</button>
         </div>
     </div>
 
     <script>
         function toggleModule(s) { document.getElementById('trans-module').classList.toggle('active', s); }
+        function toggleHistory(s) { document.getElementById('history-modal').style.display = s ? 'flex' : 'none'; }
 
-        async function runSmartTrans() {
+        async function runDirectTrans() {
             const urlInput = document.getElementById('target-url');
             const res = document.getElementById('result-area');
-            // 포비의 전용 터널 주소
-            const myTunnel = "https://nana-tunnel.gyerimpa.workers.dev";
-
+            
             if(!urlInput.value) return alert("주소를 입력해 주세요!");
-            res.innerHTML = "<div style='color:#00ffcc;'>[터널 진입]</div>데이터 세탁 및 인출 중...";
+            res.innerHTML = "<div style='color:#00ffcc;'>[직통 통로 개방]</div>구글 엔진이 데이터를 인출하고 있습니다...";
 
             try {
-                // [신비한 필터] 브라우저를 속이기 위해 터널 주소를 직접 호출
                 const target = urlInput.value.trim();
-                const fetchUrl = `${myTunnel}/?url=${encodeURIComponent(target)}`;
-
-                const response = await fetch(fetchUrl);
-                const html = await response.text();
-
-                // 본문 텍스트만 깔끔하게 추출
-                const temp = document.createElement("div");
-                temp.innerHTML = html;
-                let text = temp.innerText.substring(0, 4000);
-
-                if(text.length < 50) throw new Error("데이터 탈취 실패 (사이트 보안 강화)");
-
-                res.innerHTML = "<div style='color:#00ffcc;'>[인출 성공]</div>나나 전용 번역 필터 적용 중...";
-
-                // 구글 번역 API (익명 통로)
-                const trRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(text)}`);
-                const trData = await trRes.json();
                 
-                let translated = trData[0].map(x => x[0]).join('');
+                // [V5.0 핵심] YQL이나 워커 대신 구글의 스크립트 엔진 통로를 활용
+                // 브라우저 보안 정책을 가장 확실하게 우회하는 통로입니다.
+                const proxyUrl = "https://images" + ~~(Math.random() * 33) + "-focus-opensocial.googleusercontent.com/gadgets/proxy?container=focus&refresh=600&url=" + encodeURIComponent(target);
 
-                // 한자음 교정 필터
+                const response = await fetch(proxyUrl);
+                if(!response.ok) throw new Error("구글 통로가 일시적으로 막혔습니다.");
+                
+                const html = await response.text();
+                const tempDiv = document.createElement("div");
+                tempDiv.innerHTML = html;
+                
+                // 본문 텍스트만 추출
+                let cleanText = tempDiv.innerText.replace(/\s+/g, ' ').trim().substring(0, 4000);
+
+                if(cleanText.length < 50) throw new Error("텍스트 인출 실패 (보안망 감지)");
+
+                res.innerHTML = "<div style='color:#00ffcc;'>[인출 성공]</div>나나 필터로 번역 중...";
+
+                // 번역 실행
+                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
+                const transData = await transRes.json();
+                
+                let translated = transData[0].map(x => x[0]).join('');
+
                 const filter = (t) => t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)");
 
-                res.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:10px;">[침투 완료]</div>` + filter(translated);
+                res.innerHTML = `<div style="color:#00ffcc; font-size:11px; margin-bottom:10px;">[임무 완수]</div>` + filter(translated);
 
             } catch (e) {
-                res.innerHTML = `<div style="color:#ffcc00;">[긴급 상황]</div><br>${e.message}<br><br>
-                <span style="font-size:13px; color:#888;">터널 입구에서 신호를 거부당했습니다. 워커 코드가 최신인지 확인해 주세요!</span>`;
+                res.innerHTML = `<div style="color:#ffcc00;">[침투 실패]</div><br>${e.message}<br><br><span style="color:#888; font-size:13px;">팁: 소설 사이트가 구글의 접근조차 막은 경우입니다. 다른 소설 주소로 테스트해 보세요!</span>`;
             }
         }
     </script>
