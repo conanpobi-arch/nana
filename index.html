@@ -6,7 +6,7 @@
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
         body { margin: 0; padding: 0; overflow: hidden; font-family: 'Apple SD Gothic Neo', sans-serif; background: #000; color: #fff; }
-        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: 0.5s ease-in-out; }
+        .screen { width: 100vw; height: 100vh; position: absolute; background-size: cover; background-position: center; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #main-lab { background-image: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1000&q=80'); z-index: 10; }
         
         .glass-panel { 
@@ -21,28 +21,8 @@
             margin: 0 auto 20px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
         }
 
-        #trans-module {
-            position: fixed; top: 100vh; left: 0; width: 100vw; height: 100vh;
-            background: #0d0d0d; z-index: 100; transition: 0.5s cubic-bezier(0.19, 1, 0.22, 1);
-            display: flex; flex-direction: column;
-        }
-        #trans-module.active { top: 0; }
-        .module-header { padding: 50px 20px 15px; background: #151515; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
-        .back-btn { background: #333; border: none; color: #00ffcc; padding: 8px 15px; border-radius: 12px; font-weight: bold; }
-
-        .trans-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
-        .input-wrapper { position: relative; width: 100%; }
-        input { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 15px; padding: 15px 45px 15px 15px; font-size: 16px; width: 100%; box-sizing: border-box; }
-        .clear-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: #333; color: #fff; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        .action-btn { background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; font-size: 18px; cursor: pointer; }
-        #result-area { flex: 1; background: #111; border-radius: 20px; border: 1px solid #222; margin-top: 10px; overflow: hidden; }
-        
-        /* 구글 프레임 스타일 */
-        #trans-frame { width: 100%; height: 100%; border: none; }
-
-        .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; z-index: 10; }
-        .v-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; cursor: pointer; letter-spacing: 1px; }
+        .trans-btn { background: #00ffcc; color: #000; border: none; border-radius: 15px; padding: 20px; font-weight: bold; font-size: 18px; cursor: pointer; width: 100%; margin-top: 10px; }
+        input { background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 15px; padding: 15px; font-size: 16px; width: 100%; box-sizing: border-box; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -51,47 +31,23 @@
         <div class="glass-panel">
             <div class="signature-emblem"></div>
             <h1 style="margin: 0; font-size: 26px;">나나 연구실</h1>
-            <p style="color: #00ffcc; font-weight: bold; margin: 10px 0 35px 0; opacity: 0.8;">FOR 57 & HJ : OROW</p>
-            <div onclick="toggleModule(true)" style="background: rgba(255,255,255,0.05); padding: 25px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;">
-                <div style="font-size: 32px;">📚</div>
-                <div style="font-size: 12px; margin-top: 8px; font-weight: bold;">소설 무적 번역기</div>
-            </div>
-        </div>
-        <div class="footer"><div class="v-tag">── SYSTEM V3.5 GOOGLE ENGINE ──</div></div>
-    </div>
-
-    <div id="trans-module">
-        <div class="module-header">
-            <span style="color: #00ffcc; font-weight: bold;">NANA ULTIMATE ENGINE</span>
-            <button class="back-btn" onclick="toggleModule(false)">돌아가기</button>
-        </div>
-        <div class="trans-content">
-            <div class="input-wrapper">
-                <input type="text" id="target-url" placeholder="중국 소설 주소를 넣어주세요">
-                <button class="clear-btn" onclick="document.getElementById('target-url').value=''">✕</button>
-            </div>
-            <button class="action-btn" onclick="openMagicTrans()">무적 번역 가동</button>
-            <div id="result-area">
-                <iframe id="trans-frame" src="about:blank"></iframe>
-            </div>
+            <p style="color: #00ffcc; font-weight: bold; margin: 10px 0 30px 0; opacity: 0.8;">FOR 57 & HJ : OROW</p>
+            
+            <input type="text" id="target-url" placeholder="소설 주소를 입력하세요">
+            <button class="trans-btn" onclick="warpToTrans()">워프 번역 가동</button>
         </div>
     </div>
 
     <script>
-        function toggleModule(s) { document.getElementById('trans-module').classList.toggle('active', s); }
-
-        function openMagicTrans() {
+        function warpToTrans() {
             const urlInput = document.getElementById('target-url');
-            const frame = document.getElementById('trans-frame');
-            
             if(!urlInput.value) return alert("주소를 입력해 주세요!");
 
-            // [V3.5 핵심] 구글 번역기 인프라를 직접 활용하여 차단을 원천 봉쇄
-            // 브라우저는 구글 주소로 인식하기 때문에 절대 막지 않습니다.
-            const googleTransBase = "https://translate.google.com/translate?sl=zh-CN&tl=ko&u=";
             const target = urlInput.value.trim();
+            // 구글 번역 엔진을 이용해 새 창에서 강제 실행 (차단 원천 봉쇄)
+            const warpUrl = `https://translate.google.com/translate?sl=zh-CN&tl=ko&u=${encodeURIComponent(target)}`;
             
-            frame.src = googleTransBase + encodeURIComponent(target);
+            window.open(warpUrl, '_blank');
         }
     </script>
 </body>
