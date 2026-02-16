@@ -115,40 +115,57 @@
         function toggleHistory(s) { document.getElementById('history-modal').style.display = s ? 'flex' : 'none'; }
 
         async function runSmartTrans() {
-            const urlInput = document.getElementById('target-url');
-            const res = document.getElementById('result-area');
-            const myTunnel = "https://nana-tunnel.gyerimpa.workers.dev";
+    const urlInput = document.getElementById('target-url');
+    const res = document.getElementById('result-area');
+    const myTunnel = "https://nana-tunnel.gyerimpa.workers.dev"; // 설계자님 주소
 
-            if(!urlInput.value) return alert("주소를 입력해 주세요!");
-            res.innerHTML = "<div style='color:#00ffcc;'>[전용 터널 진입]</div>적의 보안망 무력화 중...";
+    if(!urlInput.value) return alert("주소를 입력해 주세요!");
+    res.innerHTML = "<div style='color:#00ffcc;'>[터널 진입 중]</div>데이터를 강제 인출하고 있습니다...";
 
-            try {
-                const fetchUrl = `${myTunnel}?url=${encodeURIComponent(urlInput.value.trim())}`;
-                const fetchRes = await fetch(fetchUrl);
-                const rawHtml = await fetchRes.text();
+    try {
+        // 1. 터널을 통해 데이터 가져오기 (캐시 방지 파라미터 추가)
+        const fetchUrl = `${myTunnel}?url=${encodeURIComponent(urlInput.value.trim())}&t=${Date.now()}`;
+        const fetchRes = await fetch(fetchUrl);
+        
+        if(!fetchRes.ok) throw new Error("네트워크 응답 없음");
+        
+        const rawHtml = await fetchRes.text();
 
-                const tempDiv = document.createElement("div");
-                tempDiv.innerHTML = rawHtml;
-                const cleanText = tempDiv.innerText.substring(0, 4500);
+        // 2. 텍스트 추출 방식 개선 (더 유연하게)
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(rawHtml, 'text/html');
+        
+        // 소설 사이트의 쓰레기 데이터(스크립트, 스타일) 제거
+        const scripts = doc.querySelectorAll('script, style, ins, .ads, #footer');
+        scripts.forEach(s => s.remove());
+        
+        let cleanText = doc.body.innerText.replace(/\s+/g, ' ').trim().substring(0, 4000);
 
-                if(cleanText.length < 100) throw new Error("탈취 실패");
-
-                res.innerHTML = "<div style='color:#00ffcc;'>[데이터 탈취 성공]</div>한국어 한자음 변환 중...";
-                const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
-                const transData = await transRes.json();
-                
-                let translated = "";
-                transData[0].forEach(item => { if(item[0]) translated += item[0]; });
-
-                const filter = (t) => {
-                    return t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)").replace(/소염/g, "소염");
-                };
-
-                res.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:15px;">[임무 완수: 지하 터널 통과]</div>` + filter(translated);
-            } catch (e) {
-                res.innerHTML = `<div style="color:#ffcc00;">[긴급] 터널 차단</div><br>주소를 확인하거나 잠시 후 다시 시도하세요.`;
-            }
+        if(cleanText.length < 50) {
+            // 본문 추출 실패 시 rawHtml이라도 일단 번역 시도
+            cleanText = rawHtml.replace(/<[^>]*>?/gm, '').substring(0, 4000);
         }
+
+        // 3. 번역 및 필터링
+        res.innerHTML = "<div style='color:#00ffcc;'>[추출 완료]</div>번역 엔진 가동...";
+        const transRes = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=ko&dt=t&q=${encodeURIComponent(cleanText)}`);
+        const transData = await transRes.json();
+        
+        let translated = "";
+        transData[0].forEach(item => { if(item[0]) translated += item[0]; });
+
+        const filter = (t) => {
+            return t.replace(/예천/g, "엽진").replace(/공간을 찢고/g, "파공(破空)하여").replace(/기운/g, "진기(眞氣)").replace(/소염/g, "소염");
+        };
+
+        res.innerHTML = `<div style="color:#00ffcc; font-size:12px; margin-bottom:15px;">[임무 성공]</div>` + filter(translated);
+    } catch (e) {
+        console.error(e);
+        res.innerHTML = `<div style="color:#ffcc00;">[터널 통과 실패]</div><br>
+                         사유: ${e.message}<br><br>
+                         <span style="color:#aaa; font-size:14px;">팁: 워커 코드가 배포되었는지 확인하시고, 10초 뒤 다시 시도해 보세요!</span>`;
+    }
+}
     </script>
 </body>
 </html>
