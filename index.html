@@ -8,15 +8,12 @@
         body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
         .screen { width: 100vw; height: 100vh; background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://images.pexels.com/photos/1252890/pexels-photo-1252890.jpeg?auto=compress&cs=tinysrgb&w=1200'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; }
         .glass-panel { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); border-radius: 50px; padding: 40px 25px; border: 1px solid rgba(255,255,255,0.15); width: 85%; max-width: 360px; text-align: center; }
-        .signature-emblem { width: 90px; height: 90px; border-radius: 50%; border: 2px solid #00ffcc; background: url('profile.png') center/cover; margin: 0 auto 15px; box-shadow: 0 0 20px rgba(0, 255, 204, 0.4); }
         .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 25px 0; font-size: 12px; letter-spacing: 3px; }
-        
         #trans-overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.98); z-index: 500; backdrop-filter: blur(30px); flex-direction: column; align-items: center; padding-top: 30px; }
         .trans-container { width: 92%; max-width: 450px; display: flex; flex-direction: column; gap: 10px; }
         textarea { width: 100%; background: rgba(255,255,255,0.08); border: 1px solid #333; border-radius: 18px; color: #fff; padding: 15px; box-sizing: border-box; font-size: 14px; height: 180px; outline: none; border: 1px solid rgba(0, 255, 204, 0.2); }
         #result-area { display: none; background: #050505; border-radius: 20px; padding: 25px; border: 1px solid #00ffcc; max-height: 45vh; overflow-y: auto; text-align: left; font-size: 16px; line-height: 1.9; color: #f0f0f0; white-space: pre-wrap; margin-top: 10px; }
-        .btn-main { background: #00ffcc; color: #000; border: none; border-radius: 18px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        .btn-main:disabled { background: #333; color: #888; cursor: not-allowed; }
+        .btn-main { background: #00ffcc; color: #000; border: none; border-radius: 18px; padding: 18px; font-weight: bold; cursor: pointer; font-size: 16px; width: 100%; }
         .status-log { font-size: 11px; color: #00ffcc; margin: 5px 0; text-align: center; min-height: 15px; }
     </style>
 </head>
@@ -24,86 +21,79 @@
 
 <div class="screen">
     <div class="glass-panel">
-        <div class="signature-emblem"></div>
-        <h1>나나 연구실</h1>
+        <h1 style="font-size:24px;">나나 연구실</h1>
         <div class="sub-title">57 & HJ : OROW</div>
-        <div class="btn-main" onclick="toggleLayer('trans-overlay', true)">📚 번역 엔진 가동</div>
+        <button class="btn-main" onclick="toggleLayer('trans-overlay', true)">📚 번역 엔진 가동</button>
     </div>
 </div>
 
 <div id="trans-overlay">
     <div class="trans-container">
-        <h2 style="color:#00ffcc; margin:0; text-align:center;">GEMINI CORE V2.3.2</h2>
-        <div id="log-display" class="status-log">신규 API 키 인식 완료. 대기 중...</div>
-        <textarea id="text-input" placeholder="중국어 본문을 붙여넣으세요"></textarea>
+        <h2 style="color:#00ffcc; margin:0; text-align:center;">ULTIMATE ENGINE V2.3.3</h2>
+        <div id="log-display" class="status-log">새로운 키 장착 완료.</div>
+        <textarea id="text-input" placeholder="여기에 원문을 붙여넣으세요"></textarea>
         <div id="result-area"></div>
-        <button class="btn-main" id="run-btn" onclick="runGeminiEngine()">나나 엔진 기동</button>
+        <button class="btn-main" id="run-btn" onclick="masterRun()">나나 엔진 기동</button>
         <button onclick="toggleLayer('trans-overlay', false)" style="background:none; color:#555; border:none; cursor:pointer; margin-top:10px;">기지 복귀</button>
     </div>
 </div>
 
 <script>
-    // 포비의 신규 API 키
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
     function toggleLayer(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
 
-    async function runGeminiEngine() {
+    // 3단계 시도 로직
+    async function masterRun() {
         const text = document.getElementById('text-input').value;
-        const resArea = document.getElementById('result-area');
         const log = document.getElementById('log-display');
-        const runBtn = document.getElementById('run-btn');
+        const resArea = document.getElementById('result-area');
+        if(!text) return alert("원문을 입력하세요.");
 
-        if(!text) { alert("본문을 입력해주세요!"); return; }
-
-        runBtn.disabled = true;
         resArea.style.display = 'block';
-        log.innerText = "제미나이 신규 코어와 동기화 중...";
-
-        // [최종 최적화] 정식 v1 경로와 gemini-1.5-flash 모델 조합
-        const apiEndpoint = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+        resArea.innerText = "";
         
-        try {
-            const response = await fetch(apiEndpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `당신은 무협 소설 전문 번역가입니다. 아래 지침을 반드시 지켜 번역하세요.
-                            [필수 지침]
-                            1. No Omission: 단 한 문장도 빠짐없이 번역하라. 원문의 문장 개수와 번역문의 문장 개수를 동일하게 유지하라.
-                            2. 대한민국 한자음: 이름, 지명, 무공은 반드시 한국식 한자음으로 표기하라. (예: 叶辰->엽진, 林->임, 眞氣->진기). 중국어 발음 표기는 절대 하지 마라.
-                            3. 구어체: 소설 독자가 읽기 편한 자연스러운 한국어 문체로 번역하라.
+        // 시도할 모델/버전 리스트
+        const attempts = [
+            { ver: 'v1', model: 'gemini-1.5-flash' },
+            { ver: 'v1beta', model: 'gemini-1.5-flash' },
+            { ver: 'v1', model: 'gemini-pro' }
+        ];
 
-                            본문:
-                            ${text}`
-                        }]
-                    }]
-                })
-            });
-
-            const resultData = await response.json();
-
-            if (resultData.error) {
-                throw new Error(`[API 오류] ${resultData.error.message}`);
+        for(let i=0; i < attempts.length; i++) {
+            log.innerText = `[시도 ${i+1}/3] ${attempts[i].model} 연결 중...`;
+            try {
+                const success = await callGemini(attempts[i].ver, attempts[i].model, text);
+                if(success) {
+                    log.innerText = `번역 완료 (${attempts[i].model})`;
+                    return; 
+                }
+            } catch (e) {
+                console.log(`시도 ${i+1} 실패:`, e);
             }
-
-            if (resultData.candidates && resultData.candidates[0].content) {
-                const translated = resultData.candidates[0].content.parts[0].text;
-                resArea.innerText = translated;
-                log.innerText = "번역 완료 - 대한민국 한자음 및 No Omission 적용";
-            } else {
-                throw new Error("응답이 비어있습니다. 본문 양을 조금 줄여서 다시 시도해보세요.");
-            }
-
-        } catch (e) {
-            console.error(e);
-            log.innerText = "연결 오류 발생";
-            resArea.innerHTML = `<span style="color:#ff4444;">[긴급 오류 보고]</span><br>${e.message}<br><br><b>조치 사항:</b> 모델명을 찾을 수 없다고 나오면, 구글 AI Studio에서 해당 모델을 사용할 수 있는지 확인이 필요합니다.`;
-        } finally {
-            runBtn.disabled = false;
         }
+        log.innerText = "모든 경로 차단됨. API 키 활성화 여부를 확인하세요.";
+    }
+
+    async function callGemini(ver, model, content) {
+        const url = `https://generativelanguage.googleapis.com/${ver}/models/${model}:generateContent?key=${API_KEY}`;
+        const resArea = document.getElementById('result-area');
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `번역하라: ${content}\n\n[지침] No Omission, 대한민국 한자음 표기.` }] }]
+            })
+        });
+
+        const data = await response.json();
+        if(data.candidates && data.candidates[0].content) {
+            resArea.innerText = data.candidates[0].content.parts[0].text;
+            return true;
+        }
+        if(data.error) throw new Error(data.error.message);
+        return false;
     }
 </script>
 </body>
