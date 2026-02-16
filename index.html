@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>나나 연구실 - 57 & HJ OROW</title>
     <style>
-        /* [불변 설정] 배경 및 폰트 */
-        body { margin: 0; padding: 0; background: #000; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
+        /* [불변] 밤하늘 우주 배경 복원 */
+        body { 
+            margin: 0; padding: 0; background: #000; color: #fff; 
+            font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; 
+        }
         
         .screen { 
             width: 100vw; height: 100vh; 
-            background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1464802686167-b939a67e0b24?auto=format&fit=crop&w=1000&q=80');
+            /* 앞전에 사용했던 웅장한 밤하늘 우주 이미지로 복원 */
+            background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1506318137071-a8e063b4b519?auto=format&fit=crop&w=1200&q=80');
             background-size: cover; background-position: center;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
@@ -19,47 +23,45 @@
         .glass-panel { 
             background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); 
             border-radius: 40px; padding: 45px 25px; border: 1px solid rgba(255,255,255,0.15); 
-            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            width: 82%; max-width: 340px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
         .signature-emblem {
-            width: 140px; height: 140px; border-radius: 50%; border: 3px solid #00ffcc;
-            background-image: url('profile.png'); /* 깃허브 경로 유지 */
+            width: 130px; height: 130px; border-radius: 50%; border: 3px solid #00ffcc;
+            background-image: url('profile.png'); /* 깃허브 업로드 파일 연결 */
             background-size: cover; background-position: center;
             margin: 0 auto 20px; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
-            background-color: #222; /* 이미지 로딩 전 대비용 */
+            background-color: #1a1a1a;
         }
 
-        h1 { font-size: 26px; margin: 0; letter-spacing: -1px; font-weight: 700; }
+        h1 { font-size: 26px; margin: 0; letter-spacing: -1px; font-weight: 700; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
         .sub-title { color: #00ffcc; font-weight: bold; margin: 10px 0 30px 0; font-size: 14px; letter-spacing: 2.5px; }
 
         /* 메뉴 그리드 */
         .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
         .menu-item { 
-            background: rgba(255, 255, 255, 0.04); border-radius: 20px; padding: 25px 10px;
+            background: rgba(255, 255, 255, 0.06); border-radius: 20px; padding: 25px 10px;
             cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.1);
         }
-        .menu-item:active { transform: scale(0.9); background: rgba(0, 255, 204, 0.15); }
-        .menu-item i { font-size: 32px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.3)); }
-        .menu-item span { font-size: 12px; color: #ddd; font-weight: 500; }
+        .menu-item:active { transform: scale(0.9); background: rgba(0, 255, 204, 0.2); }
+        .menu-item i { font-size: 32px; display: block; margin-bottom: 10px; filter: drop-shadow(0 0 8px rgba(255,255,255,0.4)); }
+        .menu-item span { font-size: 12px; color: #eee; font-weight: 500; }
 
         /* [절대 불변] 하단 히스토리 시스템 */
         .footer { position: absolute; bottom: 35px; text-align: center; width: 100%; cursor: pointer; }
-        .history-tag { color: rgba(0, 255, 204, 0.4); font-size: 11px; letter-spacing: 1.5px; font-weight: bold; transition: 0.3s; }
-        .history-tag:hover { color: rgba(0, 255, 204, 1); text-shadow: 0 0 10px rgba(0, 255, 204, 0.5); }
-
-        /* 히스토리 모달 스타일 */
+        .history-tag { color: rgba(0, 255, 204, 0.5); font-size: 11px; letter-spacing: 1.5px; font-weight: bold; }
+        
         #history-overlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.92); z-index: 100; align-items: center; justify-content: center;
-            backdrop-filter: blur(10px);
+            background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center;
+            backdrop-filter: blur(15px);
         }
         .history-card {
-            background: #151515; width: 85%; max-height: 60vh; border-radius: 30px; 
-            padding: 30px; border: 1px solid #333; overflow-y: auto;
+            background: #111; width: 85%; max-height: 65vh; border-radius: 30px; 
+            padding: 30px; border: 1px solid #333; overflow-y: auto; box-shadow: 0 0 40px rgba(0, 255, 204, 0.1);
         }
-        .history-line { padding: 12px 0; border-bottom: 1px solid #222; font-size: 13px; color: #bbb; line-height: 1.5; }
+        .history-line { padding: 12px 0; border-bottom: 1px solid #222; font-size: 13px; color: #ccc; }
         .history-line b { color: #00ffcc; margin-right: 5px; }
     </style>
 </head>
@@ -72,7 +74,7 @@
             <div class="sub-title">57 & HJ : OROW</div>
             
             <div class="menu-grid">
-                <div class="menu-item" onclick="alert('초기 베이스캠프 버전으로 소설 게이트를 재설계 중입니다.')">
+                <div class="menu-item" onclick="alert('시스템 안정화 후 소설 게이트를 재개방합니다.')">
                     <i>📚</i><span>소설 게이트</span>
                 </div>
                 <div class="menu-item" onclick="alert('데이터 아카이브 대기 중...')">
@@ -88,18 +90,18 @@
         </div>
         
         <div class="footer" onclick="toggleHistory(true)">
-            <div class="history-tag">── SYSTEM V1.1 HISTORY ──</div>
+            <div class="history-tag">── SYSTEM V1.2 HISTORY ──</div>
         </div>
     </div>
 
     <div id="history-overlay" onclick="toggleHistory(false)">
         <div class="history-card" onclick="event.stopPropagation()">
             <h2 style="color:#00ffcc; margin-top:0; font-size:20px;">📜 기지 연대기</h2>
+            <div class="history-line"><b>V1.2:</b> 밤하늘 우주 배경 복원 및 최적화</div>
             <div class="history-line"><b>V1.1:</b> 시그니처 및 히스토리 영구 복원</div>
             <div class="history-line"><b>V1.0:</b> 오리지널 베이스캠프 재건</div>
-            <div class="history-line"><b>V8.0~15.0:</b> 번역 엔진 및 보안 해체 실험</div>
-            <div class="history-line"><b>PAST:</b> 나나 연구실 베이스캠프 최초 구축</div>
-            <button onclick="toggleHistory(false)" style="width:100%; background:#333; color:#00ffcc; border:none; padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;">확인</button>
+            <div class="history-line"><b>PAST:</b> 번역 엔진 실험 및 우회로 탐색</div>
+            <button onclick="toggleHistory(false)" style="width:100%; background:#222; color:#00ffcc; border:1px solid #333; padding:15px; border-radius:15px; margin-top:20px; font-weight:bold;">닫기</button>
         </div>
     </div>
 
