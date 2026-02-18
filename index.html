@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>NANA LAB V37.0 - 하이브리드 번역기</title>
+<title>NANA LAB V38.0 - 하이브리드 번역기</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -375,17 +375,17 @@
   <header>
     <div class="couple-main"></div>
     <h1>NANA LAB <span>TRANSLATOR</span></h1>
-    <div class="version-tag">STATION V37.0 · CLAUDE HYBRID</div>
+    <div class="version-tag">STATION V38.0 · GEMINI HYBRID</div>
   </header>
 
   <div class="card">
     <div class="card-title">▸ SYSTEM CONFIG</div>
 
-    <label>CLAUDE API KEY</label>
-    <input type="password" id="apiKey" placeholder="sk-ant-api03-...">
+    <label>GEMINI API KEY (무료)</label>
+    <input type="password" id="apiKey" placeholder="AIzaSy...">
     <div class="info-box">
       🔐 API 키는 이 기기 브라우저에만 저장됩니다.<br>
-      발급: <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a>
+      무료 발급: <a href="https://aistudio.google.com/app/apikey" target="_blank">aistudio.google.com</a>
     </div>
 
     <label>TRANSLATION MODE</label>
@@ -426,6 +426,7 @@
 
   <div class="history-section">
     <div class="history-title">▸ VERSION HISTORY</div>
+    <div class="hist-item"><span class="hist-ver">V38.0</span> Gemini API 무료 엔진 교체 + CORS 문제 해결</div>
     <div class="hist-item"><span class="hist-ver">V37.0</span> Claude API 엔진 교체 + 은하수 렌더링 수정 + URL 크롤링 통합</div>
     <div class="hist-item"><span class="hist-ver">V36.0</span> 클로드 UI 구조 + 제미나이 엔진 하이브리드 통합</div>
     <div class="hist-item"><span class="hist-ver">V35.0</span> 클로드 합동 분석 반영 및 엔진 경로 정규화</div>
@@ -471,10 +472,10 @@ for (let i = 0; i < 5; i++) {
 }
 
 // API 키 저장/복원
-const savedKey = localStorage.getItem('nana_claude_key');
+const savedKey = localStorage.getItem('nana_gemini_key');
 if (savedKey) document.getElementById('apiKey').value = savedKey;
 document.getElementById('apiKey').addEventListener('change', function() {
-  if (this.value.trim()) localStorage.setItem('nana_claude_key', this.value.trim());
+  if (this.value.trim()) localStorage.setItem('nana_gemini_key', this.value.trim());
 });
 
 let currentMode = 'url';
@@ -551,32 +552,35 @@ function extractContent(html) {
 }
 
 async function translateClaude(title, content, apiKey) {
-  setStep('Claude 엔진 번역 중... (30초~1분 소요)');
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-opus-4-6',
-      max_tokens: 8000,
-      messages: [{ role: 'user', content:
-        `소설 번역 전문가로서 다음 중국어 웹소설을 한국어로 유려하게 번역하라.\n한자음은 한국식으로 표기하고 대화체는 자연스럽게 하라.\n번역 결과만 출력하고, 제목도 번역해서 맨 위에 적어라.\n\n제목: ${title}\n\n내용:\n${content}` }]
-    })
-  });
+  setStep('Gemini 엔진 번역 중... (10~30초 소요)');
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `소설 번역 전문가로서 다음 중국어 웹소설을 한국어로 유려하게 번역하라.
+한자음은 한국식으로 표기하고 대화체는 자연스럽게 하라.
+번역 결과만 출력하고, 제목도 번역해서 맨 위에 적어라.
+
+제목: ${title}
+
+내용:
+${content}` }] }],
+        generationConfig: { maxOutputTokens: 8000 }
+      })
+    }
+  );
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    if (res.status === 401) throw new Error('API 키가 유효하지 않습니다.\nconsole.anthropic.com에서 확인해주세요.');
+    if (res.status === 400) throw new Error('API 키가 유효하지 않습니다.\naistudio.google.com에서 확인해주세요.');
     if (res.status === 429) throw new Error('API 요청 한도 초과입니다. 잠시 후 다시 시도해주세요.');
-    throw new Error(`Claude 엔진 오류 (${res.status}): ${err.error?.message || '알 수 없는 오류'}`);
+    throw new Error(`Gemini 엔진 오류 (${res.status}): ${err.error?.message || '알 수 없는 오류'}`);
   }
 
   const data = await res.json();
-  return data.content[0].text;
+  return data.candidates[0].content.parts[0].text;
 }
 
 async function fireEngine() {
