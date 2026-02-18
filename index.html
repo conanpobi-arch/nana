@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>NANA LAB V40.3</title>
+    <title>NANA LAB V40.4</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&family=Noto+Serif+KR&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00ffcc; --bg: #000b1a; --card-bg: rgba(0, 255, 204, 0.05); --card-border: rgba(0, 255, 204, 0.2); }
@@ -27,23 +27,26 @@
         .module { display: none; background: rgba(0, 10, 25, 0.95); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; margin-top: 20px; text-align: left; animation: slideUp 0.4s ease; backdrop-filter: blur(20px); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 상단 툴바 레이아웃 */
+        /* 상단 툴바 레이아웃 개량 */
         .top-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .nav-icon { cursor: pointer; font-size: 20px; color: var(--neon); opacity: 0.7; transition: 0.3s; }
+        .nav-icon { cursor: pointer; font-size: 28px; color: var(--neon); opacity: 0.8; transition: 0.3s; padding: 5px; } /* 홈 아이콘 키움 */
         .nav-icon:hover { opacity: 1; transform: scale(1.1); }
 
         .header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 204, 0.2); }
         .tab-container { display: flex; gap: 10px; }
         .tab { cursor: pointer; padding: 8px 10px; font-size: 11px; font-family: 'Orbitron'; color: #666; transition: 0.3s; }
         .tab.active { color: var(--neon); border-bottom: 2px solid var(--neon); }
-        .clear-btn { cursor: pointer; font-size: 18px; color: var(--neon); opacity: 0.6; padding: 5px; transition: 0.3s; }
+        .clear-btn { cursor: pointer; font-size: 20px; color: var(--neon); opacity: 0.6; padding: 5px; transition: 0.3s; }
         .clear-btn:hover { opacity: 1; }
 
         input, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 10px; outline: none; font-size: 15px; }
         .btn-fire { width: 100%; padding: 15px; background: transparent; color: var(--neon); border: 1px solid var(--neon); border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; letter-spacing: 2px; }
         #res-box { margin-top: 20px; white-space: pre-wrap; font-family: 'Noto Serif KR', serif; line-height: 1.8; color: #dfdfdf; font-size: 16px; }
 
-        .hist-btn { margin-top: 40px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.4; }
+        /* 하단 버전 표기 로그 버튼 */
+        .hist-btn { margin-top: 40px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.4; letter-spacing: 1px; }
+        .hist-btn:hover { opacity: 0.8; }
+        
         #history-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
         #history-modal { background: var(--bg); border:1px solid var(--neon); padding:30px; border-radius:20px; width:85%; max-width:450px; }
         .hist-item { display:flex; font-size:11px; margin-bottom:8px; text-align:left; color:rgba(255,255,255,0.7); }
@@ -67,21 +70,22 @@
             <div class="menu-item" style="opacity:0.3;"><span>🎬</span><h3>다운로더</h3></div>
             <div class="menu-item" style="opacity:0.3;"><span>❓</span><h3>미정</h3></div>
         </div>
-        <div class="hist-btn" onclick="openHistory()">▸ SYSTEM LOG</div>
+        <div class="hist-btn" onclick="openHistory()">▸ SYSTEM LOG [V40.4]</div>
     </div>
 
     <div class="container module" id="trans-mod">
         <div class="top-toolbar">
             <div class="nav-icon" onclick="hideModule()" title="메인으로">🏠</div>
-            <h3 style="color: var(--neon); font-family: 'Orbitron'; font-size: 14px;">TRANSLATOR</h3>
-            <div style="width:20px;"></div> </div>
+            <h3 style="color: var(--neon); font-family: 'Orbitron'; font-size: 14px;">TRANSLATOR ENGINE</h3>
+            <div style="width:30px;"></div> 
+        </div>
         
         <div class="header-tools">
             <div class="tab-container">
                 <div class="tab active" id="tab-text" onclick="switchTab('text')">TEXT</div>
                 <div class="tab" id="tab-url" onclick="switchTab('url')">URL</div>
             </div>
-            <div class="clear-btn" onclick="clearAll()" title="전체 삭제">🗑️</div>
+            <div class="clear-btn" onclick="clearAll()" title="즉시 삭제">🗑️</div>
         </div>
 
         <div id="input-area">
@@ -95,34 +99,27 @@
         <div id="history-modal" onclick="event.stopPropagation()">
             <h3 style="font-family:'Orbitron'; color:var(--neon); margin-bottom:20px; font-size:14px;">HISTORY LOG</h3>
             <div id="hist-list">
-                <div class="hist-item"><span class="hist-ver">V40.3</span> 브라우저 뒤로가기(Back) 연동 및 홈(Home) 아이콘 추가</div>
-                <div class="hist-item"><span class="hist-ver">V40.2</span> 입력창/결과창 원터치 삭제(Trash) 기능 추가</div>
+                <div class="hist-item"><span class="hist-ver">V40.4</span> 삭제 확인창 제거, 홈 아이콘 확대, 메인 버전 표기 추가</div>
+                <div class="hist-item"><span class="hist-ver">V40.3</span> 브라우저 뒤로가기 연동 및 홈 아이콘 추가</div>
+                <div class="hist-item"><span class="hist-ver">V40.2</span> 입력창/결과창 원터치 삭제(Trash) 추가</div>
                 <div class="hist-item"><span class="hist-ver">V40.1</span> 탭 시스템 통합 및 순수 번역 프롬프트 고도화</div>
                 <div class="hist-item"><span class="hist-ver">V40.0</span> 텍스트/URL 모듈 분리 및 모바일 키 저장 강화</div>
                 <div class="hist-item"><span class="hist-ver">V39.2</span> 인터페이스 미니멀화 및 투명도 최적화</div>
                 <div class="hist-item"><span class="hist-ver">V39.1</span> 히스토리 레이어 팝업 시스템 적용</div>
                 <div class="hist-item"><span class="hist-ver">V39.0</span> 메인 허브 인터페이스 구축</div>
-                <div class="hist-item"><span class="hist-ver">V38.6</span> Gemini 3 Flash 엔진 점화 성공</div>
-                <div class="hist-item"><span class="hist-ver">V38.5</span> 무한 경로 탐색(v1/v1beta)</div>
-                <div class="hist-item"><span class="hist-ver">V38.4</span> 하이브리드 엔진 탐색 시스템</div>
             </div>
         </div>
     </div>
 
 <script>
-    // [기본 설정 및 API 저장 로직 생략 - 이전 버전과 동일]
+    // 기존 로직 유지
     const saved = localStorage.getItem('nana_key');
     if(saved) document.getElementById('globalKey').value = saved;
     function saveKey() { localStorage.setItem('nana_key', document.getElementById('globalKey').value.trim()); }
 
-    // 🕵️‍♂️ 뒤로가기 감지 엔진
-    window.onpopstate = function(event) {
-        // 브라우저 뒤로가기를 누르면 무조건 허브로 복귀
-        hideModule(true); 
-    };
+    window.onpopstate = function() { hideModule(true); };
 
     function showModule(id) {
-        // 모듈 진입 시 히스토리 상태 추가 (뒤로가기 대비)
         history.pushState({page: id}, null, "#" + id);
         document.getElementById('main-hub').style.display='none';
         document.getElementById(id).style.display='block';
@@ -130,21 +127,17 @@
     }
 
     function hideModule(isPopState = false) {
-        document.getElementById('trans-mod').style.display='none';
+        document.querySelectorAll('.module').forEach(m => m.style.display='none');
         document.getElementById('main-hub').style.display='block';
-        // 직접 버튼을 눌러서 나갈 때는 히스토리를 한 칸 뒤로 밀어줌
-        if(!isPopState && window.location.hash) {
-            history.back();
-        }
+        if(!isPopState && window.location.hash) history.back();
     }
 
-    // [번역 및 삭제 로직 생략 - 이전 버전과 동일]
+    // 🗑️ 즉시 삭제 로직 (Confirm 제거)
     function clearAll() {
-        if(confirm("입력 내용과 번역 결과를 모두 삭제할까요?")) {
-            document.getElementById('inpText').value = "";
-            document.getElementById('res-box').innerText = "";
-        }
+        document.getElementById('inpText').value = "";
+        document.getElementById('res-box').innerText = "";
     }
+
     function switchTab(mode) {
         currentMode = mode;
         document.getElementById('tab-text').classList.toggle('active', mode === 'text');
@@ -152,14 +145,14 @@
         document.getElementById('inpText').placeholder = (mode === 'text') ? "중국어 원문을 붙여넣으세요..." : "번역할 웹페이지 주소(URL)를 입력하세요...";
         document.getElementById('inpText').style.height = (mode === 'text') ? "350px" : "60px";
     }
-    
+
     async function fireEngine() {
         const key = document.getElementById('globalKey').value.trim();
         const input = document.getElementById('inpText').value.trim();
         const resBox = document.getElementById('res-box');
         if(!key || !input) return alert("입력값을 확인하세요!");
         saveKey();
-        resBox.innerText = "🚀 엔진 가동 중...";
+        resBox.innerText = "🚀 번역 엔진 가동 중...";
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent`, {
                 method: 'POST',
@@ -168,10 +161,13 @@
             });
             const data = await response.json();
             resBox.innerText = data.candidates[0].content.parts[0].text;
-        } catch(e) { resBox.innerText = "❌ 실패: API 키 또는 네트워크 오류"; }
+        } catch(e) { resBox.innerText = "❌ 오류: API 키 또는 네트워크 확인"; }
     }
+
     function openHistory() { document.getElementById('history-overlay').style.display='flex'; }
     function closeHistory() { document.getElementById('history-overlay').style.display='none'; }
+    
+    // 은하수 생성
     const bg = document.getElementById('galaxy-bg');
     for(let i=0; i<150; i++){
         const s = document.createElement('div'); s.className = 'star';
