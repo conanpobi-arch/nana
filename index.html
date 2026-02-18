@@ -1,263 +1,132 @@
 <!DOCTYPE html>
-
 <html lang="ko">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
 <title>NANA LAB V41.9 - 1.5-Flash 최적화</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
-
 <style>
-
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body, html { width: 100%; height: 100%; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; background: #000; position: fixed; }
-
   #galaxy-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
-
   .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--dur) infinite; }
-
   @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-
-
   .container { position: relative; z-index: 1; max-width: 800px; margin: 0 auto; padding: 10vh 20px 0; text-align: center; height: 100vh; overflow-y: auto; }
-
   .couple-main { width: 130px; height: 130px; border-radius: 50%; border: 3px solid var(--neon); margin: 0 auto 15px; background: url('./profile.png') center/cover no-repeat, #222; box-shadow: 0 0 25px rgba(0,255,204,0.3); pointer-events: none; }
-
   h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; letter-spacing: 4px; text-shadow: 0 0 15px var(--neon); margin-bottom: 30px; }
 
-
-
   .card { background: rgba(0,15,35,0.85); border: 1px solid var(--border); border-radius: 20px; padding: 25px; backdrop-filter: blur(20px); margin-bottom: 20px; text-align: left; }
-
   label { display: block; font-size: 11px; color: var(--neon); margin-bottom: 8px; letter-spacing: 2px; }
-
   input, textarea { width: 100%; background: rgba(0,0,0,0.4); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 12px; font-size: 14px; outline: none; margin-bottom: 15px; }
-
   
-
   .btn-fire { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-weight: 900; font-family: 'Orbitron'; letter-spacing: 2px; cursor: pointer; }
-
   .btn-fire:disabled { opacity: 0.5; cursor: not-allowed; background: #333; color: #888; }
-
-
 
   #res-box { margin-top: 20px; background: rgba(0,10,25,0.9); border: 1px solid var(--border); border-radius: 15px; padding: 20px; font-family: 'Noto Serif KR', serif; line-height: 1.9; font-size: 17px; color: #dfdfdf; white-space: pre-wrap; display: none; }
 
-
-
   .history-section { margin-top: 50px; padding-bottom: 50px; opacity: 0.4; font-size: 10px; text-align: left; }
-
   .hist-item { display: flex; margin-bottom: 5px; gap: 10px; }
-
   .hist-ver { color: var(--neon); font-weight: bold; min-width: 45px; }
-
 </style>
-
 </head>
-
 <body>
-
 <div id="galaxy-bg"></div>
-
 <div class="container">
-
   <div class="couple-main"></div>
-
   <h1>NANA LAB <span>V41.9</span></h1>
 
-
-
   <div class="card">
-
     <label>STATION API KEY</label>
-
     <input type="password" id="apiKey" placeholder="API 키 입력...">
-
     <textarea id="textInput" style="height:250px;" placeholder="중국어 소설 원문을 입력하세요..."></textarea>
-
     <button class="btn-fire" id="fireBtn" onclick="fireEngine()">FIRE ENGINE</button>
-
   </div>
-
-
 
   <div id="res-box"></div>
 
-
-
   <div class="history-section" id="hist-list">
-
     <div class="hist-item"><span class="hist-ver">V41.9</span> gemini-1.5-flash 모델 복구 및 5초 간격 최적화 패치</div>
-
     <div class="hist-item"><span class="hist-ver">V41.8</span> 결제 계정 동기화 지연 대응 및 상세 에러 가이드 강화</div>
-
     <div class="hist-item"><span class="hist-ver">V41.7</span> 429 에러 발생 시 자동 6초 대기 및 쿨다운 타이머 도입</div>
-
     <div class="hist-item"><span class="hist-ver">V41.6</span> 2.0-Flash 차세대 엔진 시험 도입 (하위 호환 유지)</div>
-
     <div class="hist-item"><span class="hist-ver">V41.5</span> 구글 2단계 보안 인증 의무화 대응 에러 핸들링 추가</div>
-
     <div class="hist-item"><span class="hist-ver">V41.4</span> 상세 디버깅 모드 및 API 권한 차단 분석 기능</div>
-
     <div class="hist-item"><span class="hist-ver">V41.3</span> 결제 정보 등록 유저를 위한 RPM 최적화 프리셋</div>
-
     <div class="hist-item"><span class="hist-ver">V41.2</span> 4초 간격 연사 방지 로직 및 Flash 모델 고정</div>
-
     <div class="hist-item"><span class="hist-ver">V41.1</span> 3.0 Preview 규격 통합 및 8중 우회 크롤러 복구</div>
-
     <div class="hist-item"><span class="hist-ver">V41.0</span> API v1beta 엔드포인트 경로 정밀 수정 및 복구</div>
-
   </div>
-
 </div>
 
-
-
 <script>
-
   const savedKey = localStorage.getItem('nana_gemini_key');
-
   if (savedKey) document.getElementById('apiKey').value = savedKey;
 
-
-
   async function fireEngine() {
-
     const key = document.getElementById('apiKey').value.trim();
-
     const content = document.getElementById('textInput').value.trim();
-
     const btn = document.getElementById('fireBtn');
-
     const resBox = document.getElementById('res-box');
-
     
-
     if(!key || !content) return alert("키와 내용을 확인하세요!");
-
     localStorage.setItem('nana_gemini_key', key);
-
     
-
     btn.disabled = true;
-
     resBox.style.display = 'block';
-
     resBox.innerText = "🚀 1.5-Flash 엔진 가동 중...";
 
-
-
     // 📍 [포비의 팁 반영] 가장 안정적인 1.5-flash 모델 ID 사용
-
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
 
-
-
     try {
-
       const response = await fetch(apiUrl, {
-
         method: 'POST',
-
         headers: { 'Content-Type': 'application/json' },
-
         body: JSON.stringify({
-
           contents: [{ parts: [{ text: `너는 소설 번역 전문가야. 문맥에 맞게 의역해줘. 중국 발음 금지. 한국 한자음 사용. 자연스러운 구어체로 번역:\n\n${content}` }] }]
-
         })
-
       });
-
-
 
       const data = await response.json();
 
-
-
       if (data.error) {
-
         if (data.error.code === 404) {
-
           resBox.innerText = "❌ 모델을 찾을 수 없습니다. 모델 ID를 'models/gemini-1.5-flash'로 시도해 보세요.";
-
         } else if (data.error.code === 429) {
-
           resBox.innerText = "⚠️ [429] 너무 빠릅니다! 5초 대기 후 자동으로 버튼이 활성화됩니다.";
-
         } else {
-
           resBox.innerText = "❌ 에러: " + data.error.message;
-
         }
-
       } else if (data.candidates) {
-
         resBox.innerText = data.candidates[0].content.parts[0].text;
-
       }
-
     } catch(e) {
-
       resBox.innerText = "❌ 통신 오류: " + e.message;
-
     } finally {
-
       // 📍 [포비의 팁 반영] 요청 간격을 5초로 설정하여 끊김 방지
-
       let timer = 5;
-
       const interval = setInterval(() => {
-
         btn.innerText = `NEXT LOAD (${timer}s)`;
-
         timer--;
-
         if (timer < 0) {
-
           clearInterval(interval);
-
           btn.disabled = false;
-
           btn.innerText = "FIRE ENGINE";
-
         }
-
       }, 1000);
-
     }
-
   }
-
-
 
   // 별 배경
-
   const bg = document.getElementById('galaxy-bg');
-
   for(let i=0; i<150; i++){
-
     const s = document.createElement('div'); s.className = 'star';
-
     s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
-
     const sz = Math.random()*2; s.style.width = sz+'px'; s.style.height = sz+'px';
-
     s.style.setProperty('--dur', (Math.random()*3+2)+'s'); bg.appendChild(s);
-
   }
-
 </script>
-
 </body>
-
 </html>
