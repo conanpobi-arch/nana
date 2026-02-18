@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>NANA LAB V39.2</title>
+    <title>NANA LAB V40.0</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&family=Noto+Serif+KR&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00ffcc; --bg: #000b1a; --card-bg: rgba(0, 255, 204, 0.03); --card-border: rgba(0, 255, 204, 0.15); }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        :root { --neon: #00ffcc; --bg: #000b1a; --card-bg: rgba(0, 255, 204, 0.05); --card-border: rgba(0, 255, 204, 0.2); }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; min-height: 100vh; }
 
         /* 🌌 은하수 배경 고정 */
@@ -15,101 +15,117 @@
         .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--dur) infinite; }
         @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
-        .container { max-width: 800px; margin: 0 auto; padding: 60px 20px; text-align: center; }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; text-align: center; transition: 0.5s; }
 
-        /* 📸 커플 사진 및 메인 타이틀 */
+        /* 📸 헤더 */
         .main-profile {
-            width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--neon);
-            margin: 0 auto 20px; background: url('./profile.png') center/cover no-repeat, #222;
-            box-shadow: 0 0 25px rgba(0, 255, 204, 0.3);
+            width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--neon);
+            margin: 0 auto 15px; background: url('./profile.png') center/cover no-repeat, #222;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.3);
         }
-        h1 { font-family: 'Orbitron', sans-serif; font-size: 2.5rem; letter-spacing: 6px; margin-bottom: 50px; text-shadow: 0 0 15px var(--neon); }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; letter-spacing: 5px; margin-bottom: 40px; text-shadow: 0 0 15px var(--neon); }
 
-        /* 📱 미니멀 메뉴 그리드 (크기 축소 및 투명화) */
-        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 50px; max-width: 600px; margin-left: auto; margin-right: auto; }
+        /* 📱 메뉴 그리드 (투명화/축소) */
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; max-width: 500px; margin: 0 auto 40px; }
         .menu-item {
             background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 15px;
-            padding: 20px 10px; cursor: pointer; transition: 0.4s; backdrop-filter: blur(5px);
+            padding: 20px 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px);
         }
-        .menu-item:hover { background: rgba(0, 255, 204, 0.1); border-color: var(--neon); transform: translateY(-5px); }
-        .menu-item span { font-size: 30px; display: block; margin-bottom: 10px; }
-        .menu-item h3 { font-size: 14px; margin-bottom: 5px; color: var(--neon); letter-spacing: 1px; }
-        .menu-item p { font-size: 10px; opacity: 0.5; }
+        .menu-item:hover { background: rgba(0, 255, 204, 0.15); border-color: var(--neon); }
+        .menu-item span { font-size: 28px; display: block; margin-bottom: 8px; }
+        .menu-item h3 { font-size: 13px; color: var(--neon); letter-spacing: 1px; }
 
-        /* 🛠️ 소설 번역기 모듈 */
-        #translator-module { display: none; background: rgba(0, 15, 30, 0.8); border: 1px solid var(--card-border); border-radius: 20px; padding: 25px; margin-top: 30px; text-align: left; animation: fadeIn 0.4s; backdrop-filter: blur(20px); }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        input[type="password"] { width: 100%; padding: 10px; background: rgba(0,0,0,0.3); border: 1px solid #333; color: var(--neon); border-radius: 8px; font-size: 13px; margin-bottom: 15px; outline: none; }
-        textarea { width: 100%; height: 220px; background: rgba(0,0,0,0.4); border: 1px solid #333; border-radius: 12px; color: #fff; padding: 15px; font-size: 15px; outline: none; line-height: 1.6; }
-        .btn-fire { width: 100%; padding: 15px; background: transparent; color: var(--neon); border: 1px solid var(--neon); border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; margin-top: 15px; transition: 0.3s; letter-spacing: 2px; }
+        /* 🛠️ 모듈 공통 스타일 */
+        .module { display: none; background: rgba(0, 10, 25, 0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; margin-top: 20px; text-align: left; animation: slideUp 0.4s ease; backdrop-filter: blur(20px); }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .back-btn { display: inline-block; margin-bottom: 15px; color: var(--neon); cursor: pointer; font-size: 12px; font-family: 'Orbitron'; }
+        
+        input, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 10px; outline: none; font-size: 15px; }
+        input:focus, textarea:focus { border-color: var(--neon); }
+        
+        .btn-fire { width: 100%; padding: 15px; background: transparent; color: var(--neon); border: 1px solid var(--neon); border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; letter-spacing: 2px; transition: 0.3s; }
         .btn-fire:hover { background: var(--neon); color: #000; box-shadow: 0 0 20px var(--neon); }
-        #res-box { margin-top: 25px; white-space: pre-wrap; font-family: 'Noto Serif KR', serif; line-height: 1.9; color: #dfdfdf; font-size: 16px; }
+        
+        #res-box { margin-top: 20px; white-space: pre-wrap; font-family: 'Noto Serif KR', serif; line-height: 1.8; color: #dfdfdf; font-size: 16px; border-top: 1px solid rgba(0,255,204,0.1); padding-top: 15px; }
 
-        /* 📜 히스토리 팝업 시스템 */
-        #history-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        #history-modal { background: rgba(0, 20, 40, 0.9); border: 1px solid var(--neon); border-radius: 25px; width: 85%; max-width: 500px; padding: 35px; max-height: 70vh; overflow-y: auto; position: relative; }
-        .hist-btn { margin-top: 50px; cursor: pointer; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 2px; color: var(--neon); opacity: 0.5; transition: 0.3s; }
-        .hist-btn:hover { opacity: 1; }
-        .hist-item { display: flex; margin-bottom: 10px; font-size: 12px; color: rgba(255,255,255,0.7); text-align: left; }
-        .hist-ver { color: var(--neon); width: 60px; font-weight: bold; font-family: 'Orbitron'; flex-shrink: 0; }
+        /* 📜 히스토리 버튼 */
+        .hist-btn { margin-top: 40px; cursor: pointer; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.4; }
+        #history-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+        #history-modal { background: var(--bg); border:1px solid var(--neon); padding:30px; border-radius:20px; width:85%; max-width:450px; }
+        .hist-item { display:flex; font-size:12px; margin-bottom:8px; text-align:left; }
+        .hist-ver { color:var(--neon); width:60px; font-weight:bold; }
     </style>
 </head>
 <body>
     <div id="galaxy-bg"></div>
     
-    <div class="container">
+    <div class="container" id="main-hub">
         <div class="main-profile"></div>
         <h1>NANA LAB</h1>
 
+        <div style="max-width:300px; margin: 0 auto 30px;">
+            <p style="font-size:10px; color:var(--neon); margin-bottom:5px; font-family:'Orbitron'; opacity:0.7;">STATION KEY STATUS</p>
+            <input type="password" id="globalKey" placeholder="키 입력 시 자동 저장" onchange="saveKey()" style="text-align:center; font-size:12px; padding:8px; border-color:rgba(0,255,204,0.3);">
+        </div>
+
         <div class="menu-grid">
-            <div class="menu-item" onclick="toggleModule('translator-module')">
-                <span>📚</span>
-                <h3>번역기</h3>
-                <p>Gemini 3 Flash</p>
+            <div class="menu-item" onclick="showModule('text-mod')">
+                <span>📝</span>
+                <h3>텍스트 번역</h3>
             </div>
-            <div class="menu-item" onclick="alert('준비 중입니다.')">
+            <div class="menu-item" onclick="showModule('url-mod')">
+                <span>🌐</span>
+                <h3>URL 크롤링</h3>
+            </div>
+            <div class="menu-item" style="opacity:0.5; cursor:default;">
                 <span>🎬</span>
-                <h3>다운로더</h3>
-                <p>Ready...</p>
+                <h3>준비 중</h3>
             </div>
-            <div class="menu-item" onclick="alert('준비 중입니다.')">
+            <div class="menu-item" style="opacity:0.5; cursor:default;">
                 <span>❓</span>
                 <h3>미정</h3>
-                <p>Next...</p>
             </div>
         </div>
 
-        <div id="translator-module">
-            <h3 style="color: var(--neon); font-family: 'Orbitron'; font-size: 14px; margin-bottom: 15px;">NOVEL TRANSLATOR</h3>
-            <input type="password" id="apiKey" placeholder="API KEY (자동저장됨)">
-            <textarea id="inpText" placeholder="중국어 원문을 입력하세요..."></textarea>
-            <button class="btn-fire" onclick="fireEngine()">FIRE ENGINE</button>
-            <div id="res-box"></div>
-        </div>
+        <div class="hist-btn" onclick="openHistory()">▸ SYSTEM LOG</div>
+    </div>
 
-        <div class="hist-btn" onclick="openHistory()">▸ VIEW LOG</div>
+    <div class="container module" id="text-mod">
+        <div class="back-btn" onclick="hideModule()">◀ BACK TO HUB</div>
+        <h2 style="color:var(--neon); font-family:'Orbitron'; font-size:18px; margin-bottom:20px;">TEXT TRANSLATOR</h2>
+        <textarea id="inpText" style="height:300px;" placeholder="중국어 소설 본문을 붙여넣으세요..."></textarea>
+        <button class="btn-fire" onclick="fireEngine('text')">TRANSLATE (FLASH 3)</button>
+        <div id="res-box-text"></div>
+    </div>
+
+    <div class="container module" id="url-mod">
+        <div class="back-btn" onclick="hideModule()">◀ BACK TO HUB</div>
+        <h2 style="color:var(--neon); font-family:'Orbitron'; font-size:18px; margin-bottom:20px;">URL CRAWLER</h2>
+        <input type="text" id="inpUrl" placeholder="https://소설주소를 입력하세요...">
+        <p style="font-size:11px; color:#aaa; margin-bottom:15px;">※ 주의: 일부 사이트는 보안상 직접 크롤링이 제한될 수 있습니다.</p>
+        <button class="btn-fire" onclick="fireEngine('url')">CRAWL & TRANSLATE</button>
+        <div id="res-box-url"></div>
     </div>
 
     <div id="history-overlay" onclick="closeHistory()">
         <div id="history-modal" onclick="event.stopPropagation()">
-            <h2 style="font-family: 'Orbitron'; color: var(--neon); margin-bottom: 25px; font-size: 16px;">HISTORY LOG</h2>
-            <div id="history-content">
-                <div class="hist-item"><span class="hist-ver">V39.2</span> 인터페이스 미니멀화 및 아이콘 투명도/크기 최적화</div>
-                <div class="hist-item"><span class="hist-ver">V39.1</span> 히스토리 레이어 팝업 및 외부 클릭 닫기 적용</div>
-                <div class="hist-item"><span class="hist-ver">V39.0</span> 메인 허브 인터페이스 구축 및 모듈형 전환</div>
-                <div class="hist-item"><span class="hist-ver">V38.6</span> Gemini 3 Flash Preview 엔진 최적화 성공</div>
-                <div class="hist-item"><span class="hist-ver">V38.5</span> 무한 경로 탐색(v1/v1beta) 및 필터 최적화</div>
-                <div class="hist-item"><span class="hist-ver">V38.4</span> 하이브리드 엔진 탐색 시스템(Flash/Pro)</div>
-                <div class="hist-item"><span class="hist-ver">V38.3</span> v1beta 경로 복원 및 모델 타겟팅</div>
-                <div class="hist-item"><span class="hist-ver">V38.2</span> 구글 API 정식 경로(v1) 전환 시도</div>
-                <div class="hist-item"><span class="hist-ver">V38.1</span> 엔진 호출 규격화 및 오류 세분화</div>
-                <div class="hist-item"><span class="hist-ver">V38.0</span> 보안 구조 강화 및 커플 이미지 복원</div>
-            </div>
+            <h3 style="font-family:'Orbitron'; color:var(--neon); margin-bottom:20px;">HISTORY LOG</h3>
+            <div class="hist-item"><span class="hist-ver">V40.0</span> 텍스트/URL 모듈 완전 분리 및 모바일 키 저장 강화</div>
+            <div class="hist-item"><span class="hist-ver">V39.2</span> 인터페이스 미니멀화 및 투명도 최적화</div>
+            <div class="hist-item"><span class="hist-ver">V39.1</span> 히스토리 레이어 팝업 및 외부 클릭 닫기</div>
+            <div class="hist-item"><span class="hist-ver">V39.0</span> 메인 허브 구축 및 모듈형 전환</div>
+            <div class="hist-item"><span class="hist-ver">V38.6</span> Gemini 3 Flash Preview 성공</div>
+            <div class="hist-item"><span class="hist-ver">V38.5</span> 무한 경로 탐색(v1/v1beta)</div>
+            <div class="hist-item"><span class="hist-ver">V38.4</span> 하이브리드 탐색 시스템</div>
+            <div class="hist-item"><span class="hist-ver">V38.3</span> v1beta 경로 복원</div>
+            <div class="hist-item"><span class="hist-ver">V38.2</span> 구글 API 정식 경로 시도</div>
+            <div class="hist-item"><span class="hist-ver">V38.1</span> 엔진 호출 규격화</div>
         </div>
     </div>
 
 <script>
-    // 은하수 별 생성
+    // 별 생성
     const bg = document.getElementById('galaxy-bg');
     for(let i=0; i<150; i++){
         const s = document.createElement('div');
@@ -121,36 +137,62 @@
         bg.appendChild(s);
     }
 
-    function toggleModule(id) {
-        const mod = document.getElementById(id);
-        mod.style.display = (mod.style.display === 'block') ? 'none' : 'block';
-        if(mod.style.display === 'block') mod.scrollIntoView({behavior:'smooth'});
+    // API 키 저장/불러오기 (모바일 대응)
+    function saveKey() {
+        const key = document.getElementById('globalKey').value.trim();
+        localStorage.setItem('nana_key', key);
+    }
+    window.onload = () => {
+        const saved = localStorage.getItem('nana_key');
+        if(saved) document.getElementById('globalKey').value = saved;
+    }
+
+    // 화면 전환 로직
+    function showModule(id) {
+        document.getElementById('main-hub').style.display = 'none';
+        document.getElementById(id).style.display = 'block';
+        window.scrollTo(0,0);
+    }
+    function hideModule() {
+        document.querySelectorAll('.module').forEach(m => m.style.display = 'none');
+        document.getElementById('main-hub').style.display = 'block';
     }
 
     function openHistory() { document.getElementById('history-overlay').style.display = 'flex'; }
     function closeHistory() { document.getElementById('history-overlay').style.display = 'none'; }
 
-    const savedKey = localStorage.getItem('nana_key');
-    if(savedKey) document.getElementById('apiKey').value = savedKey;
+    // 통합 엔진
+    async function fireEngine(mode) {
+        const key = document.getElementById('globalKey').value.trim();
+        const resBox = document.getElementById(mode === 'text' ? 'res-box-text' : 'res-box-url');
+        let targetText = "";
 
-    async function fireEngine() {
-        const key = document.getElementById('apiKey').value.trim();
-        const text = document.getElementById('inpText').value.trim();
-        const resBox = document.getElementById('res-box');
-        if(!key || !text) return alert("내용을 확인하세요!");
-        localStorage.setItem('nana_key', key);
-        resBox.innerText = "🚀 가동 중...";
+        if(!key) return alert("API 키를 먼저 입력해주세요!");
+
+        if(mode === 'text') {
+            targetText = document.getElementById('inpText').value.trim();
+            if(!targetText) return alert("본문을 입력하세요!");
+        } else {
+            const url = document.getElementById('inpUrl').value.trim();
+            if(!url) return alert("URL을 입력하세요!");
+            resBox.innerText = "🌐 외부 사이트 데이터 수집 시도 중...\n(참고: 보안 정책에 따라 크롤링이 거부될 수 있습니다)";
+            // 실제 운영시에는 여기서 Proxy 서버를 거쳐 텍스트를 추출하는 로직이 추가되어야 합니다.
+            // 일단은 URL 기반 번역 요청 프롬프트로 대체합니다.
+            targetText = `다음 주소의 소설 내용을 읽고 번역해줘: ${url}`;
+        }
+
+        resBox.innerText = "🚀 [Gemini 3] 엔진 번역 중...";
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `소설 번역가로서 다음 중문을 자연스러운 한국어 구어체로 번역하라. 한자음은 한국식 독음으로 표기할 것:\n\n${text}` }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: `소설 번역가로서 다음 내용을 한국어로 유려하게 번역하라:\n\n${targetText}` }] }] })
             });
             const data = await response.json();
             resBox.innerText = data.candidates[0].content.parts[0].text;
         } catch(e) {
-            resBox.innerText = "❌ 엔진 오류.";
+            resBox.innerText = "❌ 엔진 가동 실패. API 키나 네트워크를 확인하세요.";
         }
     }
 </script>
