@@ -3,115 +3,114 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>NANA LAB V33.0</title>
+    <title>NANA LAB V34.0</title>
     <style>
-        :root { --neon: #00ffcc; }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000510; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
+        :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.1); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: #000b1a; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
 
-        /* [해결] 외부 이미지 차단 방지: CSS로 은하수 구현 */
-        .stars-container {
+        /* [해결] 깃허브에서 무조건 작동하는 별무리 배경 (CSS Animation) */
+        .night-sky {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
-            z-index: -2; overflow: hidden;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            z-index: -2;
         }
         .star {
-            position: absolute; background: white; border-radius: 50%; opacity: 0.5;
-            animation: twinkle var(--duration) infinite;
+            position: absolute; background: white; border-radius: 50%; opacity: 0;
+            animation: twinkle var(--d) infinite;
         }
-        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
-
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: -1; }
+        @keyframes twinkle { 0% { opacity: 0; transform: scale(0.5); } 50% { opacity: 0.8; transform: scale(1.2); } 100% { opacity: 0; transform: scale(0.5); } }
 
         .section { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; }
         .active { display: flex; }
 
-        /* [고정] 커플 이미지 (profile.png가 없다면 테두리만 출력됨) */
+        /* [고정] 커플 이미지 (경로 오류 시에도 레이아웃 유지) */
         .couple-main {
-            width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--neon);
-            background: url('./profile.png') no-repeat center/cover, rgba(255,255,255,0.1);
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4); margin-bottom: 20px;
+            width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--neon);
+            background: url('./profile.png') center/cover no-repeat, #222;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4); margin-bottom: 25px;
         }
 
-        .welcome-title { font-size: 26px; font-weight: 200; letter-spacing: 5px; margin-bottom: 5px; text-shadow: 0 0 10px var(--neon); }
-        .current-version { font-size: 11px; color: var(--neon); letter-spacing: 2px; margin-bottom: 40px; opacity: 0.8; font-weight: bold; }
+        .welcome-title { font-size: 28px; font-weight: 200; letter-spacing: 6px; margin-bottom: 5px; text-shadow: 0 0 15px var(--neon); }
+        .current-version { font-size: 12px; color: var(--neon); letter-spacing: 3px; margin-bottom: 45px; opacity: 0.9; font-weight: bold; }
 
-        .app-grid { display: flex; gap: 20px; margin-bottom: 40px; }
+        .app-grid { display: flex; gap: 25px; margin-bottom: 50px; }
         .app-btn { cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 11px; }
-        .app-icon { font-size: 24px; background: rgba(255,255,255,0.1); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 18px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
+        .app-icon { font-size: 28px; background: var(--glass); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); }
 
-        /* 히스토리 모달 */
-        .history-trigger { font-size: 10px; color: var(--neon); cursor: pointer; text-decoration: underline; opacity: 0.6; }
+        /* 히스토리 모달 (10개 노출) */
+        .history-trigger { font-size: 11px; color: var(--neon); cursor: pointer; text-decoration: underline; opacity: 0.7; }
         #history-content { 
-            display: none; position: absolute; bottom: 80px; background: rgba(0,5,15,0.95); 
-            padding: 20px; border-radius: 15px; border: 1px solid var(--neon); font-size: 10px;
-            width: 300px; line-height: 1.6; z-index: 100; box-shadow: 0 0 40px #000;
+            display: none; position: absolute; bottom: 80px; background: rgba(0,10,30,0.95); 
+            padding: 25px; border-radius: 20px; border: 1px solid var(--neon); font-size: 11px;
+            width: 320px; line-height: 1.8; z-index: 100; box-shadow: 0 10px 50px #000;
         }
-        .hist-item { margin-bottom: 6px; border-bottom: 1px solid rgba(0,255,204,0.1); padding-bottom: 4px; }
-        .hist-ver { color: var(--neon); font-weight: bold; margin-right: 5px; }
+        .hist-item { margin-bottom: 8px; border-bottom: 1px solid rgba(0,255,204,0.1); padding-bottom: 5px; text-align: left; }
+        .hist-ver { color: var(--neon); font-weight: bold; margin-right: 8px; }
 
-        /* 번역 패널 */
-        .glass-panel { background: rgba(0,0,0,0.7); backdrop-filter: blur(20px); border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); width: 90%; max-width: 600px; padding: 30px; text-align: center; }
-        textarea { width: 100%; height: 250px; background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 15px; color: #fff; padding: 15px; box-sizing: border-box; font-size: 16px; outline: none; resize: none; margin-bottom: 15px; }
-        .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 15px; padding: 18px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
-        #res-box { display: none; background: rgba(255,255,255,0.05); border-left: 4px solid var(--neon); padding: 20px; border-radius: 10px; text-align: left; font-size: 14px; margin-top: 15px; white-space: pre-wrap; }
+        /* 번역 UI */
+        .glass-panel { background: rgba(0,0,0,0.7); backdrop-filter: blur(30px); border-radius: 40px; border: 1px solid rgba(255,255,255,0.1); width: 92%; max-width: 650px; padding: 35px; text-align: center; }
+        textarea { width: 100%; height: 280px; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 18px; color: #fff; padding: 20px; box-sizing: border-box; font-size: 16px; outline: none; line-height: 1.7; margin-bottom: 15px; resize: none; }
+        .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 20px; padding: 20px; font-weight: 900; width: 100%; cursor: pointer; font-size: 18px; }
+        #res-box { display: none; background: rgba(0,0,0,0.5); border-left: 5px solid var(--neon); padding: 25px; border-radius: 20px; text-align: left; font-size: 14px; margin-top: 20px; white-space: pre-wrap; }
     </style>
 </head>
 <body onclick="closeHistory()">
 
-    <div class="stars-container" id="starField"></div>
-    <div class="overlay"></div>
+    <div class="night-sky" id="sky"></div>
 
     <section id="main-page" class="section active">
         <div class="couple-main"></div>
         <div class="welcome-title">NANA LAB</div>
-        <div class="current-version">STATION V33.0</div>
+        <div class="current-version">STATION V34.0</div>
         
         <div class="app-grid">
             <div class="app-btn" onclick="showPage('work-page')"><div class="app-icon">📚</div>소설 번역</div>
-            <div class="app-btn" onclick="checkAPI()"><div class="app-icon">🔑</div>키 점검</div>
-            <div class="app-btn" onclick="alert('준비 중')"><div class="app-icon">🎧</div>모아듣기</div>
+            <div class="app-btn" onclick="window.open('https://aistudio.google.com/app/apikey')"><div class="app-icon">🔑</div>키 갱신</div>
+            <div class="app-btn" onclick="alert('시스템 점검 중')"><div class="app-icon">🎧</div>모아듣기</div>
         </div>
         
-        <div class="history-trigger" onclick="event.stopPropagation(); toggleHistory()">VIEW LOGS</div>
+        <div class="history-trigger" onclick="event.stopPropagation(); toggleHistory()">VIEW FULL HISTORY</div>
         <div id="history-content">
-            <div class="hist-item"><span class="hist-ver">V33.0</span> CSS 은하수 엔진 도입 및 API 키 무결성 정밀 진단</div>
-            <div class="hist-item"><span class="hist-ver">V32.0</span> 모델 자동 탐색 기능 추가</div>
-            <div class="hist-item"><span class="hist-ver">V31.0</span> 깃허브 배포 최적화 시도</div>
-            <div class="hist-item"><span class="hist-ver">V30.0</span> 엔진 경로 v1 표준화</div>
-            <div class="hist-item"><span class="hist-ver">V29.0</span> 엔진 접두사 'models/' 강제</div>
-            <div class="hist-item"><span class="hist-ver">V28.0</span> 메인 버전 상시 표기</div>
-            <div class="hist-item"><span class="hist-ver">V27.0</span> 히스토리 레이아웃 변경</div>
-            <div class="hist-item"><span class="hist-ver">V26.0</span> UI 가독성 강화</div>
-            <div class="hist-item"><span class="hist-ver">V25.0</span> 엔진 응급 복구 로직</div>
-            <div class="hist-item"><span class="hist-ver">V1.0</span> 프로젝트 시작</div>
+            <div class="hist-item"><span class="hist-ver">V34.0</span> CSS 은하수 엔진 및 API 키 갱신 직결 링크 추가</div>
+            <div class="hist-item"><span class="hist-ver">V33.0</span> 외부 이미지 차단 방지용 CSS 은하수 시범 도입</div>
+            <div class="hist-item"><span class="hist-ver">V32.0</span> 사용 가능 모델 자동 탐색 기능 추가</div>
+            <div class="hist-item"><span class="hist-ver">V31.0</span> 깃허브 배포 환경 최적화 및 모델 다각화</div>
+            <div class="hist-item"><span class="hist-ver">V30.0</span> 엔진 경로 표준화(v1) 및 은하수 최적화</div>
+            <div class="hist-item"><span class="hist-ver">V29.0</span> 엔진 접두사 'models/' 강제 지정</div>
+            <div class="hist-item"><span class="hist-ver">V28.0</span> 메인 버전 상시 표기 및 히스토리 모달화</div>
+            <div class="hist-item"><span class="hist-ver">V27.0</span> 히스토리 상시 노출 레이아웃 테스트</div>
+            <div class="hist-item"><span class="hist-ver">V26.0</span> 히스토리 버전 명시 및 UI 가독성 강화</div>
+            <div class="hist-item"><span class="hist-ver">V25.0</span> 엔진 응급 복구 로직 및 정밀 에러 진단</div>
         </div>
     </section>
 
     <section id="work-page" class="section">
         <div class="glass-panel">
-            <textarea id="inp" placeholder="원문을 입력하세요..."></textarea>
+            <textarea id="inp" placeholder="여기에 새 API 키를 넣거나 원문을 입력하세요..."></textarea>
             <button class="btn-fire" id="ignite-btn" onclick="fireEngine()">나나 엔진 가동</button>
             <div id="res-box"></div>
-            <div style="margin-top: 15px; font-size: 12px; color: #888; cursor: pointer;" onclick="showPage('main-page')">HOME</div>
+            <div style="margin-top: 20px; color: #aaa; cursor: pointer;" onclick="showPage('main-page')">← 🏠 메인으로</div>
         </div>
     </section>
 
 <script>
-    // [해결] 별 쏟아지는 배경 생성
-    const starField = document.getElementById('starField');
-    for (let i = 0; i < 150; i++) {
+    // [해결] 깃허브 보안 정책 영향을 안 받는 CSS 은하수 생성
+    const sky = document.getElementById('sky');
+    for (let i = 0; i < 200; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         const x = Math.random() * 100;
         const y = Math.random() * 100;
         const size = Math.random() * 2 + 1;
+        const delay = Math.random() * 5;
         const duration = Math.random() * 3 + 2;
         star.style.left = `${x}%`;
         star.style.top = `${y}%`;
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
-        star.style.setProperty('--duration', `${duration}s`);
-        starField.appendChild(star);
+        star.style.setProperty('--d', `${duration}s`);
+        star.style.animationDelay = `${delay}s`;
+        sky.appendChild(star);
     }
 
     function showPage(pageId) {
@@ -124,25 +123,8 @@
     }
     function closeHistory() { document.getElementById('history-content').style.display = 'none'; }
 
-    // 포비님의 API KEY 확인 필요 (현재 이 키가 만료되었을 가능성이 큼)
-    const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
-
-    async function checkAPI() {
-        showPage('work-page');
-        const resBox = document.getElementById('res-box');
-        resBox.style.display = "block";
-        resBox.innerText = "API 키 유효성 검사 중...";
-        
-        try {
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`);
-            const data = await response.json();
-            if (response.ok) {
-                resBox.innerText = "✅ 키가 정상입니다. 사용 가능 모델:\n" + data.models.map(m => m.name).join('\n');
-            } else {
-                resBox.innerText = `❌ 키가 유효하지 않습니다.\n사유: ${data.error.message}\n\n구글 AI 스튜디오에서 새 키를 발급받아야 합니다.`;
-            }
-        } catch (e) { resBox.innerText = "네트워크 연결 실패"; }
-    }
+    // [중요] 새 API 키를 아래 변수에 붙여넣으세요!
+    const API_KEY = "발급받은_새_키를_여기에_넣으세요";
 
     async function fireEngine() {
         const text = document.getElementById('inp').value;
@@ -150,21 +132,21 @@
         if(!text) return;
 
         resBox.style.display = "block";
-        resBox.innerText = "엔진 호출 중...";
+        resBox.innerText = "새로운 별빛 에너지를 모으는 중...";
 
         try {
             const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: text }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: `번역(한글한자음): ${text}` }] }] })
             });
             const data = await response.json();
             if (response.ok) {
                 resBox.innerText = data.candidates[0].content.parts[0].text;
             } else {
-                resBox.innerText = "에러: " + data.error.message;
+                resBox.innerText = "에러: " + data.error.message + "\n\n[코난의 조언] API 키가 올바른지 다시 확인하세요!";
             }
-        } catch (e) { resBox.innerText = "가동 실패"; }
+        } catch (e) { resBox.innerText = "연결 오류"; }
     }
 </script>
 </body>
