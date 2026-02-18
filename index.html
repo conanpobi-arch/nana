@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>NANA LAB V38.3 - 조메이: 모신병거</title>
+    <title>NANA LAB V38.4 - 조메이: 모신병거</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00ffcc; --paper: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -32,32 +32,31 @@
     <div class="container">
         <header>
             <div class="couple-main"></div>
-            <h1>NANA LAB <span>V38.3</span></h1>
-            <div class="version-tag">STATION: GEMINI 1.5 FLASH (AUTO-REPAIR)</div>
+            <h1>NANA LAB <span>V38.4</span></h1>
+            <div class="version-tag">STATION: GEMINI HYBRID (AUTO-SCAN)</div>
         </header>
         <div class="card">
             <label>API KEY</label>
             <input type="password" id="apiKey" placeholder="AIzaSy...">
             <label>소설 원문 입력</label>
-            <textarea id="inpText" style="height: 280px;" placeholder="중국어 내용을 입력하세요..."></textarea>
+            <textarea id="inpText" style="height: 280px;" placeholder="중국어 소설 내용을 입력하세요..."></textarea>
             <button class="btn-fire" id="fireBtn" onclick="fireEngine()">나나 엔진 가동</button>
             <div id="res-box"></div>
         </div>
         <div class="history">
-            <div class="hist-item"><span class="hist-ver">V38.3</span> v1beta 경로 복원 및 모델 타겟팅 정규화 수리</div>
+            <div class="hist-item"><span class="hist-ver">V38.4</span> 하이브리드 엔진 탐색 시스템(3단계) 및 자동 복구 모드</div>
+            <div class="hist-item"><span class="hist-ver">V38.3</span> v1beta 경로 복원 및 모델 타겟팅 시도</div>
             <div class="hist-item"><span class="hist-ver">V38.2</span> 구글 API 정식 경로(v1) 전환 시도</div>
-            <div class="hist-item"><span class="hist-ver">V38.1</span> 엔진 호출 본문(Body) 규격화</div>
-            <div class="hist-item"><span class="hist-ver">V38.0</span> 보안 구조 강화(API 키 비노출) 및 커플 이미지 복원</div>
+            <div class="hist-item"><span class="hist-ver">V38.1</span> 엔진 호출 규격화 및 오류 세분화</div>
+            <div class="hist-item"><span class="hist-ver">V38.0</span> 보안 강화(API 키 비노출) 및 커플 이미지 복원</div>
             <div class="hist-item"><span class="hist-ver">V37.0</span> Claude API 엔진 교체 시도</div>
             <div class="hist-item"><span class="hist-ver">V36.0</span> 클로드 UI 구조 + 제미나이 엔진 하이브리드</div>
             <div class="hist-item"><span class="hist-ver">V35.0</span> 엔진 경로 정규화 및 분석 반영</div>
             <div class="hist-item"><span class="hist-ver">V34.0</span> CSS 은하수 엔진 도입</div>
             <div class="hist-item"><span class="hist-ver">V33.0</span> 배경 이미지 유실 방지 대책 적용</div>
-            <div class="hist-item"><span class="hist-ver">V32.0</span> 모델 자동 탐색 기능 도입</div>
         </div>
     </div>
 <script>
-    // 별 생성
     const bg = document.getElementById('galaxy-bg');
     for(let i=0; i<150; i++) {
         const s = document.createElement('div');
@@ -70,38 +69,51 @@
     const savedKey = localStorage.getItem('nana_key');
     if(savedKey) document.getElementById('apiKey').value = savedKey;
 
+    async function callGemini(key, text, modelName) {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${key}`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ parts: [{ text: `번역 전문가로서 다음 중문을 한국어 한자음 독음을 살려 유려하게 번역하라:\n\n${text}` }] }]
+            })
+        });
+        return response;
+    }
+
     async function fireEngine() {
         const key = document.getElementById('apiKey').value.trim();
         const text = document.getElementById('inpText').value.trim();
         const resBox = document.getElementById('res-box');
         if(!key || !text) return alert("입력값을 확인하세요!");
+        
         localStorage.setItem('nana_key', key);
         resBox.style.display = "block";
-        resBox.innerText = "🚀 [V38.3] 엔진 정밀 사격 중...";
+        
+        // 🕵️‍♂️ 범인 추적 모델 리스트
+        const models = ['gemini-1.5-flash', 'gemini-1.5-flash-001', 'gemini-pro'];
+        let success = false;
 
-        try {
-            // ✅ 가장 범용적인 v1beta 경로로 다시 타겟팅합니다.
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: `번역 전문가로서 다음 중문을 한국어 한자음 독음을 살려 유려하게 번역하라:\n\n${text}` }]
-                    }]
-                })
-            });
+        for (let model of models) {
+            resBox.innerText = `🚀 [V38.4] 엔진 탐색 중: ${model}...`;
+            try {
+                const response = await callGemini(key, text, model);
+                const data = await response.json();
 
-            const data = await response.json();
-            if (response.ok) {
-                resBox.innerText = data.candidates[0].content.parts[0].text;
-            } else {
-                // 에러 코드와 메시지를 더 상세하게 출력합니다.
-                resBox.innerText = `❌ 점화 실패 (Error ${response.status})\n사유: ${data.error ? data.error.message : '알 수 없는 오류'}`;
+                if (response.ok) {
+                    resBox.innerText = data.candidates[0].content.parts[0].text;
+                    success = true;
+                    break; // 성공하면 중단
+                } else {
+                    console.warn(`${model} 점화 실패: ${data.error ? data.error.message : 'Unknown'}`);
+                }
+            } catch (e) {
+                console.error(`${model} 네트워크 오류`);
             }
-        } catch(e) {
-            resBox.innerText = "📡 네트워크 연결 오류";
+        }
+
+        if (!success) {
+            resBox.innerText = "❌ 모든 모델(Flash, Pro) 점화 실패.\n사유: API 키의 권한 문제이거나 지역 제한일 수 있습니다.\n\n💡 Google AI Studio에서 'Pay-as-you-go'가 아닌 'Free' 플랜인지 확인해 보세요.";
         }
     }
 </script>
