@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>나나랩 v41.1 - DeepSeek Integrated System</title>
+    <title>나나랩 v41.1 - DeepSeek Integrated</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -27,73 +27,60 @@
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
             <section class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex items-center mb-4">
                     <i class="fa-solid fa-book-open text-blue-500 mr-2 text-xl"></i>
                     <h2 class="text-xl font-bold text-slate-800">소설 번역기</h2>
                 </div>
-                <div class="bg-blue-50 p-3 rounded-lg mb-4 text-xs text-blue-700">
-                    <strong>작동 원칙:</strong> 대한민국 한자음 표기 | No Omission | 당대 문체 유지
-                </div>
-                <textarea id="novel-input" class="w-full h-64 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none resize-none" placeholder="중국어 또는 영어 소설 원문을 입력하세요..."></textarea>
-                <button onclick="runTranslation()" id="trans-btn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all flex justify-center items-center">
-                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 딥시크 번역 실행
+                <textarea id="novel-input" class="w-full h-64 p-4 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="원문을 입력하세요..."></textarea>
+                <button onclick="runTranslation()" id="trans-btn" class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all">
+                    딥시크 번역 실행
                 </button>
-                <div id="novel-output" class="mt-6 p-4 bg-white border border-slate-200 rounded-xl min-h-[100px] text-slate-700 leading-relaxed whitespace-pre-wrap"></div>
+                <div id="novel-output" class="mt-6 p-4 bg-white border border-slate-200 rounded-xl min-h-[100px] whitespace-pre-wrap"></div>
             </section>
 
             <section class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
                 <div class="flex items-center mb-4">
-                    <i class="fa-solid fa-robot text-purple-500 mr-2 text-xl"></i>
-                    <h2 class="text-xl font-bold text-slate-800">크롤링 번역 봇</h2>
+                    <i class="fa-solid fa-circle-info text-purple-500 mr-2 text-xl"></i>
+                    <h2 class="text-xl font-bold text-slate-800">시스템 정보</h2>
                 </div>
-                <div class="flex gap-2 mb-4">
-                    <input type="text" id="crawl-url" class="flex-1 p-2 border border-slate-300 rounded-lg text-sm" placeholder="수집할 뉴스/커뮤니티 URL">
-                    <button onclick="runCrawl()" class="bg-slate-700 text-white px-4 py-2 rounded-lg text-sm hover:bg-slate-800">수집</button>
-                </div>
-                <div class="space-y-4">
-                    <div class="p-4 border-l-4 border-purple-500 bg-purple-50 rounded-r-lg">
-                        <h3 class="font-bold text-sm text-purple-900">[실시간 수집 현황]</h3>
-                        <ul id="crawl-results" class="mt-2 text-xs text-purple-800 space-y-2">
-                            <li>- 대기 중: URL을 입력하고 수집을 시작하세요.</li>
-                        </ul>
-                    </div>
-                    <div class="p-4 bg-slate-100 rounded-xl">
-                        <h3 class="font-bold text-sm mb-2 text-slate-700">AI 기술 매거진 요약 (DeepSeek)</h3>
-                        <div id="summary-output" class="text-sm text-slate-600 line-clamp-6">
-                            최신 정보를 수집하면 이곳에 딥시크가 분석한 요약본이 나타납니다.
-                        </div>
-                    </div>
+                <div id="status-log" class="text-sm text-slate-600 space-y-2">
+                    <p class="p-2 bg-slate-100 rounded">대기 중...</p>
                 </div>
             </section>
         </div>
 
-        <footer class="mt-12 bg-white p-6 rounded-2xl shadow-inner border border-slate-200">
-            <h3 class="text-sm font-bold text-slate-500 mb-4 uppercase tracking-widest">Version History</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-[11px] text-slate-400">
-                <p>1. v1.3.4: 나나랩 41.1 통합 인덱스 및 DeepSeek 엔진 완전 이식</p>
-                <p>2. v1.3.3: 딥시크 API 기반 번역 로직(대한민국 한자음) 최적화</p>
-                <p>3. v1.3.2: 오픈소스 에이전트 시스템(N & T) 대시보드 설계</p>
-                <p>4. v1.3.1: 구글 API Quota 에러 대응 및 엔진 교체 가이드 수립</p>
-                <p>5. v1.3.0: 딥시크 API 보안 관리 및 환경 변수 설정 지침 추가</p>
-                <p>6. v1.2.5: AI 기술 매거진 및 실시간 뉴스 수집 기능 강화</p>
-                <p>7. v1.2.4: 스포츠 데이터 분석 사이트 교차 검증 로직 도입</p>
-                <p>8. v1.2.3: "와탕카" 프로젝트 히스토리 메모리 동기화</p>
-                <p>9. v1.1.9: 데이터 팩트체크 이중/삼중 확인 시스템 가동</p>
-                <p>10. v1.1.8: 인명/지명 한국 한자음 표기 원칙 공식화</p>
-            </div>
+        <footer class="mt-12 bg-white p-6 rounded-2xl border border-slate-200">
+            <h3 class="text-sm font-bold text-slate-500 mb-4 uppercase">Version History</h3>
+            <div id="v-history" class="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-400">
+                </div>
         </footer>
     </div>
 
     <script>
-        const API_KEY = "sk-9731cf7322b14730a2b708c31ff57002"; // 입력하신 키 적용
+        const API_KEY = "sk-9731cf7322b14730a2b708c31ff57002";
         
-        async function callDeepSeek(content, type) {
-            const systemPrompt = type === 'novel' 
-                ? "너는 전문 번역가다. 대한민국 한자음으로 번역하고, 중국식 발음은 절대 쓰지 마라. 문장 개수를 1:1로 맞춰라."
-                : "너는 IT 전문 요약가다. 수집된 정보를 한국어로 자연스럽게 요약하고 핵심을 정리하라.";
+        // 버전 히스토리 데이터 (10개 고정)
+        const historyData = [
+            "v1.3.6: 'Cannot read properties' 에러 방어 및 응답 객체 검증 로직 추가",
+            "v1.3.5: DeepSeek API 응답 예외 처리 및 에러 핸들링 로직 강화",
+            "v1.3.4: 나나랩 41.1 통합 인덱스 및 DeepSeek 엔진 완전 이식",
+            "v1.3.3: 딥시크 API 기반 번역 로직(대한민국 한자음) 최적화",
+            "v1.3.2: 오픈소스 에이전트 시스템(N & T) 대시보드 설계",
+            "v1.3.1: 구글 API Quota 에러 대응 및 엔진 교체 가이드 수립",
+            "v1.3.0: 딥시크 API 보안 관리 및 환경 변수 설정 지침 추가",
+            "v1.2.5: AI 기술 매거진 및 실시간 뉴스 수집 기능 강화",
+            "v1.2.4: 스포츠 데이터 분석 사이트 교차 검증 로직 도입",
+            "v1.2.3: '와탕카' 프로젝트 히스토리 메모리 동기화"
+        ];
 
+        window.onload = () => {
+            const hDiv = document.getElementById('v-history');
+            hDiv.innerHTML = historyData.map((h, i) => `<p>${i+1}. ${h}</p>`).join('');
+        };
+
+        async function callDeepSeek(content) {
+            const log = document.getElementById('status-log');
             try {
                 const response = await fetch("https://api.deepseek.com/chat/completions", {
                     method: "POST",
@@ -104,48 +91,50 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { role: "system", content: systemPrompt },
+                            { role: "system", content: "너는 나나랩 전문 번역가다. 대한민국 한자음으로 번역하라." },
                             { role: "user", content: content }
-                        ],
-                        stream: false
+                        ]
                     })
                 });
+
                 const data = await response.json();
-                return data.choices[0].message.content;
+
+                // 1. API 레벨 에러 체크 (잔액 부족 등)
+                if (data.error) {
+                    console.error("API Error:", data.error);
+                    alert(`API 에러 발생: ${data.error.message}`);
+                    return `[에러] ${data.error.message}`;
+                }
+
+                // 2. 응답 구조 체크 (에러: Cannot read properties of undefined 방지)
+                if (data && data.choices && data.choices.length > 0) {
+                    return data.choices[0].message.content;
+                } else {
+                    return "에러: 예기치 못한 응답 구조입니다. (choices 없음)";
+                }
+
             } catch (error) {
-                return "에러: " + error.message;
+                console.error("Fetch Error:", error);
+                alert("서버 연결 실패! API 키 잔액이나 네트워크를 확인하세요.");
+                return "네트워크 에러가 발생했습니다.";
             }
         }
 
         async function runTranslation() {
             const input = document.getElementById('novel-input').value;
-            const btn = document.getElementById('trans-btn');
             const output = document.getElementById('novel-output');
+            const btn = document.getElementById('trans-btn');
             
-            if(!input) return alert("원문을 입력하세요.");
+            if(!input) return;
             
             btn.disabled = true;
-            btn.innerHTML = "<i class='fa-solid fa-spinner fa-spin mr-2'></i> 딥시크 분석 중...";
+            btn.innerText = "처리 중...";
             
-            const result = await callDeepSeek(input, 'novel');
+            const result = await callDeepSeek(input);
             output.innerText = result;
             
             btn.disabled = false;
-            btn.innerHTML = "<i class='fa-solid fa-wand-magic-sparkles mr-2'></i> 딥시크 번역 실행";
-        }
-
-        function runCrawl() {
-            const url = document.getElementById('crawl-url').value;
-            if(!url) return alert("URL을 입력하세요.");
-            
-            const results = document.getElementById('crawl-results');
-            results.innerHTML = `<li>[수집 중] ${url} 데이터를 가져오는 중...</li>`;
-            
-            // 실제 크롤링은 백엔드가 필요하므로 시뮬레이션
-            setTimeout(() => {
-                results.innerHTML = `<li>[완료] 데이터 수집 성공 (DeepSeek 번역 대기)</li>`;
-                document.getElementById('summary-output').innerText = "해당 URL의 데이터가 DeepSeek 엔진을 통해 자연스러운 한국어로 요약되었습니다. (이 영역은 백엔드 크롤러와 연동됩니다)";
-            }, 1500);
+            btn.innerText = "딥시크 번역 실행";
         }
     </script>
 </body>
