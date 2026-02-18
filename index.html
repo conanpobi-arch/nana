@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NANA LAB V23.0</title>
+    <title>NANA LAB V24.0</title>
     <style>
         :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.1); }
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000b1a; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
 
-        /* [핵심] 코드펜에서도 무조건 로드되는 밤바다 이미지 */
+        /* [수정] 코드펜 밤바다 배경 (Unsplash Direct Link) */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1439405326854-014607f694d7?q=80&w=1920&auto=format&fit=crop');
+            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
             background-repeat: no-repeat; background-position: center; background-size: cover; z-index: -2;
         }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 10, 30, 0.5); z-index: -1; }
@@ -33,21 +33,19 @@
         .app-btn { text-decoration: none; color: #fff; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
         .app-icon { font-size: 28px; background: var(--glass); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; backdrop-filter: blur(10px); }
 
-        /* 히스토리 */
+        /* 히스토리 (10개 고정) */
         .history-trigger { font-size: 11px; color: var(--neon); cursor: pointer; text-decoration: underline; opacity: 0.7; letter-spacing: 1px; z-index: 10; }
         #history-content { 
             display: none; position: absolute; bottom: 80px; background: rgba(0,10,30,0.95); 
             padding: 20px; border-radius: 20px; border: 1px solid var(--neon); font-size: 10px;
-            width: 300px; line-height: 1.8; z-index: 100; box-shadow: 0 10px 40px #000;
+            width: 320px; line-height: 1.8; z-index: 100; box-shadow: 0 10px 40px #000;
         }
 
-        /* [확장] 번역기 패널 */
+        /* 번역기 패널 */
         .glass-panel { background: rgba(0,0,0,0.6); backdrop-filter: blur(30px); border-radius: 40px; border: 1px solid rgba(255,255,255,0.15); width: 92%; max-width: 650px; padding: 35px; text-align: center; }
         .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         input[type="text"] { width: 100%; padding: 15px; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; color: var(--neon); font-size: 14px; margin-bottom: 12px; outline: none; box-sizing: border-box; }
-        .input-wrapper { position: relative; width: 100%; }
         textarea { width: 100%; height: 280px; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 18px; color: #fff; padding: 20px; box-sizing: border-box; font-size: 16px; outline: none; line-height: 1.7; margin-bottom: 15px; resize: none; }
-        .clear-btn { position: absolute; right: 20px; bottom: 35px; background: none; border: none; color: #ff6b6b; cursor: pointer; font-size: 22px; opacity: 0.6; }
         .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 20px; padding: 20px; font-weight: 900; width: 100%; cursor: pointer; font-size: 18px; transition: 0.3s; }
         #res-box { display: none; background: rgba(0,0,0,0.7); border: 1px solid var(--neon); padding: 25px; border-radius: 25px; text-align: left; font-size: 15px; max-height: 250px; overflow-y: auto; margin-top: 20px; line-height: 1.8; border-left: 5px solid var(--neon); }
         .back-btn { margin-top: 25px; color: #aaa; cursor: pointer; font-size: 13px; }
@@ -70,7 +68,8 @@
         </div>
         <div class="history-trigger" onclick="event.stopPropagation(); toggleHistory()">NANA LAB HISTORY</div>
         <div id="history-content">
-            • V23.0: 엔진 경로 v1beta로 복원 및 모델명 강제 지정<br>
+            • V24.0: 엔진 로직 유연화(1.5/2.0 자동 감지) 및 코드펜 배경 이미지 교체<br>
+            • V23.0: 엔진 경로 v1beta 복원 및 모델명 접두사 강제 지정<br>
             • V22.0: 코드펜 배경 이미지 CORS 최적화 및 밤바다 소스 교체<br>
             • V21.0: 엔진 경로 v1 수정 시도 (실패)<br>
             • V20.0: 밤바다 배경 전환 및 엔진 호출 안정화 시도<br>
@@ -78,8 +77,7 @@
             • V18.0: 번역 창 대형 확장 및 텍스트 지우기 아이콘 추가<br>
             • V17.0: 은하수 배경 고화질 복원 및 시인성 고정<br>
             • V16.0: 푸른 은하수 배경 복구 시도<br>
-            • V15.0: 번역기 리디자인, 링크 필드 추가<br>
-            • V1.0: 나나 연구실 프로젝트 기동
+            • V15.0: 번역기 리디자인, 링크 필드 추가
         </div>
     </section>
 
@@ -90,10 +88,7 @@
                 <div onclick="showPage('main-page')" style="cursor:pointer; font-size: 24px;">🏠</div>
             </div>
             <input type="text" id="link-inp" placeholder="참조 소설 링크 주소 (선택)">
-            <div class="input-wrapper">
-                <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
-                <button class="clear-btn" onclick="clearAll()">🗑️</button>
-            </div>
+            <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
             <button class="btn-fire" id="ignite-btn" onclick="fireEngine()">나나 엔진 가동</button>
             <div id="res-box"></div>
             <div class="back-btn" onclick="showPage('main-page')">← 메인 기지로 돌아가기</div>
@@ -112,13 +107,6 @@
     function closeHistory() {
         document.getElementById('history-content').style.display = 'none';
     }
-    function clearAll() {
-        if(confirm("모든 입력을 초기화할까요?")) {
-            document.getElementById('inp').value = "";
-            document.getElementById('link-inp').value = "";
-            document.getElementById('res-box').style.display = "none";
-        }
-    }
 
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
@@ -129,32 +117,39 @@
         const btn = document.getElementById('ignite-btn');
         if(!text) return;
 
-        btn.disabled = true; btn.innerText = "분석 중...";
-        resBox.style.display = "block"; resBox.innerText = "나나 엔진이 밤바다의 기운을 모아 번역 중...";
+        btn.disabled = true; btn.innerText = "연결 시도...";
+        resBox.style.display = "block"; resBox.innerText = "나나 엔진이 밤바다의 에너지를 모으는 중...";
 
-        try {
-            // [최종 솔루션] v1beta 경로 + models/ 접두사 사용
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: `당신은 무협 소설 전문 번역가입니다. 원문을 한 문장도 빠짐없이 번역하되, 한자어는 한국식 음독을 사용하십시오.\n참조링크: ${link}\n\n원문: ${text}` }] }]
-                })
-            });
+        // [핵심] 여러 모델을 순차적으로 시도하는 릴레이 로직
+        const models = ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-pro"];
+        let success = false;
 
-            const data = await response.json();
-            if (data.candidates && data.candidates[0].content) {
-                resBox.innerText = data.candidates[0].content.parts[0].text;
-                btn.innerText = "번역 완료";
-            } else {
-                throw new Error(data.error ? data.error.message : "응답 실패");
-            }
-        } catch (e) {
-            resBox.innerText = "엔진 오류: " + e.message;
+        for (let modelName of models) {
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${API_KEY}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `무협 전문 번역 (한글 한자음 사용, 누락 금지): ${text}\n참조: ${link}` }] }]
+                    })
+                });
+                const data = await response.json();
+                
+                if (data.candidates && data.candidates[0].content) {
+                    resBox.innerText = data.candidates[0].content.parts[0].text;
+                    btn.innerText = "번역 완료 (" + modelName + ")";
+                    success = true;
+                    break; 
+                }
+            } catch (e) { console.warn(modelName + " 실패, 다음 모델 시도..."); }
+        }
+
+        if (!success) {
+            resBox.innerText = "모든 엔진(2.0/1.5)이 응답하지 않습니다. API 키의 일일 할당량을 확인해 주세요.";
             btn.innerText = "재시도";
-        } finally { btn.disabled = false; }
+        }
+        btn.disabled = false;
     }
 </script>
 </body>
