@@ -2,93 +2,167 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>나나랩 v41 - Original Success Version</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NANA LAB V41.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&family=Noto+Serif+KR&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap');
-        body { font-family: 'Pretendard', sans-serif; background-color: #f3f4f6; }
-        .nanalab-card { background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        .v41-badge { background: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        :root { --neon: #00ffcc; --bg: #000b1a; --card-bg: rgba(0, 255, 204, 0.05); --card-border: rgba(0, 255, 204, 0.2); }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); position: fixed; }
+        body { color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+        #galaxy-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+        .star { position: absolute; background: white; border-radius: 50%; animation: twinkle var(--dur) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+        
+        .container { max-width: 800px; margin: 0 auto; padding: 12vh 20px 0; text-align: center; height: 100vh; }
+        .main-profile { width: 130px; height: 130px; border-radius: 50%; border: 3px solid var(--neon); margin: 0 auto 20px; background: url('./profile.png') center/cover no-repeat, #222; box-shadow: 0 0 25px rgba(0, 255, 204, 0.3); pointer-events: none; }
+        h1 { font-family: 'Orbitron', sans-serif; font-size: 2.2rem; letter-spacing: 5px; margin-bottom: 40px; text-shadow: 0 0 15px var(--neon); }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; max-width: 600px; margin: 0 auto 40px; }
+        .menu-item { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 15px; padding: 20px 10px; cursor: pointer; transition: 0.3s; backdrop-filter: blur(10px); }
+        .menu-item:hover { background: rgba(0, 255, 204, 0.15); border-color: var(--neon); transform: translateY(-3px); }
+        .menu-item span { font-size: 28px; display: block; margin-bottom: 8px; }
+        .menu-item h3 { font-size: 13px; color: var(--neon); letter-spacing: 1px; }
+
+        .module { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 95%; max-width: 800px; max-height: 90vh; background: rgba(0, 10, 25, 0.98); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; z-index: 100; overflow-y: auto; backdrop-filter: blur(30px); }
+        .top-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .nav-icon { cursor: pointer; font-size: 28px; color: var(--neon); opacity: 0.8; transition: 0.3s; padding: 5px; }
+        .header-tools { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid rgba(0, 255, 204, 0.2); }
+        .tab-container { display: flex; gap: 10px; }
+        .tab { cursor: pointer; padding: 8px 10px; font-size: 11px; font-family: 'Orbitron'; color: #666; }
+        .tab.active { color: var(--neon); border-bottom: 2px solid var(--neon); }
+        .clear-btn { cursor: pointer; font-size: 20px; color: var(--neon); opacity: 0.6; padding: 5px; }
+
+        input, textarea { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid #333; color: #fff; border-radius: 10px; margin-bottom: 10px; outline: none; font-size: 15px; }
+        .btn-fire { width: 100%; padding: 15px; background: transparent; color: var(--neon); border: 1px solid var(--neon); border-radius: 10px; font-weight: bold; cursor: pointer; font-family: 'Orbitron'; letter-spacing: 2px; }
+        #res-box { margin-top: 20px; white-space: pre-wrap; font-family: 'Noto Serif KR', serif; line-height: 1.8; color: #dfdfdf; font-size: 17px; }
+
+        .hist-btn { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); cursor: pointer; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.4; letter-spacing: 1px; }
+        #history-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:1000; align-items:center; justify-content:center; backdrop-filter:blur(10px); }
+        #history-modal { background: var(--bg); border:1px solid var(--neon); padding:30px; border-radius:20px; width:85%; max-width:450px; }
+        .hist-item { display:flex; font-size:11px; margin-bottom:8px; color:rgba(255,255,255,0.7); }
+        .hist-ver { color:var(--neon); width:60px; font-weight:bold; }
     </style>
 </head>
-<body class="p-4 md:p-10">
-
-    <div class="max-w-5xl mx-auto">
-        <header class="flex justify-between items-center mb-10 border-b-4 border-slate-900 pb-6">
-            <div>
-                <div class="flex items-center gap-2">
-                    <h1 class="text-4xl font-black text-slate-900">NANALAB</h1>
-                    <span class="v41-badge">v41 ORIGINAL</span>
-                </div>
-                <p class="text-slate-500 mt-2 font-medium">Google Gemini Engine Powered Translation System</p>
-            </div>
-            <div class="text-right hidden md:block">
-                <p class="text-xs font-mono text-slate-400">CONNECT_STATE: STABLE</p>
-                <p class="text-xs font-mono text-slate-400">ENGINE: GEMINI-PRO-V41</p>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 gap-8">
-            <div class="nanalab-card p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-bold text-slate-800"><i class="fa-solid fa-file-lines mr-2"></i>소설 번역 모듈</h2>
-                    <span class="text-xs text-blue-600 font-bold">No Omission | 한국 한자음 모드</span>
-                </div>
-
-                <textarea id="novel-input" class="w-full h-80 p-5 bg-slate-50 border-2 border-slate-200 rounded-xl focus:border-red-500 outline-none transition-all text-slate-700" placeholder="구글 엔진으로 번역할 원문을 입력하세요..."></textarea>
-                
-                <div class="mt-6 flex flex-col md:flex-row gap-4">
-                    <button onclick="executeGeminiV41()" id="run-btn" class="flex-2 bg-slate-900 hover:bg-red-600 text-white font-black py-5 px-10 rounded-xl transition-all shadow-lg text-lg">
-                        v41 구글 엔진 가동
-                    </button>
-                    <button onclick="document.getElementById('novel-input').value=''" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-600 font-bold py-5 rounded-xl transition-all">
-                        입력 초기화
-                    </button>
-                </div>
-
-                <div class="mt-10">
-                    <h3 class="text-sm font-bold text-slate-400 mb-4 uppercase tracking-widest text-center">Translation Result</h3>
-                    <div id="v41-result" class="p-8 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl min-h-[300px] text-slate-800 leading-loose text-lg whitespace-pre-wrap"></div>
-                </div>
-            </div>
+<body>
+    <div id="galaxy-bg"></div>
+    <div class="container" id="main-hub">
+        <div class="main-profile"></div>
+        <h1>NANA LAB</h1>
+        <div style="max-width:300px; margin: 0 auto 30px;"><input type="password" id="globalKey" placeholder="STATION API KEY" onchange="saveKey()" style="text-align:center; font-size:12px; padding:8px; border-color:rgba(0,255,204,0.3);"></div>
+        <div class="menu-grid">
+            <div class="menu-item" onclick="showModule('trans-mod')"><span>📚</span><h3>소설 번역기</h3></div>
+            <div class="menu-item" style="opacity:0.3;"><span>🎬</span><h3>다운로더</h3></div>
+            <div class="menu-item" style="opacity:0.3;"><span>❓</span><h3>미정</h3></div>
         </div>
-
-        <footer class="mt-16 bg-slate-900 text-slate-500 p-8 rounded-2xl">
-            <h3 class="text-xs font-bold mb-4 text-slate-400">NANALAB SYSTEM VERSION HISTORY</h3>
-            <div id="history-list" class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-2 text-[11px] font-mono">
-                </div>
-        </footer>
+        <div class="hist-btn" onclick="openHistory()">▸ SYSTEM LOG [V41.1]</div>
     </div>
 
-    <script>
-        // v41 당시 사용했던 구글 API 설정 (사용자님의 키로 교체 필요)
-        const GOOGLE_API_KEY = "YOUR_GOOGLE_API_KEY"; 
+    <div class="module" id="trans-mod">
+        <div class="top-toolbar"><div class="nav-icon" onclick="hideModule()">🏠</div><h3 style="color: var(--neon); font-family: 'Orbitron'; font-size: 14px;">3.0 PREVIEW ENGINE</h3><div style="width:30px;"></div></div>
+        <div class="header-tools">
+            <div class="tab-container"><div class="tab active" id="tab-text" onclick="switchTab('text')">TEXT</div><div class="tab" id="tab-url" onclick="switchTab('url')">URL</div></div>
+            <div class="clear-btn" onclick="clearAll()">🗑️</div>
+        </div>
+        <div id="input-area"><textarea id="inpText" style="height:350px;" placeholder="중국어 원문을 입력하세요..."></textarea></div>
+        <div id="step-log" style="font-size: 10px; color: var(--neon); margin-bottom: 10px; height: 12px; font-family: 'Orbitron'; opacity: 0.6;"></div>
+        <button class="btn-fire" id="fireBtn" onclick="fireEngine()">FIRE ENGINE</button>
+        <div id="res-box"></div>
+    </div>
 
-        const historyLogs = [
-            "v1.4.1: [Rollback] 나나랩 v41 오리지널 구글 엔진 및 UI 전면 복구",
-            "v1.4.0: v41 엔진 롤백 및 DeepSeek API 클래식 연동 시도",
-            "v1.3.9: v41 버전의 절반의 성공 분석 및 엔진 한계 복기",
-            "v1.3.8: v41.1 엔진 오류 분석 및 DeepSeek 전환 필요성 재정립",
-            "v1.3.7: 성공 버전(v41.1) 기반 엔진 교체 및 히스토리 정렬",
-            "v1.3.6: 'Cannot read properties' 에러 방어 및 응답 객체 검증 추가",
-            "v1.3.5: DeepSeek API 응답 예외 처리 및 에러 핸들링 로직 강화",
-            "v1.3.4: 나나랩 41.1 통합 인덱스 및 DeepSeek 엔진 완전 이식",
-            "v1.3.3: 딥시크 API 기반 번역 로직(대한민국 한자음) 최적화",
-            "v1.3.2: 오픈소스 에이전트 시스템(N & T) 대시보드 설계"
-        ];
+    <div id="history-overlay" onclick="closeHistory()">
+        <div id="history-modal" onclick="event.stopPropagation()">
+            <h3 style="font-family:'Orbitron'; color:var(--neon); margin-bottom:20px; font-size:14px;">HISTORY LOG</h3>
+            <div id="hist-list">
+                <div class="hist-item"><span class="hist-ver">V41.1</span> 3.0 Preview 엔진 규격 적용 및 8중 우회 크롤러 재통합</div>
+                <div class="hist-item"><span class="hist-ver">V41.0</span> API v1beta 엔드포인트 경로 정밀 수정 및 복구</div>
+                <div class="hist-item"><span class="hist-ver">V40.9</span> Candidates 체크 로직 강화 및 Undefined 에러 차단</div>
+                <div class="hist-item"><span class="hist-ver">V40.8</span> 메인 스크롤 고정 및 UI 중심부 하향 레이아웃 최적화</div>
+                <div class="hist-item"><span class="hist-ver">V40.7</span> 8중 크롤링 우회 엔진(Claude 방식) 통합</div>
+                <div class="hist-item"><span class="hist-ver">V40.6</span> 탭 전환 시 자동 클리닝 엔진 가동</div>
+                <div class="hist-item"><span class="hist-ver">V40.5</span> 번역문 가독성 강화 (17px 세리프 폰트)</div>
+                <div class="hist-item"><span class="hist-ver">V40.4</span> UI 미니멀화 및 홈 내비게이션 확대</div>
+                <div class="hist-item"><span class="hist-ver">V40.3</span> 브라우저 히스토리 연동</div>
+                <div class="hist-item"><span class="hist-ver">V40.2</span> 원터치 삭제 기능 추가</div>
+            </div>
+        </div>
+    </div>
 
-        window.onload = () => {
-            const list = document.getElementById('history-list');
-            list.innerHTML = historyLogs.map((log, i) => `<div>${i+1}. ${log}</div>`).join('');
-        };
+<script>
+    let currentMode = 'text';
+    const saved = localStorage.getItem('nana_key');
+    if(saved) document.getElementById('globalKey').value = saved;
+    function saveKey() { localStorage.setItem('nana_key', document.getElementById('globalKey').value.trim()); }
+    window.onpopstate = function() { hideModule(true); };
+    function showModule(id) { history.pushState({page: id}, null, "#" + id); document.getElementById(id).style.display='block'; }
+    function hideModule(isPopState = false) { document.querySelectorAll('.module').forEach(m => m.style.display='none'); if(!isPopState && window.location.hash) history.back(); }
+    function clearAll() { document.getElementById('inpText').value = ""; document.getElementById('res-box').innerText = ""; document.getElementById('step-log').innerText = ""; }
+    function switchTab(mode) { currentMode = mode; document.getElementById('tab-text').classList.toggle('active', mode === 'text'); document.getElementById('tab-url').classList.toggle('active', mode === 'url'); clearAll(); document.getElementById('inpText').placeholder = (mode === 'text') ? "중국어 원문을 입력하세요..." : "웹페이지 URL을 입력하세요..."; document.getElementById('inpText').style.height = (mode === 'text') ? "350px" : "60px"; }
 
-        async function executeGeminiV41() {
-            const input = document.getElementById('novel-input').value;
-            const output = document.getElementById('v41-result');
-            const btn = document.getElementById('run-btn');
+    // 🚀 [8중 우회 엔진]
+    const STRATEGIES = [
+        { name: 'PATH 1', fetch: async (u) => (await (await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`)).json()).contents },
+        { name: 'PATH 2', fetch: async (u) => new TextDecoder('gbk').decode(await (await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`)).arrayBuffer()) },
+        { name: 'PATH 3', fetch: async (u) => new TextDecoder('utf-8').decode(await (await fetch(`https://corsproxy.io/?${encodeURIComponent(u)}`)).arrayBuffer()) },
+        { name: 'PATH 4', fetch: async (u) => await (await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`)).text() },
+        { name: 'PATH 5', fetch: async (u) => await (await fetch(`https://thingproxy.freeboard.io/fetch/${u}`)).text() },
+        { name: 'PATH 6', fetch: async (u) => (await (await fetch(`https://htmldriven.com/cors-proxy?url=${encodeURIComponent(u)}`)).json()).body },
+        { name: 'PATH 7', fetch: async (u) => await (await fetch(`https://corsproxy.io/?${encodeURIComponent(u)}`, {headers:{'Referer':new URL(u).origin}})).text() },
+        { name: 'PATH 8', fetch: async (u) => (await (await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u.replace('://','://m.'))}`)).json()).contents }
+    ];
 
-            if(!input) return;
+    async function fireEngine() {
+        const key = document.getElementById('globalKey').value.trim();
+        const input = document.getElementById('inpText').value.trim();
+        const resBox = document.getElementById('res-box');
+        const log = document.getElementById('step-log');
+        const btn = document.getElementById('fireBtn');
+        if(!key || !input) return alert("입력값을 확인하세요!");
+        saveKey(); btn.disabled = true; resBox.innerText = "🚀 ENGINE IGNITION...";
 
-            btn.disabled = true;
-            btn.innerHTML = "<i class
+        try {
+            let finalContent = input;
+            if(currentMode === 'url') {
+                for(let s of STRATEGIES) {
+                    log.innerText = `ATTEMPTING ${s.name}...`;
+                    try { 
+                        let html = await s.fetch(input); 
+                        if(html.length > 500) {
+                            const doc = new DOMParser().parseFromString(html, 'text/html');
+                            finalContent = doc.querySelector('#content, .content, #chaptercontent')?.innerText || doc.body.innerText.slice(0, 5000);
+                            break;
+                        }
+                    } catch(e) {}
+                }
+            }
+
+            // 📍 [Gemini 2.0/3.0 Preview 최신 호출 주소]
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`;
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: `전문 번역가로서 다음 소설 내용을 한국어 구어체로 유려하게 번역하라. 인사말 없이 번역본만 출력:\n\n${finalContent.slice(0, 10000)}` }] }] })
+            });
+
+            const data = await response.json();
+            if(data.candidates && data.candidates[0].content) {
+                resBox.innerText = data.candidates[0].content.parts[0].text;
+                log.innerText = "MISSION COMPLETE.";
+            } else {
+                resBox.innerText = `❌ ENGINE ERROR: ${data.error?.message || 'Unknown Response'}`;
+            }
+        } catch(e) { resBox.innerText = `❌ CRITICAL ERROR: ${e.message}`; }
+        finally { btn.disabled = false; }
+    }
+
+    function openHistory() { document.getElementById('history-overlay').style.display='flex'; }
+    function closeHistory() { document.getElementById('history-overlay').style.display='none'; }
+    const bg = document.getElementById('galaxy-bg');
+    for(let i=0; i<150; i++){
+        const s = document.createElement('div'); s.className = 'star';
+        s.style.left = Math.random()*100+'%'; s.style.top = Math.random()*100+'%';
+        const sz = Math.random()*1.5+0.5; s.style.width = sz+'px'; s.style.height = sz+'px';
+        s.style.setProperty('--dur', Math.random()*3+2+'s'); bg.appendChild(s);
+    }
+</script>
+</body>
+</html>
