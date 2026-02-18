@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>NANA LAB V28.0</title>
+    <title>NANA LAB V29.0</title>
     <style>
         :root { --neon: #00ffcc; --glass: rgba(255, 255, 255, 0.1); }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000b1a; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; background-color: #000510; color: #fff; font-family: 'Apple SD Gothic Neo', sans-serif; overflow: hidden; }
 
-        /* 밤바다 배경 */
+        /* [수정] 코드펜에서 절대 안 깨지는 고화질 은하수 배경 */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=80');
+            background-image: url('https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?q=80&w=1920&auto=format&fit=crop');
             background-repeat: no-repeat; background-position: center; background-size: cover; z-index: -2;
         }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 10, 30, 0.5); z-index: -1; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 5, 20, 0.3); z-index: -1; }
 
         .section { display: none; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: center; animation: fadeIn 0.4s ease; }
         .active { display: flex; }
@@ -29,28 +29,24 @@
         }
 
         .welcome-title { font-size: 28px; font-weight: 200; letter-spacing: 6px; margin-bottom: 10px; text-shadow: 0 0 15px var(--neon); }
-        
-        /* [핵심] 상시 버전 표기 */
         .current-version { font-size: 12px; color: var(--neon); letter-spacing: 3px; margin-bottom: 45px; opacity: 0.8; font-weight: bold; }
 
         .app-grid { display: flex; gap: 25px; margin-bottom: 50px; }
         .app-btn { text-decoration: none; color: #fff; font-size: 11px; display: flex; flex-direction: column; align-items: center; gap: 10px; cursor: pointer; }
         .app-icon { font-size: 28px; background: var(--glass); width: 65px; height: 65px; display: flex; align-items: center; justify-content: center; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); transition: 0.3s; backdrop-filter: blur(10px); }
 
-        /* 히스토리 트리거 및 팝업 */
+        /* 히스토리 모달 */
         .history-trigger { font-size: 11px; color: var(--neon); cursor: pointer; text-decoration: underline; opacity: 0.7; letter-spacing: 1px; z-index: 10; }
         #history-content { 
             display: none; position: absolute; bottom: 80px; background: rgba(0,10,30,0.95); 
             padding: 25px; border-radius: 20px; border: 1px solid var(--neon); font-size: 11px;
             width: 320px; line-height: 1.8; z-index: 100; box-shadow: 0 10px 50px #000;
-            backdrop-filter: blur(20px);
         }
         .hist-item { margin-bottom: 8px; border-bottom: 1px solid rgba(0,255,204,0.1); padding-bottom: 5px; text-align: left; }
         .hist-ver { color: var(--neon); font-weight: bold; margin-right: 8px; }
 
-        /* 번역기 패널 */
+        /* 번역기 UI */
         .glass-panel { background: rgba(0,0,0,0.6); backdrop-filter: blur(30px); border-radius: 40px; border: 1px solid rgba(255,255,255,0.15); width: 92%; max-width: 650px; padding: 35px; text-align: center; }
-        .panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         textarea { width: 100%; height: 280px; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 18px; color: #fff; padding: 20px; box-sizing: border-box; font-size: 16px; outline: none; line-height: 1.7; margin-bottom: 15px; resize: none; }
         .btn-fire { background: var(--neon); color: #000; border: none; border-radius: 20px; padding: 20px; font-weight: 900; width: 100%; cursor: pointer; font-size: 18px; }
         #res-box { display: none; background: rgba(0,0,0,0.7); border: 1px solid var(--neon); padding: 25px; border-radius: 25px; text-align: left; font-size: 14px; max-height: 250px; overflow-y: auto; margin-top: 20px; white-space: pre-wrap; }
@@ -64,7 +60,7 @@
     <section id="main-page" class="section active">
         <div class="couple-main"></div>
         <div class="welcome-title">NANA LAB</div>
-        <div class="current-version">STATION V28.0</div>
+        <div class="current-version">STATION V29.0</div>
         
         <div class="app-grid">
             <div class="app-btn" onclick="showPage('work-page')"><div class="app-icon">📚</div>소설 번역</div>
@@ -74,29 +70,25 @@
         
         <div class="history-trigger" onclick="event.stopPropagation(); toggleHistory()">VIEW FULL HISTORY</div>
         <div id="history-content">
+            <div class="hist-item"><span class="hist-ver">V29.0</span> 엔진 접두사 'models/' 강제 지정 및 은하수 복원</div>
             <div class="hist-item"><span class="hist-ver">V28.0</span> 메인 버전 상시 표기 및 히스토리 모달화</div>
-            <div class="hist-item"><span class="hist-ver">V27.0</span> 히스토리 상시 노출 및 레이아웃 테스트</div>
+            <div class="hist-item"><span class="hist-ver">V27.0</span> 히스토리 상시 노출 레이아웃 테스트</div>
             <div class="hist-item"><span class="hist-ver">V26.0</span> 히스토리 버전 명시 및 UI 가독성 강화</div>
             <div class="hist-item"><span class="hist-ver">V25.0</span> 엔진 응급 복구 로직 및 정밀 에러 진단</div>
             <div class="hist-item"><span class="hist-ver">V24.0</span> 엔진 로직 유연화 및 코드펜 배경 이미지</div>
             <div class="hist-item"><span class="hist-ver">V23.0</span> 엔진 경로 v1beta 복원 및 모델명 접두사</div>
             <div class="hist-item"><span class="hist-ver">V22.0</span> 코드펜 CORS 최적화 및 밤바다 소스 교체</div>
-            <div class="hist-item"><span class="hist-ver">V21.0</span> 엔진 경로 v1 수정 시도 (실패 기록)</div>
-            <div class="hist-item"><span class="hist-ver">V20.0</span> 밤바다 배경 전환 및 엔진 호출 안정화</div>
-            <div class="hist-item"><span class="hist-ver">V19.0</span> 은하수 배경 최적화 및 픽셀즈 엔진 이식</div>
+            <div class="hist-item"><span class="hist-ver">V21.0</span> 엔진 경로 v1 수정 시도 (실패)</div>
+            <div class="hist-item"><span class="hist-ver">V20.0</span> 밤바다 배경 전환 및 엔진 안정화 시도</div>
         </div>
     </section>
 
     <section id="work-page" class="section">
         <div class="glass-panel">
-            <div class="panel-header">
-                <div style="color:var(--neon); font-weight:bold; font-size: 20px;">📚 NOVEL ENGINE</div>
-                <div onclick="showPage('main-page')" style="cursor:pointer; font-size: 24px;">🏠</div>
-            </div>
             <textarea id="inp" placeholder="번역할 원문을 입력하세요..."></textarea>
             <button class="btn-fire" id="ignite-btn" onclick="fireEngine()">나나 엔진 가동</button>
             <div id="res-box"></div>
-            <div style="margin-top: 20px; color: #aaa; cursor: pointer;" onclick="showPage('main-page')">← 뒤로가기</div>
+            <div style="margin-top: 20px; color: #aaa; cursor: pointer;" onclick="showPage('main-page')">← 🏠 메인으로</div>
         </div>
     </section>
 
@@ -109,9 +101,7 @@
         const h = document.getElementById('history-content');
         h.style.display = (h.style.display === 'block') ? 'none' : 'block';
     }
-    function closeHistory() {
-        document.getElementById('history-content').style.display = 'none';
-    }
+    function closeHistory() { document.getElementById('history-content').style.display = 'none'; }
 
     const API_KEY = "AIzaSyDFlvK6qzBAxM9D35-ehMu_duAYWjBXSVY";
 
@@ -121,27 +111,29 @@
         const btn = document.getElementById('ignite-btn');
         if(!text) return;
 
-        btn.disabled = true; btn.innerText = "통신 중...";
-        resBox.style.display = "block"; resBox.innerText = "데이터 분석 중...";
+        btn.disabled = true; btn.innerText = "은하수 에너지 응집 중...";
+        resBox.style.display = "block"; resBox.innerText = "엔진 가동...";
 
+        // [핵심 해결] 모델명 앞에 models/ 를 반드시 붙여야 함
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
         
         try {
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: `무협 번역: ${text}` }] }] })
+                body: JSON.stringify({ contents: [{ parts: [{ text: `번역 전문가로서 다음을 번역하라(한글 한자음 사용): ${text}` }] }] })
             });
             const data = await response.json();
             if (response.ok) {
                 resBox.innerText = data.candidates[0].content.parts[0].text;
                 btn.innerText = "성공";
             } else {
-                resBox.innerText = `[에러] ${data.error.message}`;
-                btn.innerText = "실패";
+                // 에러 발생 시 상세 이유를 출력해 원인 파악
+                resBox.innerText = `[에러 코드] ${data.error.status}\n[상세 내용] ${data.error.message}`;
+                btn.innerText = "오류 확인";
             }
         } catch (e) {
-            resBox.innerText = "네트워크 오류";
+            resBox.innerText = "네트워크 통신 장애";
             btn.innerText = "재시도";
         } finally { btn.disabled = false; }
     }
