@@ -1,636 +1,171 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>중문 소설 번역기</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --ink: #1a1208;
-    --paper: #f5f0e8;
-    --red: #c0392b;
-    --gold: #b8860b;
-    --faded: #8b7355;
-    --light: #e8e0d0;
-    --border: #c8b89a;
-  }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>NANA LAB V36.0 - 하이브리드 번역기</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root { --neon: #00ffcc; --paper: #000b1a; --glass: rgba(255, 255, 255, 0.08); }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body, html { 
+            width: 100%; min-height: 100vh; background: var(--paper); color: #fff;
+            font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden;
+        }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+        /* [해결] CSS 은하수 엔진 - 이미지 없이 무조건 작동 */
+        #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); }
+        .star { position: absolute; background: white; border-radius: 50%; opacity: 0; animation: twinkle var(--duration) infinite; }
+        @keyframes twinkle { 0%, 100% { opacity: 0; transform: scale(0.5); } 50% { opacity: 0.8; transform: scale(1.1); } }
 
-  body {
-    background: var(--paper);
-    color: var(--ink);
-    font-family: 'Noto Sans KR', sans-serif;
-    min-height: 100vh;
-    background-image:
-      radial-gradient(ellipse at 20% 20%, rgba(184,134,11,0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(192,57,43,0.04) 0%, transparent 50%);
-  }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
 
-  body::before {
-    content: '';
-    position: fixed;
-    left: 0; top: 0;
-    width: 6px; height: 100%;
-    background: linear-gradient(to bottom, var(--red), var(--gold), var(--red));
-    z-index: 100;
-  }
+        /* [고정] 커플 이미지 */
+        header { text-align: center; margin-bottom: 40px; }
+        .couple-main {
+            width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--neon);
+            background: url('./profile.png') center/cover no-repeat, #222;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.4); margin: 0 auto 20px;
+        }
+        h1 { font-family: 'Noto Serif KR', serif; font-size: 28px; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
+        .version-tag { font-size: 11px; color: var(--neon); font-weight: bold; margin-top: 5px; opacity: 0.8; }
 
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 40px 24px;
-  }
+        /* 클로드 스타일 카드 결합 */
+        .card {
+            background: rgba(0, 20, 40, 0.6); border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 20px; padding: 30px; backdrop-filter: blur(15px); margin-bottom: 25px;
+        }
+        label { display: block; font-size: 12px; color: var(--neon); margin-bottom: 8px; letter-spacing: 1px; }
+        input, textarea {
+            width: 100%; background: rgba(0, 0, 0, 0.3); border: 1px solid #333;
+            border-radius: 12px; color: #fff; padding: 15px; font-size: 15px; outline: none; margin-bottom: 20px;
+        }
+        input:focus { border-color: var(--neon); }
 
-  header {
-    text-align: center;
-    margin-bottom: 48px;
-    position: relative;
-  }
+        .btn-fire {
+            width: 100%; padding: 18px; background: var(--neon); color: #000;
+            border: none; border-radius: 15px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-fire:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(0, 255, 204, 0.4); }
 
-  .han-deco {
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 52px;
-    color: var(--red);
-    opacity: 0.15;
-    position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    letter-spacing: 8px;
-    white-space: nowrap;
-    pointer-events: none;
-  }
+        /* 결과 탭 시스템 */
+        .results { display: none; margin-top: 30px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: -1px; }
+        .tab { 
+            padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(0,255,204,0.2);
+            border-bottom: none; border-radius: 10px 10px 0 0; cursor: pointer; font-size: 13px;
+        }
+        .tab.active { background: rgba(0, 255, 204, 0.2); color: var(--neon); font-weight: bold; }
+        .tab-content { 
+            background: rgba(0, 20, 40, 0.8); border: 1px solid rgba(0, 255, 204, 0.2);
+            padding: 25px; border-radius: 0 20px 20px 20px; font-family: 'Noto Serif KR', serif;
+            line-height: 1.8; white-space: pre-wrap; font-size: 16px;
+        }
 
-  h1 {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--ink);
-    letter-spacing: -0.5px;
-    position: relative;
-    z-index: 1;
-  }
-
-  h1 span { color: var(--red); }
-
-  .subtitle {
-    font-size: 13px;
-    color: var(--faded);
-    margin-top: 8px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-weight: 300;
-  }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 24px auto;
-    max-width: 300px;
-  }
-
-  .divider::before, .divider::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--border));
-  }
-  .divider::after {
-    background: linear-gradient(to left, transparent, var(--border));
-  }
-
-  .divider-icon { color: var(--gold); font-size: 18px; }
-
-  .card {
-    background: rgba(255,255,255,0.6);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 28px;
-    margin-bottom: 24px;
-    position: relative;
-    backdrop-filter: blur(4px);
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: 4px; bottom: 4px;
-    border: 1px solid rgba(184,134,11,0.15);
-    border-radius: 1px;
-    pointer-events: none;
-  }
-
-  .card-title {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--faded);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .card-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  label {
-    display: block;
-    font-size: 12px;
-    color: var(--faded);
-    margin-bottom: 6px;
-    letter-spacing: 1px;
-    font-weight: 500;
-  }
-
-  input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 12px 14px;
-    background: rgba(245,240,232,0.8);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-size: 14px;
-    color: var(--ink);
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    margin-bottom: 16px;
-  }
-
-  input:focus {
-    border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(184,134,11,0.1);
-  }
-
-  .notice {
-    font-size: 11px;
-    color: var(--faded);
-    margin-top: -12px;
-    margin-bottom: 16px;
-    line-height: 1.6;
-  }
-
-  .notice a { color: var(--gold); }
-
-  .btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--ink);
-    color: var(--paper);
-    border: none;
-    border-radius: 2px;
-    font-family: 'Noto Serif KR', serif;
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 2px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .btn::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0;
-    width: 4px; height: 100%;
-    background: var(--red);
-    transition: width 0.3s;
-  }
-
-  .btn:hover { background: #2c1f0e; }
-  .btn:hover::before { width: 8px; }
-  .btn:active { transform: scale(0.99); }
-  .btn:disabled { background: var(--faded); cursor: not-allowed; transform: none; }
-
-  .loading {
-    display: none;
-    text-align: center;
-    padding: 40px;
-    color: var(--faded);
-  }
-
-  .loading.active { display: block; }
-
-  .spinner {
-    width: 40px; height: 40px;
-    border: 3px solid var(--light);
-    border-top-color: var(--red);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin: 0 auto 16px;
-  }
-
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .loading-text {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 14px;
-    letter-spacing: 1px;
-  }
-
-  .loading-step {
-    font-size: 12px;
-    color: var(--faded);
-    margin-top: 8px;
-  }
-
-  .results { display: none; }
-  .results.active { display: block; }
-
-  .result-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: -1px;
-    position: relative;
-    z-index: 1;
-  }
-
-  .tab {
-    padding: 10px 20px;
-    background: var(--light);
-    border: 1px solid var(--border);
-    border-bottom: none;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--faded);
-    font-weight: 500;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-  }
-
-  .tab:first-child { border-radius: 2px 0 0 0; }
-  .tab:last-child { border-radius: 0 2px 0 0; }
-  .tab.active { background: rgba(255,255,255,0.6); color: var(--ink); font-weight: 600; }
-
-  .tab-content {
-    display: none;
-    background: rgba(255,255,255,0.6);
-    border: 1px solid var(--border);
-    border-radius: 0 2px 2px 2px;
-    padding: 28px;
-    backdrop-filter: blur(4px);
-    position: relative;
-  }
-
-  .tab-content::before {
-    content: '';
-    position: absolute;
-    top: 4px; left: 4px; right: 4px; bottom: 4px;
-    border: 1px solid rgba(184,134,11,0.1);
-    border-radius: 1px;
-    pointer-events: none;
-  }
-
-  .tab-content.active { display: block; }
-
-  .content-text {
-    font-family: 'Noto Serif KR', serif;
-    font-size: 15px;
-    line-height: 2;
-    color: var(--ink);
-    white-space: pre-wrap;
-    word-break: keep-all;
-  }
-
-  .copy-btn {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 8px 18px;
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    font-size: 12px;
-    color: var(--faded);
-    cursor: pointer;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-  }
-
-  .copy-btn:hover { border-color: var(--gold); color: var(--gold); }
-
-  .error-box {
-    display: none;
-    background: rgba(192,57,43,0.08);
-    border: 1px solid rgba(192,57,43,0.3);
-    border-radius: 2px;
-    padding: 16px 20px;
-    color: var(--red);
-    font-size: 14px;
-    margin-top: 16px;
-    line-height: 1.6;
-  }
-
-  .error-box.active { display: block; }
-
-  .info-box {
-    background: rgba(184,134,11,0.06);
-    border: 1px solid rgba(184,134,11,0.25);
-    border-radius: 2px;
-    padding: 14px 18px;
-    font-size: 12px;
-    color: var(--faded);
-    margin-bottom: 20px;
-    line-height: 1.7;
-  }
-
-  footer {
-    text-align: center;
-    margin-top: 60px;
-    padding-top: 24px;
-    border-top: 1px solid var(--border);
-    font-size: 11px;
-    color: var(--faded);
-    letter-spacing: 1px;
-  }
-</style>
+        /* 히스토리 10개 고정 */
+        .history-section { margin-top: 50px; border-top: 1px solid rgba(0, 255, 204, 0.2); padding-top: 20px; }
+        .hist-item { font-size: 11px; color: #888; margin-bottom: 5px; text-align: left; }
+        .hist-ver { color: var(--neon); margin-right: 10px; font-weight: bold; }
+    </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="han-deco">中文小說翻譯</div>
-    <h1>중문 소설 <span>번역기</span></h1>
-    <p class="subtitle">Chinese Novel Translator · Powered by Claude AI</p>
-    <div class="divider"><span class="divider-icon">✦</span></div>
-  </header>
 
-  <div class="card">
-    <div class="card-title">번역 설정</div>
+    <div id="star-canvas"></div>
 
-    <div class="info-box">
-      💡 이 파일 하나만 브라우저에서 열면 바로 사용 가능합니다.<br>
-      Claude API 키는 이 기기에만 저장되며 외부로 전송되지 않습니다.
+    <div class="container">
+        <header>
+            <div class="couple-main"></div>
+            <h1>NANA LAB <span>TRANSLATOR</span></h1>
+            <div class="version-tag">STATION V36.0 (HYBRID)</div>
+        </header>
+
+        <div class="card">
+            <label>GEMINI API KEY (새로 발급받은 키를 넣으세요)</label>
+            <input type="password" id="apiKey" placeholder="AIzaSy...">
+            
+            <label>원문 입력 (또는 번역할 내용)</label>
+            <textarea id="inpText" style="height: 200px;" placeholder="중국어 소설 내용을 붙여넣으세요..."></textarea>
+            
+            <button class="btn-fire" onclick="fireEngine()">나나 엔진 가동</button>
+        </div>
+
+        <div class="results" id="resultArea">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('ko')">한국어 번역</div>
+                <div class="tab" onclick="switchTab('zh')">원문 데이터</div>
+            </div>
+            <div class="tab-content" id="content-ko">번역 결과가 여기 표시됩니다.</div>
+            <div class="tab-content" id="content-zh" style="display:none;">원문이 여기 표시됩니다.</div>
+        </div>
+
+        <div class="history-section">
+            <div class="hist-item"><span class="hist-ver">V36.0</span> 클로드 UI 구조 + 제미나이 엔진 하이브리드 통합</div>
+            <div class="hist-item"><span class="hist-ver">V35.0</span> 클로드 합동 분석 반영 및 엔진 경로 정규화</div>
+            <div class="hist-item"><span class="hist-ver">V34.0</span> CSS 은하수 엔진 및 API 키 갱신 링크 추가</div>
+            <div class="hist-item"><span class="hist-ver">V33.0</span> 외부 이미지 차단 방지용 CSS 은하수 시범 도입</div>
+            <div class="hist-item"><span class="hist-ver">V32.0</span> 모델 자동 탐색 기능 및 배경 이미지 교체</div>
+            <div class="hist-item"><span class="hist-ver">V31.0</span> 깃허브 배포 환경 최적화 및 모델 다각화</div>
+            <div class="hist-item"><span class="hist-ver">V30.0</span> 엔진 경로 표준화(v1) 및 은하수 최적화</div>
+            <div class="hist-item"><span class="hist-ver">V29.0</span> 엔진 접두사 'models/' 강제 지정</div>
+            <div class="hist-item"><span class="hist-ver">V28.0</span> 메인 버전 상시 표기 및 히스토리 모달화</div>
+            <div class="hist-item"><span class="hist-ver">V27.0</span> 히스토리 상시 노출 레이아웃 테스트</div>
+        </div>
     </div>
-
-    <label>번역할 페이지 URL</label>
-    <input type="text" id="urlInput" placeholder="https://www.69shu.com/txt/12345/chapter1.htm" />
-
-    <label>Claude API 키</label>
-    <input type="password" id="apiKey" placeholder="sk-ant-api03-..." />
-    <p class="notice">
-      * API 키는 브라우저 로컬스토리지에 저장됩니다 (선택사항).<br>
-      * <a href="https://console.anthropic.com/" target="_blank">console.anthropic.com</a> 에서 발급 가능합니다.
-    </p>
-
-    <button class="btn" id="translateBtn" onclick="startTranslate()">번 역 시 작</button>
-    <div class="error-box" id="errorBox"></div>
-  </div>
-
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p class="loading-text">번역 중...</p>
-    <p class="loading-step" id="loadingStep">페이지를 불러오는 중입니다...</p>
-  </div>
-
-  <div class="results" id="results">
-    <div class="result-tabs">
-      <div class="tab active" id="tab-btn-translated" onclick="switchTab('translated', this)">한국어 번역</div>
-      <div class="tab" id="tab-btn-original" onclick="switchTab('original', this)">원문 (중국어)</div>
-    </div>
-
-    <div class="tab-content active" id="tab-translated">
-      <div class="content-text" id="translatedContent"></div>
-      <button class="copy-btn" onclick="copyText('translatedContent')">📋 번역문 복사</button>
-    </div>
-
-    <div class="tab-content" id="tab-original">
-      <div class="content-text" id="originalContent"></div>
-      <button class="copy-btn" onclick="copyText('originalContent')">📋 원문 복사</button>
-    </div>
-  </div>
-
-  <footer>
-    <p>중문 소설 번역기 · index.html 하나로 실행 · Claude API</p>
-  </footer>
-</div>
 
 <script>
-  // API 키 저장/불러오기
-  const savedKey = localStorage.getItem('claude_api_key');
-  if (savedKey) document.getElementById('apiKey').value = savedKey;
+    // [시스템] CSS 은하수 생성기
+    const canvas = document.getElementById('star-canvas');
+    for (let i = 0; i < 200; i++) {
+        const star = document.createElement('div');
+        star.className = 'star';
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        const size = Math.random() * 2;
+        const duration = Math.random() * 3 + 2;
+        star.style.left = `${x}%`; star.style.top = `${y}%`;
+        star.style.width = `${size}px`; star.style.height = `${size}px`;
+        star.style.setProperty('--duration', `${duration}s`);
+        canvas.appendChild(star);
+    }
 
-  document.getElementById('apiKey').addEventListener('change', function() {
-    if (this.value.trim()) localStorage.setItem('claude_api_key', this.value.trim());
-  });
+    function switchTab(lang) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('content-ko').style.display = lang === 'ko' ? 'block' : 'none';
+        document.getElementById('content-zh').style.display = lang === 'zh' ? 'block' : 'none';
+        event.currentTarget.classList.add('active');
+    }
 
-  function switchTab(name, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + name).classList.add('active');
-    el.classList.add('active');
-  }
+    async function fireEngine() {
+        const key = document.getElementById('apiKey').value;
+        const text = document.getElementById('inpText').value;
+        const resKo = document.getElementById('content-ko');
+        const resZh = document.getElementById('content-zh');
+        
+        if(!key || !text) { alert("키와 내용을 입력해주세요!"); return; }
 
-  function setStep(msg) {
-    document.getElementById('loadingStep').textContent = msg;
-  }
+        resKo.innerText = "은하수 엔진이 문장을 분석 중입니다...";
+        document.getElementById('resultArea').style.display = "block";
 
-  // CORS 프록시 목록 (순서대로 시도)
-  const CORS_PROXIES = [
-    url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-    url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  ];
-
-  async function fetchWithProxy(url) {
-    // 프록시 1: allorigins (JSON 형식)
-    try {
-      setStep('페이지를 불러오는 중... (프록시 1/3)');
-      const res = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(10000) });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.contents && data.contents.length > 100) return data.contents;
-      }
-    } catch(e) {}
-
-    // 프록시 2: corsproxy.io (raw HTML)
-    try {
-      setStep('페이지를 불러오는 중... (프록시 2/3)');
-      const res = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(10000) });
-      if (res.ok) {
-        const text = await res.text();
-        if (text.length > 100) return text;
-      }
-    } catch(e) {}
-
-    // 프록시 3: codetabs
-    try {
-      setStep('페이지를 불러오는 중... (프록시 3/3)');
-      const res = await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`, { signal: AbortSignal.timeout(10000) });
-      if (res.ok) {
-        const text = await res.text();
-        if (text.length > 100) return text;
-      }
-    } catch(e) {}
-
-    throw new Error('페이지를 불러올 수 없습니다.\n\n가능한 원인:\n• 해당 사이트가 크롤링을 차단함\n• CORS 프록시 서버 문제\n• 잘못된 URL\n\n다른 챕터 URL이나 다른 사이트를 시도해보세요.');
-  }
-
-  function extractContent(html) {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-
-    // 불필요한 태그 제거
-    ['script', 'style', 'nav', 'header', 'footer', 'aside', 'ins', 'iframe', 'noscript'].forEach(tag => {
-      doc.querySelectorAll(tag).forEach(el => el.remove());
-    });
-
-    // 제목 추출
-    let title = '';
-    const titleEl = doc.querySelector('h1, h2, .title, #title, .chapter-title');
-    if (titleEl) title = titleEl.textContent.trim();
-
-    // 본문 셀렉터 (중국 소설 사이트들 공통)
-    const selectors = [
-      '#content', '#chaptercontent', '#chapter-content', '#novel-content',
-      '#readcontent', '#articlecontent', '#booktext', '#novelcontent',
-      '.content', '.chapter-content', '.novel-content', '.read-content',
-      '.booktext', '.article-content', '.text-content', '.dzs-content',
-    ];
-
-    let content = '';
-    for (const sel of selectors) {
-      const el = doc.querySelector(sel);
-      if (el) {
-        const text = el.innerText || el.textContent;
-        if (text && text.trim().length > 200) {
-          content = text.trim();
-          break;
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: `소설 번역 전문가로서 다음 중문을 한국어로 유려하게 번역하라. 한자음은 한국식으로 표기하고 대화체는 자연스럽게 하라:\n\n${text}` }] }]
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                resKo.innerText = data.candidates[0].content.parts[0].text;
+                resZh.innerText = text;
+            } else {
+                resKo.innerText = "엔진 오류: " + data.error.message;
+            }
+        } catch (e) {
+            resKo.innerText = "통신 에러가 발생했습니다.";
         }
-      }
     }
-
-    // 폴백: p 태그 모음
-    if (!content) {
-      const paragraphs = doc.querySelectorAll('p');
-      const texts = [...paragraphs].map(p => p.textContent.trim()).filter(t => t.length > 10);
-      content = texts.join('\n');
-    }
-
-    // 폴백: body 전체
-    if (!content || content.length < 100) {
-      content = doc.body ? doc.body.innerText || doc.body.textContent : '';
-    }
-
-    // 정리
-    content = content
-      .split('\n')
-      .map(l => l.trim())
-      .filter(l => l.length > 0)
-      .join('\n')
-      .slice(0, 8000);
-
-    return { title, content };
-  }
-
-  async function translateWithClaude(title, content, apiKey) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
-      body: JSON.stringify({
-        model: 'claude-opus-4-6',
-        max_tokens: 8000,
-        messages: [{
-          role: 'user',
-          content: `다음은 중국어 웹소설의 한 챕터입니다. 한국어로 자연스럽고 가독성 좋게 번역해주세요.
-소설 특유의 문체를 살리고, 대화문은 따옴표를 유지해주세요.
-번역 결과만 출력하세요. 제목도 번역해서 맨 위에 적어주세요.
-
-제목: ${title}
-
-내용:
-${content}`
-        }]
-      })
-    });
-
-    if (!response.ok) {
-      const err = await response.json().catch(() => ({}));
-      if (response.status === 401) throw new Error('API 키가 유효하지 않습니다. 키를 다시 확인해주세요.');
-      if (response.status === 429) throw new Error('API 요청 한도 초과입니다. 잠시 후 다시 시도해주세요.');
-      throw new Error(`Claude API 오류 (${response.status}): ${err.error?.message || '알 수 없는 오류'}`);
-    }
-
-    const data = await response.json();
-    return data.content[0].text;
-  }
-
-  async function startTranslate() {
-    const url = document.getElementById('urlInput').value.trim();
-    const apiKey = document.getElementById('apiKey').value.trim();
-    const errorBox = document.getElementById('errorBox');
-    const loading = document.getElementById('loading');
-    const results = document.getElementById('results');
-    const btn = document.getElementById('translateBtn');
-
-    errorBox.classList.remove('active');
-    results.classList.remove('active');
-
-    if (!url) { showError('URL을 입력해주세요.'); return; }
-    if (!url.startsWith('http')) { showError('올바른 URL을 입력해주세요. (http:// 또는 https://)'); return; }
-    if (!apiKey) { showError('Claude API 키를 입력해주세요.\nhttps://console.anthropic.com/ 에서 발급받을 수 있습니다.'); return; }
-
-    btn.disabled = true;
-    loading.classList.add('active');
-
-    try {
-      // 1단계: 크롤링
-      const html = await fetchWithProxy(url);
-
-      // 2단계: 파싱
-      setStep('소설 내용을 추출하는 중...');
-      const { title, content } = extractContent(html);
-
-      if (!content || content.length < 50) {
-        throw new Error('페이지에서 소설 내용을 찾을 수 없습니다.\n이 사이트는 지원되지 않거나 내용이 없는 페이지일 수 있습니다.');
-      }
-
-      // 3단계: 번역
-      setStep('Claude AI가 번역하는 중... (30초~1분 소요)');
-      const translated = await translateWithClaude(title, content, apiKey);
-
-      // 결과 표시
-      document.getElementById('translatedContent').textContent = translated;
-      document.getElementById('originalContent').textContent = (title ? title + '\n\n' : '') + content;
-
-      results.classList.add('active');
-      results.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    } catch(e) {
-      showError(e.message || '알 수 없는 오류가 발생했습니다.');
-    } finally {
-      btn.disabled = false;
-      loading.classList.remove('active');
-    }
-  }
-
-  function showError(msg) {
-    const errorBox = document.getElementById('errorBox');
-    errorBox.textContent = '⚠ ' + msg;
-    errorBox.classList.add('active');
-  }
-
-  function copyText(id) {
-    const text = document.getElementById(id).textContent;
-    navigator.clipboard.writeText(text).then(() => alert('복사되었습니다!'));
-  }
-
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Enter' && e.ctrlKey) startTranslate();
-  });
 </script>
 </body>
 </html>
