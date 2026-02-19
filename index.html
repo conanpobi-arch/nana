@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA MAIN SYSTEM V2.47</title>
+<title>NANA LAB V2.51</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
+  body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; cursor: default; }
 
-  /* 배경 레이어 */
+  /* 배경 레이어 및 별빛 */
   #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
   .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; }
   @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
@@ -18,34 +18,49 @@
 
   .main-container { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
   
+  /* 커플 이미지 profile.png 고정 */
   .couple-img { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 25px var(--neon); margin-bottom: 20px; object-fit: cover; }
-  .main-title { font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 5px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 25px; }
+  
+  /* 타이틀 NANA LAB */
+  .main-title { font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 8px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 25px; text-align: center; }
 
+  /* API KEY 입력 필드 */
   .api-box { width: 100%; max-width: 380px; margin-bottom: 20px; }
   .master-api { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 13px; outline: none; text-align: center; font-family: 'Orbitron'; backdrop-filter: blur(10px); }
 
+  /* 8대 메뉴 그리드 */
   .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 380px; }
   .menu-btn { background: rgba(0, 255, 204, 0.05); border: 1px solid var(--border); border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; backdrop-filter: blur(8px); transition: 0.2s; text-decoration: none; color: #fff; display: flex; flex-direction: column; align-items: center; }
-  .menu-btn:active { transform: scale(0.95); background: rgba(0, 255, 204, 0.2); }
+  .menu-btn:hover { background: rgba(0, 255, 204, 0.12); box-shadow: 0 0 15px rgba(0, 255, 204, 0.2); }
+  .menu-btn:active { transform: scale(0.95); }
   .menu-btn div { font-size: 12px; color: var(--neon); margin-top: 10px; font-weight: bold; letter-spacing: -0.5px; }
   .menu-btn span { font-size: 28px; }
 
-  /* 버전 히스토리 버튼 및 모달 */
-  .ver-trigger { margin-top: 30px; font-family: 'Orbitron'; font-size: 10px; color: rgba(0,255,204,0.4); cursor: pointer; letter-spacing: 2px; }
-  
+  /* 버전 히스토리 유도 */
+  .ver-trigger { margin-top: 30px; font-family: 'Orbitron'; font-size: 10px; color: rgba(0,255,204,0.4); cursor: pointer; letter-spacing: 2px; transition: 0.3s; }
+  .ver-trigger:hover { color: var(--neon); }
+
+  /* 노트북 최적화 BGM 컨트롤러 */
+  #bgm-status { 
+    position: fixed; bottom: 30px; left: 30px; z-index: 100; 
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(0,0,0,0.6); border: 1px solid #ff4444;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; cursor: pointer; transition: 0.3s; color: #ff4444;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);
+  }
+  #bgm-status.active { border-color: var(--neon); color: var(--neon); box-shadow: 0 0 15px var(--neon); }
+
+  /* 히스토리 모달 */
   #history-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
   .history-content { width: 100%; max-width: 500px; background: rgba(0,20,40,0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; max-height: 80vh; overflow-y: auto; }
-  .history-title { font-family: 'Orbitron'; font-size: 16px; color: var(--neon); margin-bottom: 20px; text-align: center; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-  
   table { width: 100%; border-collapse: collapse; font-size: 11px; color: #ccc; }
   th, td { padding: 10px 5px; text-align: left; border-bottom: 1px solid rgba(0,255,204,0.1); }
   th { color: var(--neon); font-family: 'Orbitron'; }
   .current-v { color: #fff; font-weight: bold; }
-
-  #bgm-status { position: fixed; bottom: 25px; left: 25px; z-index: 100; font-size: 20px; cursor: pointer; opacity: 0.5; }
 </style>
 </head>
-<body onclick="closeModal()">
+<body onclick="unlockAudio()">
 
 <div id="galaxy-bg"></div>
 <canvas id="meteor-canvas"></canvas>
@@ -58,7 +73,7 @@
 
 <div class="main-container">
   <img src="./profile.png" class="couple-img" alt="Couple">
-  <h1 class="main-title">NANA SYSTEM</h1>
+  <h1 class="main-title">NANA LAB</h1>
 
   <div class="api-box">
     <input type="password" id="apiKey" class="master-api" placeholder="GEMINI API KEY" onclick="event.stopPropagation()">
@@ -75,42 +90,72 @@
     <a href="#" class="menu-btn" onclick="event.stopPropagation()"><span>⚽</span><div>스포츠토토</div></a>
   </div>
 
-  <div class="ver-trigger" onclick="openModal(event)">SYSTEM VERSION v2.47</div>
+  <div class="ver-trigger" onclick="openModal(event)">SYSTEM VERSION v2.51</div>
 </div>
 
-<div id="history-modal">
+<div id="history-modal" onclick="closeModal()">
   <div class="history-content" onclick="event.stopPropagation()">
-    <div class="history-title">VERSION HISTORY</div>
+    <div style="font-family:'Orbitron'; color:var(--neon); margin-bottom:15px; text-align:center;">NANA LAB HISTORY</div>
     <table>
       <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
       <tbody>
-        <tr class="current-v"><td>v2.47</td><td>26-02-19</td><td>히스토리 모달화 및 8대 메뉴 모듈 집중도 향상</td></tr>
-        <tr><td>v2.46</td><td>26-02-19</td><td>포비님 지정 8대 메뉴 최종 명칭 적용</td></tr>
-        <tr><td>v2.45</td><td>26-02-19</td><td>API KEY 필드 배치 및 히스토리 10개 강제 출력</td></tr>
+        <tr class="current-v"><td>v2.51</td><td>26-02-19</td><td>노트북 오디오 락 해제 및 아이콘 상태 동기화 최종 패치</td></tr>
+        <tr><td>v2.50</td><td>26-02-19</td><td>노트북 보안 정책 대응 및 UI 호버 효과 추가</td></tr>
+        <tr><td>v2.49</td><td>26-02-19</td><td>오디오 엔진 수리 및 스피커 아이콘 토글 버그 수정</td></tr>
+        <tr><td>v2.48</td><td>26-02-19</td><td>메인 타이틀 NANA LAB으로 공식 변경</td></tr>
+        <tr><td>v2.47</td><td>26-02-19</td><td>히스토리 모달화 패치 (모듈 화면 집중도 향상)</td></tr>
+        <tr><td>v2.46</td><td>26-02-19</td><td>포비님 지정 8대 메뉴(소설번역기 등) 최종 명칭 적용</td></tr>
+        <tr><td>v2.45</td><td>26-02-19</td><td>API KEY 필드 및 히스토리 10개 강제 출력</td></tr>
         <tr><td>v2.44</td><td>26-02-19</td><td>메뉴 명칭 정밀 복구 및 밤하늘 밸런스 조정</td></tr>
         <tr><td>v2.43</td><td>26-02-19</td><td>별빛 복구 및 유성우 빈도 최적화 패치</td></tr>
         <tr><td>v2.42</td><td>26-02-19</td><td>커플 이미지 경로 profile.png 고정</td></tr>
-        <tr><td>v2.41</td><td>26-02-19</td><td>캔버스 유성우 엔진 탑재 및 오디오 로직 통합</td></tr>
-        <tr><td>v2.40</td><td>26-02-19</td><td>노벨 엔진 "나나 AI 번역 중" 단계 한글화</td></tr>
-        <tr><td>v2.39</td><td>26-02-19</td><td>실시간 상태 메시지 UI 1.0 적용</td></tr>
-        <tr><td>v2.38</td><td>26-02-19</td><td>폰트 크기 19px 및 가독성 밸런스 조정</td></tr>
       </tbody>
     </table>
-    <div style="text-align:center; margin-top:20px; color:var(--neon); font-size:10px;">TAB ANYWHERE TO CLOSE</div>
+    <div style="text-align:center; margin-top:20px; color:var(--neon); font-size:9px; opacity:0.6;">CLICK ANYWHERE TO CLOSE</div>
   </div>
 </div>
 
 <script>
+  const bgm = document.getElementById('bgm');
+  const bgmBtn = document.getElementById('bgm-status');
+  let isUnlocked = false;
+
+  // 오디오 락 해제 (노트북/데스크탑용)
+  function unlockAudio() {
+    if (isUnlocked) return;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    bgm.play().then(() => {
+      bgmBtn.innerText = '🔊';
+      bgmBtn.classList.add('active');
+      isUnlocked = true;
+    }).catch(err => console.log("User interaction required..."));
+  }
+
+  function toggleBGM(e) {
+    e.stopPropagation();
+    if (bgm.paused) {
+      bgm.play();
+      bgmBtn.innerText = '🔊';
+      bgmBtn.classList.add('active');
+    } else {
+      bgm.pause();
+      bgmBtn.innerText = '🔇';
+      bgmBtn.classList.remove('active');
+    }
+  }
+
   // API 키 연동
   const keyInput = document.getElementById('apiKey');
   keyInput.value = localStorage.getItem('nana_gemini_key') || '';
   keyInput.oninput = () => localStorage.setItem('nana_gemini_key', keyInput.value);
 
-  // 모달 제어 로직
   function openModal(e) { e.stopPropagation(); document.getElementById('history-modal').style.display = 'flex'; }
   function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
 
-  // 배경 별빛 생성
+  // 별빛 배경 생성
   const bg = document.getElementById('galaxy-bg');
   for (let i = 0; i < 150; i++) {
     const star = document.createElement('div');
@@ -121,16 +166,6 @@
     star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
     bg.appendChild(star);
   }
-
-  // BGM 제어
-  const bgm = document.getElementById('bgm');
-  const bgmBtn = document.getElementById('bgm-status');
-  function toggleBGM(e) {
-    e.stopPropagation();
-    if (bgm.paused) { bgm.play().then(() => bgmBtn.innerText = '🎵'); } 
-    else { bgm.pause(); bgmBtn.innerText = '🔇'; }
-  }
-  document.addEventListener('click', () => { bgm.play().then(() => bgmBtn.innerText = '🎵').catch(()=>{}); }, {once: true});
 
   // 유성우 엔진
   const canvas = document.getElementById('meteor-canvas');
