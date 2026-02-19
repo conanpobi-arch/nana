@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V45.8</title>
+<title>NANA NOVEL ENGINE V45.8.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -26,14 +26,12 @@
 
   .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
 
-  /* 번역문 가독성 최적화 레이어 */
   #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 80px 35px 140px; font-family: 'Noto Serif KR', serif; line-height: 2.6; font-size: 20px; color: #e0e0e0; white-space: pre-wrap; text-align: justify; word-break: break-all; }
   
   #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0, 10, 25, 0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 25px; align-items: center; gap: 15px; }
   .copy-icon-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; }
   .back-main-btn { flex: 1; height: 60px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* 로딩 시스템 */
   #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
   .main-loader { width: 60px; height: 60px; border: 5px solid rgba(0,255,204,0.1); border-top: 5px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -52,7 +50,7 @@
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V45.8</div>
+    <div class="engine-title">NANA NOVEL V45.8.1</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -118,37 +116,21 @@
       }
 
       const finalInput = cleanContent(rawData);
-      logStep("텍스트 정제 및 엔진 최적화 완료");
+      logStep("엔진 튜닝 및 인명 사전 로드 완료");
 
-      // 🔥 교정된 프롬프트: 한자음 나열 금지 및 의역 강화
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: `당신은 무협/선협 전문 번역가입니다. 독자가 한국어 소설을 읽는 듯한 느낌을 받도록 아래 지침을 엄수하십시오.
+        body: JSON.stringify({ contents: [{ parts: [{ text: `당신은 무협/선협 전문 번역가입니다. 고유 명사의 성씨 오역은 치명적이니 다음 지침을 엄수하십시오.
 
 지침:
-1. **절대 한자음만 나열하지 마십시오.** 문맥을 파악하여 한국 독자가 이해하기 쉬운 유려한 문장으로 의역하십시오.
-2. 인물 이름, 문파명, 지명, 무공명에 한해서만 대한민국 표준 한자음을 적용하십시오. (예: 叶辰 -> 엽진)
-3. 소설의 긴장감과 문체(무협지풍)를 유지하며, 한국어 어순에 맞게 매끄럽게 서술하십시오.
-4. 원문의 문장 개수와 번역문의 문장 개수를 1:1로 일치시키십시오.
-5. 결과물 외의 인사말, 해설 등 잡설은 일절 금지합니다.
+1. **성씨 및 인명 고정**: 한자 '何'는 성씨로 쓰일 때 반드시 '하'로 번역하십시오. (예: 何子衿 -> '하자금') 절대 '남'이나 다른 성씨로 임의 치환하지 마십시오.
+2. **절대 한자음만 나열하지 마십시오.** 문맥을 파악하여 한국 소설처럼 유려하고 풍부한 표현으로 의역하십시오.
+3. **무협지 문체 적용**: 고풍스러운 문체를 사용하되, 대화문은 인물 간의 관계를 고려하여 생동감 있게 번역하십시오.
+4. **No Omission**: 원문의 모든 문장을 빠짐없이 번역하고 문장 개수를 1:1로 맞추십시오.
+5. 결과물 외에 인사말, 분석 등 어떤 잡설도 출력하지 마십시오.
 
 원문:
 ${finalInput}` }] }] })
       });
       const data = await response.json();
-      const translated = data.candidates[0].content.parts[0].text;
-
-      document.getElementById('mainInput').classList.add('shrink');
-      document.getElementById('api-area').classList.add('hide');
-      const rb = document.getElementById('res-box'); 
-      rb.innerText = translated; rb.style.display = 'block';
-      document.getElementById('result-bottom-bar').style.display = 'flex';
-    } catch(e) { 
-      logStep("오류 발생: " + e.message, "fail");
-    } finally { 
-      setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
-    }
-  }
-</script>
-</body>
-</html>
+      const translated = data.candidates[0].content.parts[0].text
