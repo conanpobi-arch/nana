@@ -3,57 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB V45.5 INDEX</title>
+<title>NANA LAB V45.7</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; position: fixed; }
-  #galaxy-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
   
+  /* 배경 캔버스 */
+  #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+  #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%); }
+
   .container { position: relative; z-index: 2; max-width: 850px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 5vh 20px; text-align: center; align-items: center; justify-content: center; }
   
-  /* 커플 이미지 고정 */
   .couple-main { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--neon); margin-bottom: 20px; background: url('./profile.png') center/cover no-repeat, #222; box-shadow: 0 0 20px rgba(0,255,204,0.4); flex-shrink: 0; }
   h1 { font-family: 'Orbitron', sans-serif; font-size: 22px; letter-spacing: 3px; text-shadow: 0 0 10px var(--neon); margin-bottom: 40px; }
 
-  /* 대시보드 그리드 (모바일/PC 대응) */
   .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 500px; margin-bottom: 40px; }
   .app-icon { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
   .app-icon:hover { transform: translateY(-5px); }
   .icon-circle { width: 65px; height: 65px; border-radius: 18px; border: 1px solid var(--border); background: rgba(0,255,204,0.05); display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 8px; backdrop-filter: blur(5px); }
-  .app-name { font-size: 11px; color: #aaa; font-weight: 500; }
+  .app-name { font-size: 11px; color: #aaa; }
 
-  /* 버전 히스토리 트리거 버튼 */
-  .v-trigger { font-family: 'Orbitron'; font-size: 12px; color: var(--neon); cursor: pointer; opacity: 0.6; transition: 0.3s; margin-top: 20px; padding: 10px 20px; border: 1px solid var(--border); border-radius: 30px; }
-  .v-trigger:hover { opacity: 1; background: rgba(0,255,204,0.1); }
-
-  /* 히스토리 모달 (클릭 시 나타남) */
+  .v-trigger { font-family: 'Orbitron'; font-size: 12px; color: var(--neon); cursor: pointer; opacity: 0.6; transition: 0.3s; margin-top: 20px; padding: 8px 18px; border: 1px solid var(--border); border-radius: 30px; }
+  
   #history-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
-  .history-content { background: rgba(0, 20, 40, 0.9); border: 1px solid var(--neon); border-radius: 15px; width: 100%; max-width: 600px; max-height: 70vh; overflow-y: auto; padding: 20px; box-shadow: 0 0 30px rgba(0,255,204,0.2); }
-  .history-content h2 { font-family: 'Orbitron'; font-size: 14px; color: var(--neon); margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+  .history-content { background: rgba(0, 20, 40, 0.9); border: 1px solid var(--neon); border-radius: 15px; width: 100%; max-width: 600px; max-height: 70vh; overflow-y: auto; padding: 20px; }
   .history-table { width: 100%; font-size: 12px; border-collapse: collapse; text-align: left; }
   .history-table td { padding: 10px 5px; border-bottom: 1px solid rgba(255,255,255,0.05); }
   .v-tag { color: var(--neon); font-weight: bold; width: 60px; }
 
-  /* 하단 API 입력창 */
   #api-box { margin-top: auto; padding-bottom: 30px; }
   .master-api { width: 220px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--neon); text-align: center; outline: none; font-family: 'Orbitron'; font-size: 11px; padding: 5px; }
 
-  /* 모바일 최적화 */
+  /* BGM 컨트롤 */
+  #bgm-status { position: fixed; top: 20px; right: 20px; z-index: 100; font-size: 20px; cursor: pointer; opacity: 0.5; }
+
   @media (max-width: 480px) {
     .dashboard { grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .icon-circle { width: 55px; height: 55px; font-size: 22px; }
-    h1 { font-size: 18px; }
-    .history-table { font-size: 10px; }
   }
 </style>
 </head>
-<body>
+<body onclick="playBGM()">
 <div id="galaxy-bg"></div>
+<canvas id="star-canvas"></canvas>
+<div id="bgm-status">🔇</div>
+
 <div class="container">
   <div class="couple-main"></div>
-  <h1>NANA LAB <span style="color:var(--neon)">V45.5</span></h1>
+  <h1>NANA LAB <span style="color:var(--neon)">V45.7</span></h1>
 
   <div class="dashboard">
     <div class="app-icon" onclick="location.href='novel.html'"><div class="icon-circle">📖</div><div class="app-name">소설번역기</div></div>
@@ -67,13 +66,12 @@
   </div>
 
   <div class="v-trigger" onclick="openHistory(event)">VERSION HISTORY</div>
-
   <div id="api-box"><input type="password" id="masterKey" class="master-api" placeholder="GEMINI API KEY"></div>
 </div>
 
 <div id="history-modal" onclick="closeHistory()">
   <div class="history-content" onclick="event.stopPropagation()">
-    <h2>VERSION HISTORY (TOP 10)</h2>
+    <h2 style="font-family:'Orbitron'; font-size:14px; color:var(--neon); margin-bottom:15px;">VERSION HISTORY</h2>
     <table class="history-table" id="history-list"></table>
   </div>
 </div>
@@ -81,29 +79,89 @@
 <audio id="bgm" src="./bgm.mp3" loop></audio>
 
 <script>
-  document.body.onclick = () => { document.getElementById('bgm').play(); };
+  // BGM 로직
+  const bgm = document.getElementById('bgm');
+  const bgmBtn = document.getElementById('bgm-status');
+  function playBGM() {
+    if(bgm.paused) {
+      bgm.play().then(() => { bgmBtn.innerText = '🎵'; bgmBtn.style.opacity = "1"; });
+    }
+  }
 
-  function openHistory(e) {
-    e.stopPropagation();
-    document.getElementById('history-modal').style.display = 'flex';
+  // 유성우 & 별똥별 애니메이션 엔진
+  const canvas = document.getElementById('star-canvas');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  let shootingStars = [];
+
+  function initCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    for (let i = 0; i < 150; i++) {
+      stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.5, opacity: Math.random() });
+    }
   }
-  function closeHistory() {
-    document.getElementById('history-modal').style.display = 'none';
+
+  function createShootingStar() {
+    shootingStars.push({
+      x: Math.random() * canvas.width,
+      y: 0,
+      len: Math.random() * 80 + 50,
+      speed: Math.random() * 10 + 5,
+      size: Math.random() * 1 + 1
+    });
   }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 고정 별
+    ctx.fillStyle = "white";
+    stars.forEach(s => {
+      ctx.globalAlpha = s.opacity;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 별똥별
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "rgba(0, 255, 204, 0.6)";
+    ctx.lineWidth = 2;
+    shootingStars.forEach((s, i) => {
+      ctx.beginPath();
+      ctx.moveTo(s.x, s.y);
+      ctx.lineTo(s.x - s.len, s.y + s.len);
+      ctx.stroke();
+      s.x += s.speed;
+      s.y += s.speed;
+      if (s.y > canvas.height || s.x > canvas.width) shootingStars.splice(i, 1);
+    });
+
+    if (Math.random() < 0.02) createShootingStar();
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', initCanvas);
+  initCanvas();
+  draw();
+
+  // 히스토리 & 키 관리
+  function openHistory(e) { e.stopPropagation(); document.getElementById('history-modal').style.display = 'flex'; }
+  function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
 
   const historyData = [
+    {v:"v2.30", d:"2026-02-19", c:"[Current] 캔버스 유성우 엔진 및 BGM 자동재생 로직 강화"},
+    {v:"v2.29", d:"2026-02-19", c:"태그 세척 로직 도입 및 한자 나열 배제, 의역 강화"},
+    {v:"v2.28", d:"2026-02-19", c:"크롤링 우회 실시간 로그 UI 도입 및 비중단 로직 적용"},
+    {v:"v2.27", d:"2026-02-19", c:"번역문 가독성 최적화 (행간 2.6 / 20px / 다크블루)"},
     {v:"v2.26", d:"2026-02-19", c:"히스토리 모달화 및 반응형 UI 레이아웃 최적화"},
     {v:"v2.25", d:"2026-02-19", c:"기존 기능 완전 복구 및 잡설 배제 완성"},
     {v:"v2.24", d:"2026-02-19", c:"전체 로직 통합 및 잡설 배제 필터 강화"},
     {v:"v2.23", d:"2026-02-19", c:"NOVEL 엔진 크롤링 및 UI 로직 복구"},
     {v:"v2.22", d:"2026-02-19", c:"번역 결과물 잡설 제거 지침 반영"},
-    {v:"v2.21", d:"2026-02-19", c:"인덱스/노벨 최종 구조 확정"},
-    {v:"v2.20", d:"2026-02-19", c:"소설 엔진 완성 확인"},
-    {v:"v2.19", d:"2026-02-19", c:"8개 아이콘 및 히스토리 상단 배치"},
-    {v:"v2.18", d:"2026-02-19", c:"V45.5 프롬프트 최적화"},
-    {v:"v2.17", d:"2026-02-19", c:"V45.5 소스 복구"}
+    {v:"v2.17", d:"2026-02-19", c:"V45.5 INDEX 소스 코드 복구"}
   ];
-
   const hList = document.getElementById('history-list');
   historyData.forEach(item => {
     hList.innerHTML += `<tr><td class="v-tag">${item.v}</td><td>${item.d}</td><td>${item.c}</td></tr>`;
