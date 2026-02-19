@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V45.5</title>
+<title>NANA NOVEL ENGINE V45.6</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -15,41 +15,39 @@
   .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 15px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
   .card { background: rgba(0,15,35,0.8); border: 1px solid var(--border); border-radius: 20px; padding: 20px; backdrop-filter: blur(15px); }
   textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 15px; outline: none; margin-bottom: 15px; height: 250px; resize: none; transition: all 0.4s ease; line-height: 1.6; }
-  textarea.shrink { height: 80px; font-size: 12px; opacity: 0.5; }
+  textarea.shrink { height: 80px; font-size: 11px; opacity: 0.5; }
   #api-area { overflow: hidden; transition: max-height 0.4s ease; max-height: 100px; }
   #api-area.hide { max-height: 0; margin: 0; opacity: 0; }
   .master-api { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 13px; outline: none; margin-bottom: 15px; text-align: center; font-family: 'Orbitron'; }
   .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
 
-  /* 결과창 가독성 최적화 */
-  #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 60px 30px 140px; font-family: 'Noto Serif KR', serif; line-height: 2.4; font-size: 19px; color: #d8d8d8; white-space: pre-wrap; text-align: justify; word-break: break-all; }
+  /* 🔥 번역문 가독성 극대화 레이어 */
+  #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 80px 35px 140px; font-family: 'Noto Serif KR', serif; line-height: 2.6; font-size: 20px; color: #e0e0e0; white-space: pre-wrap; text-align: justify; word-break: break-all; }
+  
   #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0, 10, 25, 0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 25px; align-items: center; gap: 15px; }
   .copy-icon-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; }
   .back-main-btn { flex: 1; height: 60px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* 로딩 시스템 - 우회 목록 실시간 표시 */
+  /* 로딩 시스템 */
   #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.96); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
   .main-loader { width: 60px; height: 60px; border: 5px solid rgba(0,255,204,0.1); border-top: 5px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  #loading-msg { color: var(--neon); margin-top: 25px; font-size: 15px; font-family: 'Orbitron'; letter-spacing: 2px; }
   #strategy-log { color: #fff; font-size: 11px; margin-top: 15px; width: 280px; text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-family: monospace; }
   .log-entry { margin-bottom: 4px; border-left: 2px solid var(--neon); padding-left: 8px; }
   .log-entry.fail { border-left-color: #ff4444; color: #ff8888; }
-  .log-entry.try { border-left-color: var(--neon); color: var(--neon); }
 </style>
 </head>
 <body>
 <div id="galaxy-bg"></div>
 <div id="loading-overlay">
   <div class="main-loader"></div>
-  <div id="loading-msg">BYPASSING SECURITY...</div>
   <div id="strategy-log"></div>
 </div>
 
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V45.5</div>
+    <div class="engine-title">NANA NOVEL V45.6</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -84,11 +82,19 @@
     });
   }
 
+  // HTML 태그 제거 및 텍스트 정제 함수
+  function cleanContent(html) {
+    let doc = new DOMParser().parseFromString(html, 'text/html');
+    // 스크립트, 스타일, 광고 태그 제거
+    const trash = doc.querySelectorAll('script, style, ins, ads, .ads, #ads');
+    trash.forEach(t => t.remove());
+    return doc.body.innerText || doc.body.textContent;
+  }
+
   const CRAWL_STRATEGIES = [
     { name:'CorsProxy', fetch: async(u)=> { const r=await fetch(`https://corsproxy.io/?${encodeURIComponent(u)}`); return await r.text(); }},
     { name:'AllOrigins', fetch: async(u)=> { const r=await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u)}`); const d=await r.json(); return d.contents; }},
-    { name:'CodeTabs', fetch: async(u)=> { const r=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`); return await r.text(); }},
-    { name:'Weserv', fetch: async(u)=> { const r=await fetch(`https://images.weserv.nl/?url=${encodeURIComponent(u).replace(/^https?:\/\//,'')}`); return await r.text(); }}
+    { name:'CodeTabs', fetch: async(u)=> { const r=await fetch(`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`); return await r.text(); }}
   ];
 
   async function fireEngine() {
@@ -99,40 +105,44 @@
     document.getElementById('loading-overlay').style.display = 'flex';
 
     try {
-      let content = input;
+      let rawData = input;
       if(input.startsWith('http')) {
-        let success = false;
         for(let s of CRAWL_STRATEGIES) {
-          logStep(`${s.name} 경로 시도 중...`);
+          logStep(`${s.name} 시도...`);
           try { 
             const res = await s.fetch(input); 
-            if(res && res.length > 300) { 
-              content = res; success = true; 
-              logStep(`${s.name} 연결 성공!`, 'try');
-              break; 
-            } else { throw new Error('Data too short'); }
-          } catch(e) {
-            logStep(`${s.name} 실패: 다음 경로 탐색...`, 'fail');
-          }
+            if(res && res.length > 300) { rawData = res; break; }
+          } catch(e) { logStep(`${s.name} 실패`, 'fail'); }
         }
-        if(!success) logStep("모든 우회로 실패. 원문 직접 분석 시도.", "fail");
       }
 
-      logStep("Gemini 번역 엔진 가동...");
+      // 태그 세척
+      const finalInput = cleanContent(rawData);
+      logStep("태그 제거 및 텍스트 정제 완료");
+
       const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ parts: [{ text: `번역가 지침: 잡설 일체 배제, 본문만 출력, 대한민국 한자음 사용, 문장 개수 일치.\n\n원문:\n${content}` }] }] })
+        body: JSON.stringify({ contents: [{ parts: [{ text: `당신은 무협/선협 전문 번역가입니다.
+지침:
+1. 원문의 HTML 태그나 불필요한 기호를 모두 제거하고 '순수한 한국어 번역문'만 출력하십시오.
+2. 한자음을 나열하지 말고, 한국 독자가 읽기 편하도록 문맥에 맞춰 유려하게 해석(의역)하십시오.
+3. 고풍스러운 무협지 문체를 사용하되, 고유 명사는 대한민국 한자음 표준을 따르십시오.
+4. 문장 개수를 일치시키고, 대화문은 생동감 있게 번역하십시오.
+5. 인사말이나 분석 등 잡설은 일체 금지합니다.
+
+원문:
+${finalInput}` }] }] })
       });
       const data = await response.json();
       const translated = data.candidates[0].content.parts[0].text;
+
       document.getElementById('mainInput').classList.add('shrink');
       document.getElementById('api-area').classList.add('hide');
       const rb = document.getElementById('res-box'); 
       rb.innerText = translated; rb.style.display = 'block';
       document.getElementById('result-bottom-bar').style.display = 'flex';
     } catch(e) { 
-      logStep("엔진 치명적 오류: " + e.message, "fail");
-      setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 3000);
+      logStep("오류: " + e.message, "fail");
     } finally { 
       setTimeout(() => document.getElementById('loading-overlay').style.display = 'none', 500);
     }
