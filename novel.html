@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V45.9.0</title>
+<title>NANA NOVEL ENGINE V45.9.1</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -26,14 +26,21 @@
   .master-api { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 13px; outline: none; margin-bottom: 15px; text-align: center; font-family: 'Orbitron'; }
   .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
 
-  /* 결과창 (포비님 요청: 폰트 19px 최적화) */
-  #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 80px 35px 140px; font-family: 'Noto Serif KR', serif; line-height: 2.6; font-size: 19px; color: #e0e0e0; white-space: pre-wrap; text-align: justify; word-break: break-all; }
+  /* 결과창 (포비님 요청: 폰트 19px 유지 + 줄 간격 1/3 축소 적용) */
+  #res-box { 
+    display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; 
+    overflow-y: auto; padding: 80px 35px 140px; 
+    font-family: 'Noto Serif KR', serif; 
+    line-height: 1.7; /* 기존 2.6에서 1/3가량 줄인 최적 간격 */
+    font-size: 19px; color: #e0e0e0; 
+    white-space: pre-wrap; text-align: justify; word-break: break-all; 
+  }
   
   #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0, 10, 25, 0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 25px; align-items: center; gap: 15px; }
   .copy-icon-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; }
   .back-main-btn { flex: 1; height: 60px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* 로딩 시스템 (중앙 한글 메시지 레이아웃) */
+  /* 로딩 시스템 */
   #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
   .main-loader { width: 50px; height: 50px; border: 4px solid rgba(0,255,204,0.1); border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
   #engine-status-text { color: var(--neon); font-size: 16px; margin-bottom: 15px; letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
@@ -53,7 +60,7 @@
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V45.9.0</div>
+    <div class="engine-title">NANA NOVEL V45.9.1</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -136,7 +143,6 @@
         if(!success) throw new Error("모든 우회 서버가 차단되었습니다.");
       }
 
-      // 🔥 포비님 요청: 데이터 획득 후 번역 단계 진입 시 문구 고정
       setStatus("나나 AI 번역 중..."); 
       logStep("제미나이 2.0 Flash 분석 시작...");
       
