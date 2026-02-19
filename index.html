@@ -3,168 +3,156 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB V45.8.3</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<title>NANA MAIN SYSTEM V2.42</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; position: fixed; }
+
+  /* 우주 배경 레이어 */
+  #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%); }
+  #star-field { position: fixed; inset: 0; z-index: 1; background-image: radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px); background-size: 200px 200px; opacity: 0.15; }
   
-  /* 🔥 리얼 유성우 배경 레이어 */
-  #star-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-  #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%); }
+  /* 유성우 전용 캔버스 */
+  #meteor-canvas { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
 
-  .container { position: relative; z-index: 2; max-width: 850px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 5vh 20px; text-align: center; align-items: center; justify-content: center; }
+  /* 메인 컨텐츠 */
+  .main-container { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; }
   
-  /* 커플 이미지 (고정) */
-  .couple-main { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon); margin-bottom: 25px; background: url('./profile.png') center/cover no-repeat, #222; box-shadow: 0 0 25px rgba(0,255,204,0.5); flex-shrink: 0; }
-  h1 { font-family: 'Orbitron', sans-serif; font-size: 24px; letter-spacing: 4px; text-shadow: 0 0 15px var(--neon); margin-bottom: 45px; }
-
-  /* 앱 그리드 */
-  .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; max-width: 520px; margin-bottom: 40px; }
-  .app-icon { cursor: pointer; transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-  .app-icon:hover { transform: translateY(-8px); }
-  .icon-circle { width: 68px; height: 68px; border-radius: 20px; border: 1px solid var(--border); background: rgba(0,255,204,0.07); display: flex; align-items: center; justify-content: center; font-size: 30px; margin: 0 auto 10px; backdrop-filter: blur(10px); }
-  .app-name { font-size: 11px; color: #bbb; font-weight: 500; }
-
-  /* 버전 히스토리 트리거 */
-  .v-trigger { font-family: 'Orbitron'; font-size: 12px; color: var(--neon); cursor: pointer; opacity: 0.6; transition: 0.3s; margin-top: 20px; padding: 10px 22px; border: 1px solid var(--border); border-radius: 30px; }
+  /* 커플 이미지 (포비님 요청: profile.png) */
+  .couple-img { width: 160px; height: 160px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 30px var(--neon); margin-bottom: 30px; object-fit: cover; }
   
-  /* 모달 */
-  #history-modal { display: none; position: fixed; inset: 0; z-index: 9999; background: rgba(0,0,0,0.88); backdrop-filter: blur(20px); align-items: center; justify-content: center; padding: 20px; }
-  .history-content { background: rgba(0, 20, 45, 0.95); border: 1px solid var(--neon); border-radius: 20px; width: 100%; max-width: 650px; max-height: 75vh; overflow-y: auto; padding: 25px; }
-  .history-table { width: 100%; font-size: 12px; border-collapse: collapse; text-align: left; }
-  .history-table td { padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-  .v-tag { color: var(--neon); font-weight: 900; width: 70px; font-family: 'Orbitron'; }
+  .main-title { font-family: 'Orbitron'; font-size: 2.5rem; letter-spacing: 5px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 50px; text-align: center; }
 
-  #api-box { margin-top: auto; padding-bottom: 20px; }
-  .master-api { width: 240px; background: transparent; border: none; border-bottom: 1px solid var(--border); color: var(--neon); text-align: center; outline: none; font-family: 'Orbitron'; font-size: 11px; padding: 8px; }
-  #bgm-status { position: fixed; top: 25px; right: 25px; z-index: 100; font-size: 22px; cursor: pointer; opacity: 0.6; }
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 400px; }
+  .menu-btn { background: rgba(0, 255, 204, 0.05); border: 1px solid var(--border); border-radius: 20px; padding: 30px 20px; text-align: center; cursor: pointer; backdrop-filter: blur(10px); transition: 0.3s; text-decoration: none; color: #fff; }
+  .menu-btn:active { transform: scale(0.95); background: rgba(0, 255, 204, 0.2); }
+  .menu-btn div { font-family: 'Orbitron'; font-size: 14px; color: var(--neon); margin-top: 10px; font-weight: bold; }
+  .menu-btn span { font-size: 32px; }
 
-  @media (max-width: 480px) {
-    .dashboard { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .icon-circle { width: 58px; height: 58px; font-size: 24px; }
-  }
+  /* BGM 컨트롤 */
+  #bgm-status { position: fixed; bottom: 30px; right: 30px; z-index: 100; font-size: 24px; cursor: pointer; opacity: 0.6; transition: 0.3s; }
 </style>
 </head>
-<body onclick="playBGM()">
+<body>
+
 <div id="galaxy-bg"></div>
-<canvas id="star-canvas"></canvas>
-<div id="bgm-status" onclick="toggleBGM(event)">🔇</div>
+<div id="star-field"></div>
+<canvas id="meteor-canvas"></canvas>
 
-<div class="container">
-  <div class="couple-main"></div>
-  <h1>NANA LAB <span style="color:var(--neon)">V45.8.3</span></h1>
+<audio id="bgm" loop preload="auto">
+  <source src="./bgm.mp3" type="audio/mpeg">
+</audio>
 
-  <div class="dashboard">
-    <div class="app-icon" onclick="location.href='novel.html'"><div class="icon-circle">📖</div><div class="app-name">소설번역기</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">📥</div><div class="app-name">영상받기</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">✅</div><div class="app-name">할일</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">💰</div><div class="app-name">가계부</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">📰</div><div class="app-name">뉴스요약</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">🧠</div><div class="app-name">사고정리</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">🎬</div><div class="app-name">영화보기</div></div>
-    <div class="app-icon" onclick="alert('준비중')"><div class="icon-circle">⚽</div><div class="app-name">스포츠</div></div>
+<div id="bgm-status" onclick="toggleBGM()">🔇</div>
+
+<div class="main-container">
+  <img src="./profile.png" class="couple-img" alt="Couple">
+  
+  <h1 class="main-title">NANA SYSTEM</h1>
+
+  <div class="menu-grid">
+    <a href="novel.html" class="menu-btn">
+      <span>📖</span>
+      <div>NOVEL ENGINE</div>
+    </a>
+    <a href="#" class="menu-btn" onclick="alert('준비 중입니다!')">
+      <span>📊</span>
+      <div>ANALYSIS</div>
+    </a>
+    <a href="#" class="menu-btn" onclick="alert('준비 중입니다!')">
+      <span>🌐</span>
+      <div>COMMUNITY</div>
+    </a>
+    <a href="#" class="menu-btn" onclick="alert('준비 중입니다!')">
+      <span>⚙️</span>
+      <div>SETTINGS</div>
+    </a>
   </div>
-
-  <div class="v-trigger" onclick="openHistory(event)">VERSION HISTORY</div>
-  <div id="api-box"><input type="password" id="masterKey" class="master-api" placeholder="GEMINI API KEY"></div>
 </div>
-
-<div id="history-modal" onclick="closeHistory()">
-  <div class="history-content" onclick="event.stopPropagation()">
-    <h2 style="font-family:'Orbitron'; font-size:15px; color:var(--neon); margin-bottom:20px;">SYSTEM VERSION HISTORY</h2>
-    <table class="history-table" id="history-list"></table>
-  </div>
-</div>
-
-<audio id="bgm" src="./bgm.mp3" loop></audio>
 
 <script>
-  // BGM 로직
+  // 1. BGM 및 오디오 락 해제 시스템
   const bgm = document.getElementById('bgm');
   const bgmBtn = document.getElementById('bgm-status');
-  function playBGM() { if(bgm.paused) { bgm.play().then(() => { bgmBtn.innerText = '🎵'; bgmBtn.style.opacity = "1"; }); } }
-  function toggleBGM(e) { e.stopPropagation(); if(bgm.paused) { bgm.play(); bgmBtn.innerText = '🎵'; } else { bgm.pause(); bgmBtn.innerText = '🔇'; } }
 
-  // 🔥 복구된 리얼 유성우 엔진 (Canvas 기반)
-  const canvas = document.getElementById('star-canvas');
-  const ctx = canvas.getContext('2d');
-  let stars = [], shootingStars = [];
+  function startBGM() {
+    bgm.play().then(() => {
+      bgmBtn.innerText = '🎵';
+      bgmBtn.style.opacity = "1";
+      window.removeEventListener('click', startBGM);
+      window.removeEventListener('touchstart', startBGM);
+    }).catch(e => console.log("소리 재생을 위해 화면 터치가 필요합니다."));
+  }
 
-  function initCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    stars = [];
-    for (let i = 0; i < 180; i++) {
-      stars.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 1.3, opacity: Math.random(), blink: Math.random() * 0.02 });
+  function toggleBGM() {
+    if (bgm.paused) {
+      bgm.play();
+      bgmBtn.innerText = '🎵';
+    } else {
+      bgm.pause();
+      bgmBtn.innerText = '🔇';
     }
   }
 
-  function createShootingStar() {
-    shootingStars.push({
-      x: Math.random() * canvas.width * 1.5,
-      y: Math.random() * canvas.height * 0.4 - 100,
-      len: Math.random() * 120 + 80,
-      speed: Math.random() * 12 + 6,
-      size: Math.random() * 1.5 + 1
-    });
+  // 브라우저 정책 대응: 첫 클릭 시 오디오 활성화
+  window.addEventListener('click', startBGM);
+  window.addEventListener('touchstart', startBGM);
+
+  // 2. 유성우(별똥별) 엔진
+  const canvas = document.getElementById('meteor-canvas');
+  const ctx = canvas.getContext('2d');
+  
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Meteor {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * canvas.width * 1.5;
+      this.y = Math.random() * -canvas.height * 0.5;
+      this.length = Math.random() * 100 + 80;
+      this.speed = Math.random() * 12 + 6;
+      this.opacity = 0;
+      this.maxOpacity = Math.random() * 0.6 + 0.4;
+      this.width = Math.random() * 2 + 1;
+    }
+    draw() {
+      ctx.beginPath();
+      const gradient = ctx.createLinearGradient(this.x, this.y, this.x - this.length, this.y + this.length);
+      gradient.addColorStop(0, `rgba(255, 255, 255, ${this.opacity})`);
+      gradient.addColorStop(0.5, `rgba(0, 255, 204, ${this.opacity * 0.5})`);
+      gradient.addColorStop(1, 'rgba(0, 255, 204, 0)');
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = this.width;
+      ctx.moveTo(this.x, this.y);
+      ctx.lineTo(this.x - this.length, this.y + this.length);
+      ctx.stroke();
+    }
+    update() {
+      this.x -= this.speed;
+      this.y += this.speed;
+      if(this.opacity < this.maxOpacity) this.opacity += 0.05;
+      if (this.y > canvas.height + 100 || this.x < -100) { this.reset(); }
+    }
   }
 
-  function draw() {
-    ctx.fillStyle = "rgba(10, 20, 40, 0.25)"; // 잔상 효과
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const meteors = Array.from({ length: 4 }, () => new Meteor());
 
-    ctx.fillStyle = "white";
-    stars.forEach(s => {
-      s.opacity += s.blink;
-      if(s.opacity > 1 || s.opacity < 0) s.blink *= -1;
-      ctx.globalAlpha = Math.max(0, s.opacity);
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2); ctx.fill();
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    meteors.forEach(m => {
+      m.draw();
+      m.update();
     });
-
-    ctx.globalAlpha = 1;
-    shootingStars.forEach((s, i) => {
-      const grd = ctx.createLinearGradient(s.x, s.y, s.x - s.len, s.y + s.len);
-      grd.addColorStop(0, "#fff"); grd.addColorStop(0.2, "var(--neon)"); grd.addColorStop(1, "transparent");
-      ctx.strokeStyle = grd; ctx.lineWidth = s.size; ctx.lineCap = "round";
-      ctx.shadowBlur = 10; ctx.shadowColor = "var(--neon)";
-      ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(s.x - s.len, s.y + s.len); ctx.stroke();
-      s.x -= s.speed * 1.4; s.y += s.speed;
-      if (s.y > canvas.height + 100 || s.x < -100) shootingStars.splice(i, 1);
-    });
-
-    ctx.shadowBlur = 0;
-    if (Math.random() < 0.02) createShootingStar();
-    requestAnimationFrame(draw);
+    requestAnimationFrame(animate);
   }
-
-  window.addEventListener('resize', initCanvas);
-  initCanvas(); draw();
-
-  function openHistory(e) { e.stopPropagation(); document.getElementById('history-modal').style.display = 'flex'; }
-  function closeHistory() { document.getElementById('history-modal').style.display = 'none'; }
-
-  const historyData = [
-    {v:"v2.33", d:"2026-02-19", c:"고유명사(하씨 등) 오역 방지 및 인명 사전 지침 강화"},
-    {v:"v2.32", d:"2026-02-19", c:"노벨 엔진 프롬프트 최종 교정 (한자 나열 차단 및 의역 강화)"},
-    {v:"v2.31", d:"2026-02-19", c:"유성우 2.0 엔진 업데이트 (잔상/그라데이션/발광 효과)"},
-    {v:"v2.30", d:"2026-02-19", c:"캔버스 기반 유성우 엔진 및 BGM 제어 시스템 탑재"},
-    {v:"v2.29", d:"2026-02-19", c:"태그 세척 로직 및 유려한 의역 지침 강화"},
-    {v:"v2.28", d:"2026-02-19", c:"크롤링 우회 실시간 로그 UI 및 비중단 자동 전환 로직"},
-    {v:"v2.27", d:"2026-02-19", c:"번역문 가독성 최적화 (행간 2.6 / 폰트 20px / 다크블루)"},
-    {v:"v2.26", d:"2026-02-19", c:"히스토리 모달화 및 반응형 UI 레이아웃 최적화"},
-    {v:"v2.25", d:"2026-02-19", c:"기존 기능 완전 복구 및 잡설 배제 필터 완성"},
-    {v:"v2.24", d:"2026-02-19", c:"전체 로직 통합 및 인물 관계도 분석 엔진 강화"}
-  ];
-  const hList = document.getElementById('history-list');
-  historyData.forEach(item => {
-    hList.innerHTML += `<tr><td class="v-tag">${item.v}</td><td style="width:90px;">${item.d}</td><td>${item.c}</td></tr>`;
-  });
-
-  const keyInput = document.getElementById('masterKey');
-  keyInput.value = localStorage.getItem('nana_gemini_key') || '';
-  keyInput.oninput = () => localStorage.setItem('nana_gemini_key', keyInput.value);
+  animate();
 </script>
 </body>
 </html>
