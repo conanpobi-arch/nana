@@ -1,1 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>NANA LAB - 뉴스섬머리</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --neon: #00ffcc; --border: rgba(0,255,204,0.2); }
+    body { margin:0; background:#000; color:#fff; font-family:'Noto Sans KR', sans-serif; min-height:100vh; }
+    .container { max-width:900px; margin:0 auto; padding:40px 20px; }
+    h1 { font-family:'Orbitron'; color:var(--neon); text-shadow:0 0 15px var(--neon); text-align:center; margin-bottom:30px; }
+    #news-content { background:rgba(0,15,35,0.75); border:1px solid var(--border); border-radius:20px; padding:30px; line-height:1.8; font-size:16px; backdrop-filter:blur(10px); white-space:pre-wrap; }
+    .loading { text-align:center; color:var(--neon); font-size:18px; padding:50px 0; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>오늘의 뉴스섬머리</h1>
+    <div id="news-content" class="loading">로딩 중... Grok 요약 가져오는 중</div>
+  </div>
 
+  <script>
+    async function loadNews() {
+      const el = document.getElementById('news-content');
+      try {
+        const res = await fetch('/api/news');
+        if (!res.ok) throw new Error(`API 오류: ${res.status}`);
+        const data = await res.json();
+        el.innerHTML = data.summary || '요약 데이터가 없습니다.';
+        el.classList.remove('loading');
+      } catch (err) {
+        el.innerHTML = `<p style="color:#ff4444;">오류: ${err.message}</p><br>아직 api/news.js가 없거나 오류일 수 있어요.`;
+      }
+    }
+    window.addEventListener('load', loadNews);
+  </script>
+</body>
+</html>
