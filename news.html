@@ -3,51 +3,54 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>NANA LAB - 뉴스섬머리</title>
+  <title>NANA LAB - 뉴스 리포트</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root { --neon: #00ffcc; --border: rgba(0,255,204,0.2); }
     * { box-sizing: border-box; }
-    body { margin:0; background:#000; color:#fff; font-family:'Noto Sans KR', sans-serif; min-height:100vh; overflow-x: hidden; }
+    body { margin:0; background:#000; color:#fff; font-family:'Noto Sans KR', sans-serif; height:100vh; overflow: hidden; }
     .bg-gradient { position: fixed; inset: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); z-index: -1; }
     
-    /* 전체 컨테이너: 텍스트가 늘어나도 배경이 함께 늘어나도록 설정 */
-    .container { max-width:900px; margin:0 auto; padding:40px 20px 80px 20px; position: relative; min-height: 100vh; }
+    /* 화면 중앙 배치를 위한 플렉스 박스 */
+    .container { 
+      max-width:900px; margin:0 auto; height: 100vh; padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
 
     .home-btn {
-      position: absolute; top: 20px; left: 20px; width: 40px; height: 40px;
+      position: fixed; top: 20px; left: 20px; width: 40px; height: 40px;
       background: transparent; display: flex; align-items: center; justify-content: center;
       text-decoration: none; font-size: 24px; transition: 0.3s; z-index: 100; color: var(--neon);
     }
     .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
 
-    h1 { font-family:'Orbitron'; color:var(--neon); text-shadow:0 0 15px var(--neon); text-align:center; margin-bottom:40px; font-size: 1.8rem; letter-spacing: 5px; }
+    /* 최상단 제목 고정 */
+    h1 { 
+      font-family:'Orbitron'; color:var(--neon); text-shadow:0 0 15px var(--neon); 
+      text-align:center; margin-bottom:20px; font-size: 1.8rem; letter-spacing: 5px; flex-shrink: 0; 
+    }
     
-    /* 뉴스 박스: height를 고정하지 않고 최소 높이(min-height)만 설정하여 틀 깨짐 방지 */
-    #news-content { 
-      background: rgba(0,15,35,0.85); border: 1px solid var(--border); border-radius: 20px; 
-      padding: 30px; line-height: 1.9; font-size: 15px; backdrop-filter: blur(15px); 
-      white-space: pre-wrap; min-height: 500px; box-shadow: 0 15px 50px rgba(0,0,0,0.7); 
-      color: #ececec; word-break: keep-all; overflow: visible;
+    /* 뉴스 박스: 고정 높이와 내부 스크롤 부여 */
+    #news-box { 
+      width: 100%; height: 75vh; background: rgba(0,15,35,0.8); 
+      border: 1px solid var(--border); border-radius: 20px; 
+      backdrop-filter: blur(15px); box-shadow: 0 15px 50px rgba(0,0,0,0.7);
+      overflow-y: auto; position: relative;
     }
 
-    /* 카테고리별 구분선 효과 (자동 생성되는 텍스트 내의 숫자에 반응하게 하려면 스크립트 필요하지만 일단 여백 확보) */
-    #news-content b, #news-content strong { color: var(--neon); font-size: 1.1em; display: inline-block; margin-top: 15px; }
+    #news-content { padding: 40px; line-height: 2.0; font-size: 16px; color: #ececec; white-space: pre-wrap; word-break: keep-all; }
 
-    .sources-container { margin-top: 35px; padding: 25px; background: rgba(0,0,0,0.3); border-radius: 15px; border-left: 4px solid var(--neon); }
-    .source-title { font-family: 'Orbitron'; font-size: 13px; color: var(--neon); margin-bottom: 15px; letter-spacing: 2px; }
-    .source-list { list-style: none; padding: 0; margin: 0; }
-    .source-item { margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 5px; }
-    .source-link { color: #aaa; text-decoration: none; font-size: 13px; transition: 0.2s; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .source-link:hover { color: var(--neon); padding-left: 5px; }
+    /* 커스텀 스크롤바 */
+    #news-box::-webkit-scrollbar { width: 6px; }
+    #news-box::-webkit-scrollbar-track { background: transparent; }
+    #news-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    #news-box::-webkit-scrollbar-thumb:hover { background: var(--neon); }
 
-    #search-entry-point { margin-top: 30px; text-align: center; opacity: 0.7; }
-    #search-entry-point a { color: var(--neon) !important; font-size: 12px; }
+    .category-item { color: var(--neon); font-weight: 700; font-size: 1.15em; display: inline-block; margin-top: 25px; border-bottom: 1px solid var(--border); padding-bottom: 5px; }
 
-    .loading { text-align:center; color:var(--neon); font-size:16px; padding:150px 0; font-family: 'Orbitron'; animation: blink 1.5s infinite; }
-    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .loading { text-align:center; color:var(--neon); font-size:16px; padding:150px 0; font-family: 'Orbitron'; letter-spacing: 2px; }
     
-    .footer-ver { text-align: center; margin-top: 50px; font-family: 'Orbitron'; font-size: 11px; color: rgba(0,255,204,0.4); letter-spacing: 2px; }
+    /* 버전 히스토리는 제거되었으므로 관련 푸터 없음 */
   </style>
 </head>
 <body>
@@ -55,44 +58,26 @@
   <div class="container">
     <a href="index.html" class="home-btn">🏠</a>
     <h1>NEWS SUMMARY</h1>
+
     <div id="news-box">
-      <div id="news-content" class="loading">ANALYZING REAL-TIME DATA...</div>
-      <div id="sources-area" class="sources-container" style="display:none;">
-        <div class="source-title">GROUNDING SOURCES</div>
-        <ul id="source-list" class="source-list"></ul>
-      </div>
-      <div id="search-entry-point"></div>
+      <div id="news-content" class="loading">STREAMING LATEST DATA...</div>
     </div>
-    <div class="footer-ver">SYSTEM VERSION v2.86.0</div>
   </div>
 
   <script>
     async function loadNews() {
       const contentEl = document.getElementById('news-content');
-      const sourcesArea = document.getElementById('sources-area');
-      const sourceList = document.getElementById('source-list');
-      const entryPointEl = document.getElementById('search-entry-point');
-
       try {
         const res = await fetch('/api/news');
-        if (!res.ok) throw new Error(`API ERROR: ${res.status}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
-        // 텍스트가 풍부해졌으므로 innerHTML 대신 텍스트 처리를 깔끔하게 진행
-        contentEl.innerHTML = data.summary.replace(/\n\n/g, '<div style="margin-bottom:25px;"></div>');
+        // 텍스트 내 카테고리 기호(1. 2. 등)를 강조 태그로 변환
+        const formatted = data.summary.replace(/(\d\.\s[^\n]+)/g, '<span class="category-item">$1</span>');
+        contentEl.innerHTML = formatted;
         contentEl.classList.remove('loading');
-
-        if (data.searchEntryPointHtml) entryPointEl.innerHTML = data.searchEntryPointHtml;
-
-        if (data.sources && data.sources.length > 0) {
-          sourcesArea.style.display = 'block';
-          sourceList.innerHTML = data.sources.map(src => 
-            `<li class="source-item"><a href="${src.url}" target="_blank" class="source-link">🚀 ${src.title}</a></li>`
-          ).join('');
-        }
       } catch (err) {
-        contentEl.innerHTML = `<p style="color:#ff4444; text-align:center;">⚠️ ENGINE CRITICAL ERROR: ${err.message}</p>`;
-        contentEl.classList.remove('loading');
+        contentEl.innerHTML = `<p style="color:#ff4444; text-align:center;">⚠️ ENGINE ERROR: ${err.message}</p>`;
       }
     }
     window.addEventListener('load', loadNews);
