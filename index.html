@@ -3,34 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB v2.79.0 - DEBUG</title>
+<title>NANA LAB v2.79.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; cursor: default; }
 
+  /* 우주 배경 및 별빛 */
   #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
   .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; }
   @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  
+  /* 유성우 캔버스 */
   #meteor-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
+  /* 메인 컨테이너 */
   .main-container { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+  
+  /* 커플 이미지 (profile.png 고정) */
   .couple-img { width: 140px; height: 140px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 25px var(--neon); margin-bottom: 20px; object-fit: cover; }
+  
   .main-title { font-family: 'Orbitron'; font-size: 2.2rem; letter-spacing: 8px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 25px; text-align: center; }
 
+  /* 8대 메뉴 그리드 */
   .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 380px; }
   .menu-btn { background: rgba(0, 255, 204, 0.05); border: 1px solid var(--border); border-radius: 15px; padding: 20px 10px; text-align: center; cursor: pointer; backdrop-filter: blur(8px); transition: 0.2s; text-decoration: none; color: #fff; display: flex; flex-direction: column; align-items: center; }
+  .menu-btn:hover { background: rgba(0, 255, 204, 0.12); box-shadow: 0 0 15px rgba(0, 255, 204, 0.2); }
   .menu-btn div { font-size: 12px; color: var(--neon); margin-top: 10px; font-weight: bold; }
   .menu-btn span { font-size: 28px; }
 
-  /* 에러 추적용 상태창 (포비님 확인용) */
-  .bgm-status { margin-top: 15px; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.7; letter-spacing: 1px; text-align: center; }
+  /* 오디오 강제 돌파 버튼 스타일 */
+  .bgm-force-btn {
+    margin-top: 20px;
+    padding: 10px 25px;
+    background: rgba(0, 255, 204, 0.05);
+    border: 1px solid var(--neon);
+    border-radius: 20px;
+    color: var(--neon);
+    font-family: 'Orbitron';
+    font-size: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    letter-spacing: 1px;
+    z-index: 100;
+  }
+  .bgm-force-btn:hover { background: rgba(0, 255, 204, 0.2); }
 
+  /* 히스토리 모달 */
   #history-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
   .history-content { width: 100%; max-width: 500px; background: rgba(0,20,40,0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; max-height: 80vh; overflow-y: auto; }
   table { width: 100%; border-collapse: collapse; font-size: 11px; color: #ccc; }
   th, td { padding: 10px 5px; text-align: left; border-bottom: 1px solid rgba(0,255,204,0.1); }
+  th { color: var(--neon); font-family: 'Orbitron'; }
 </style>
 </head>
 <body>
@@ -38,7 +63,9 @@
 <div id="galaxy-bg"></div>
 <canvas id="meteor-canvas"></canvas>
 
-<audio id="bgm" loop preload="auto"><source src="/bgm.mp3" type="audio/mpeg"></audio>
+<audio id="bgm" loop preload="auto">
+  <source src="/bgm.mp3" type="audio/mpeg">
+</audio>
 
 <div class="main-container">
   <img src="./profile.png" class="couple-img" alt="Couple">
@@ -55,7 +82,7 @@
     <a href="#" class="menu-btn"><span>📈</span><div>자동매매</div></a>
   </div>
 
-  <div id="bgm-indicator" class="bgm-status">DEBUG: READY TO TEST BGM</div>
+  <button id="bgm-indicator" class="bgm-force-btn" onclick="forcePlayBGM()">▶ SYNC AUDIO SYSTEM</button>
 
   <div style="margin-top:30px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer;" onclick="openModal(event)">SYSTEM VERSION v2.79.0</div>
 </div>
@@ -66,7 +93,7 @@
     <table>
       <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
       <tbody>
-        <tr style="color:#fff;"><td>v2.79.0</td><td>26-02-20</td><td>음원 디버깅 및 에러 추적 로직 탑재</td></tr>
+        <tr style="color:#fff;"><td>v2.79.0</td><td>26-02-20</td><td>오디오 강제 돌파 엔진 및 디버깅 통합</td></tr>
         <tr><td>v2.65</td><td>26-02-20</td><td>BGM 기능 및 오디오 언락 로직 완전 삭제</td></tr>
         <tr><td>v2.64</td><td>26-02-20</td><td>메뉴 아이콘(📈) 및 자동매매 명칭 확정</td></tr>
         <tr><td>v2.63</td><td>26-02-19</td><td>뭉툭하고 환한 별똥별 비주얼 강화 (좌우 가로지르기)</td></tr>
@@ -83,27 +110,34 @@
 
 <script>
   const bgm = document.getElementById('bgm');
-  const bgmInd = document.getElementById('bgm-indicator');
+  const bgmBtn = document.getElementById('bgm-indicator');
 
-  // 포비님 요청: 에러 추적용 디버깅 클릭 이벤트
-  document.addEventListener('click', function() {
-    console.log("Click detected! Trying to play BGM...");
-    if (bgm.paused) {
-      bgm.volume = 0.4;
-      bgm.play().then(() => {
-        console.log("BGM PLAY SUCCESS!");
-        bgmInd.innerText = "AUDIO SYSTEM ACTIVE";
-        bgmInd.style.opacity = "1";
-        bgmInd.style.color = "#00ffcc";
-      }).catch(e => {
-        console.error("BGM PLAY FAILED:", e.name, e.message);
-        bgmInd.innerText = "AUDIO ERROR: " + e.message;
-        bgmInd.style.color = "#ff4444";
-      });
-    }
-  }, { once: true });
+  // 강제 재생 함수 (통합형)
+  function forcePlayBGM() {
+    console.log("Force Play Start...");
+    bgm.volume = 0.4;
+    
+    bgm.play().then(() => {
+      console.log("BGM SUCCESS");
+      bgmBtn.innerText = "AUDIO SYSTEM ONLINE";
+      bgmBtn.style.color = "#00ffcc";
+      bgmBtn.style.boxShadow = "0 0 15px var(--neon)";
+    }).catch(e => {
+      console.error("BGM ERROR:", e.name, e.message);
+      // 에러 시 버튼에 직접 표시하여 팩트체크
+      bgmBtn.innerText = "ERR: " + e.message.substring(0, 15);
+      bgmBtn.style.color = "#ff4444";
+      
+      // 경로 재탐색 시도
+      if(e.name === "NotSupportedError" || e.name === "EncodingError") {
+        bgm.src = "./bgm.mp3";
+        bgm.load();
+        bgm.play();
+      }
+    });
+  }
 
-  // 배경 효과 (별똥별 등 기존 코드 동일 유지)
+  // 별 배경 생성 로직
   const bg = document.getElementById('galaxy-bg');
   for (let i = 0; i < 150; i++) {
     const star = document.createElement('div');
@@ -116,6 +150,7 @@
     bg.appendChild(star);
   }
 
+  // 별똥별 애니메이션 (v2.63 버전 유지)
   const canvas = document.getElementById('meteor-canvas');
   const ctx = canvas.getContext('2d');
   let meteors = [];
@@ -140,28 +175,20 @@
       this.angle = Math.PI / 8; 
     }
     draw() {
-      const headX = this.x;
-      const headY = this.y;
+      const headX = this.x; const headY = this.y;
       const tailX = this.x - Math.cos(this.angle) * this.length;
       const tailY = this.y - Math.sin(this.angle) * this.length;
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = 'rgba(0, 255, 204, 0.8)';
+      ctx.shadowBlur = 20; ctx.shadowColor = 'rgba(0, 255, 204, 0.8)';
       const grad = ctx.createLinearGradient(headX, headY, tailX, tailY);
       grad.addColorStop(0, `rgba(0, 255, 204, ${this.alpha})`);
       grad.addColorStop(0.1, `rgba(0, 255, 204, ${this.alpha * 0.6})`);
       grad.addColorStop(1, 'rgba(0, 255, 204, 0)');
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = this.size;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(headX, headY);
-      ctx.lineTo(tailX, tailY);
-      ctx.stroke();
+      ctx.strokeStyle = grad; ctx.lineWidth = this.size; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(headX, headY); ctx.lineTo(tailX, tailY); ctx.stroke();
       ctx.shadowBlur = 0;
     }
     update() {
-      this.x += this.speed * 4.5; 
-      this.y += this.speed * 0.6; 
+      this.x += this.speed * 4.5; this.y += this.speed * 0.6; 
       if (this.alpha < this.maxAlpha) this.alpha += 0.01;
       if (this.x > canvas.width + 300) this.reset();
     }
