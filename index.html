@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB V2.65</title>
+<title>NANA LAB v2.79.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -33,6 +33,9 @@
   .menu-btn div { font-size: 12px; color: var(--neon); margin-top: 10px; font-weight: bold; }
   .menu-btn span { font-size: 28px; }
 
+  /* BGM 상태 표시바 */
+  .bgm-status { margin-top: 15px; font-family: 'Orbitron'; font-size: 10px; color: var(--neon); opacity: 0.5; letter-spacing: 1px; }
+
   /* 히스토리 모달 */
   #history-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
   .history-content { width: 100%; max-width: 500px; background: rgba(0,20,40,0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; max-height: 80vh; overflow-y: auto; }
@@ -45,6 +48,8 @@
 
 <div id="galaxy-bg"></div>
 <canvas id="meteor-canvas"></canvas>
+
+<audio id="bgm" loop preload="auto"><source src="/bgm.mp3" type="audio/mpeg"></audio>
 
 <div class="main-container">
   <img src="./profile.png" class="couple-img" alt="Couple">
@@ -61,7 +66,9 @@
     <a href="#" class="menu-btn"><span>📈</span><div>자동매매</div></a>
   </div>
 
-  <div style="margin-top:30px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer;" onclick="openModal(event)">SYSTEM VERSION v2.65</div>
+  <div id="bgm-indicator" class="bgm-status">SYNC AUDIO: TAP ANYWHERE</div>
+
+  <div style="margin-top:30px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer;" onclick="openModal(event)">SYSTEM VERSION v2.79.0</div>
 </div>
 
 <div id="history-modal" onclick="closeModal()">
@@ -70,7 +77,8 @@
     <table>
       <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
       <tbody>
-        <tr style="color:#fff;"><td>v2.65</td><td>26-02-20</td><td>BGM 기능 및 오디오 언락 로직 완전 삭제</td></tr>
+        <tr style="color:#fff;"><td>v2.79.0</td><td>26-02-20</td><td>BGM 기능 복구 및 Vercel 스트리밍 최적화</td></tr>
+        <tr><td>v2.65</td><td>26-02-20</td><td>BGM 기능 및 오디오 언락 로직 완전 삭제</td></tr>
         <tr><td>v2.64</td><td>26-02-20</td><td>메뉴 아이콘(📈) 및 자동매매 명칭 확정</td></tr>
         <tr><td>v2.63</td><td>26-02-19</td><td>뭉툭하고 환한 별똥별 비주얼 강화 (좌우 가로지르기)</td></tr>
         <tr><td>v2.62</td><td>26-02-19</td><td>긴 꼬리 시네마틱 유성우 엔진 교체</td></tr>
@@ -79,13 +87,27 @@
         <tr><td>v2.59</td><td>26-02-19</td><td>오디오 엔진 강제 언락 시스템 탑재</td></tr>
         <tr><td>v2.56</td><td>26-02-19</td><td>소설 엔진 8대 우회 로직 탑재</td></tr>
         <tr><td>v2.42</td><td>26-02-19</td><td>커플 이미지 profile.png 고정</td></tr>
-        <tr><td>v2.35</td><td>26-02-19</td><td>API KEY localStorage 저장 로직 적용</td></tr>
       </tbody>
     </table>
   </div>
 </div>
 
 <script>
+  // BGM 관련 로직
+  const bgm = document.getElementById('bgm');
+  const bgmInd = document.getElementById('bgm-indicator');
+  
+  document.addEventListener('click', function() {
+    if (bgm.paused) {
+      bgm.volume = 0.4;
+      bgm.play().then(() => {
+        bgmInd.innerText = "AUDIO SYSTEM ACTIVE";
+        bgmInd.style.opacity = "1";
+      }).catch(e => console.log("BGM Error:", e));
+    }
+  }, { once: true });
+
+  // 배경 별 생성
   const bg = document.getElementById('galaxy-bg');
   for (let i = 0; i < 150; i++) {
     const star = document.createElement('div');
@@ -98,6 +120,7 @@
     bg.appendChild(star);
   }
 
+  // 별똥별 애니메이션 (뭉툭하고 환한 버전)
   const canvas = document.getElementById('meteor-canvas');
   const ctx = canvas.getContext('2d');
   let meteors = [];
@@ -144,7 +167,7 @@
     update() {
       this.x += this.speed * 4.5; 
       this.y += this.speed * 0.6; 
-      this.alpha += 0.01;
+      if (this.alpha < this.maxAlpha) this.alpha += 0.01;
       if (this.x > canvas.width + 300) this.reset();
     }
   }
