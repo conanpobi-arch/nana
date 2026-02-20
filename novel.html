@@ -3,14 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V2.71</title>
+<title>NANA NOVEL ENGINE V2.72</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; position: fixed; }
   
-  /* 배경 레이어 */
   #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%); opacity: 0.8; }
   #star-field { position: fixed; inset: 0; z-index: 1; background-image: radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px); background-size: 150px 150px; opacity: 0.1; }
 
@@ -18,7 +17,6 @@
   .nav-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 15px; }
   .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 15px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
 
-  /* 입력 카드 영역 */
   .card { background: rgba(0,15,35,0.75); border: 1px solid var(--border); border-radius: 20px; padding: 20px; backdrop-filter: blur(15px); }
   textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 15px; outline: none; margin-bottom: 15px; height: 250px; resize: none; transition: all 0.4s ease; line-height: 1.6; }
   textarea.shrink { height: 80px; font-size: 11px; opacity: 0.5; }
@@ -26,20 +24,21 @@
   .master-api { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 13px; outline: none; margin-bottom: 15px; text-align: center; font-family: 'Orbitron'; }
   .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
 
-  /* 결과창 설정 (19px + 문단 가독성 최적화) */
+  /* 가독성 튜닝 결과창 */
   #res-box { 
     display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; 
-    overflow-y: auto; padding: 80px 35px 140px; 
+    overflow-y: auto; padding: 100px 40px 160px; 
     font-family: 'Noto Serif KR', serif; 
-    line-height: 1.8; font-size: 19px; color: #e0e0e0; 
-    white-space: pre-wrap; text-align: justify; word-break: break-all; 
+    line-height: 2.2; /* 행간 대폭 확대 */
+    font-size: 19px; color: #ececec; 
+    white-space: pre-wrap; text-align: justify; word-break: break-all;
+    letter-spacing: -0.02em; /* 자간 미세 조정 */
   }
   
   #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0, 10, 25, 0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 25px; align-items: center; gap: 15px; }
   .copy-icon-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 26px; cursor: pointer; }
   .back-main-btn { flex: 1; height: 60px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-  /* 실시간 로딩 및 로그 시스템 */
   #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
   .main-loader { width: 50px; height: 50px; border: 4px solid rgba(0,255,204,0.1); border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
   #engine-status-text { color: var(--neon); font-size: 16px; margin-bottom: 15px; letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
@@ -59,7 +58,7 @@
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V2.71</div>
+    <div class="engine-title">NANA NOVEL V2.72</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -120,53 +119,49 @@
     let rawData = input;
 
     try {
-      logStep("SYSTEM: NANA NOVEL ENGINE INITIALIZING...");
+      logStep("SYSTEM: INITIALIZING NANA BYPASS...");
       
       if(input.startsWith('http')) {
-        setStatus("데이터 획득 및 우회 중..."); 
-        logStep("DETECTOR: URL 패턴 감지됨. 우회 터널링 개시.");
+        setStatus("데이터 획득 및 보안 우회 중..."); 
         let success = false;
         for(let s of CRAWL_STRATEGIES) {
-          logStep(`PROXY: ${s.name} 엔진 시도 중...`);
+          logStep(`PROXY: ${s.name} 엔진 시도...`);
           try {
             const res = await fetch(s.url(input));
             let text = "";
             if(s.name === 'AllOrigins') { const json = await res.json(); text = json.contents; }
             else { text = await res.text(); }
             if(text && text.length > 200) {
-              logStep(`SUCCESS: ${s.name} 보안 우회 성공.`, 'success');
+              logStep(`SUCCESS: ${s.name} 우회 성공.`, 'success');
               const doc = new DOMParser().parseFromString(text, 'text/html');
               doc.querySelectorAll('script, style, ads, ins, iframe, .ads').forEach(e => e.remove());
               rawData = doc.body.innerText || doc.body.textContent;
               success = true; break;
             }
-          } catch(err) { logStep(`BLOCK: ${s.name} 차단됨.`, 'fail'); }
+          } catch(err) { logStep(`BLOCK: ${s.name} 차단.`, 'fail'); }
         }
         if(!success) throw new Error("모든 우회 서버가 차단되었습니다.");
-      } else {
-        logStep("MODE: 직접 텍스트 분석 모드.");
       }
 
-      setStatus("나나 AI 번역 중..."); 
-      logStep("API: Gemini 2.0 Flash 핸드셰이킹...");
-      logStep("AI: 제미나이 엔진 번역 시작 (No Omission/가독성 모드)");
+      setStatus("나나 AI 가독성 번역 중..."); 
+      logStep("AI: 제미나이 2.0 Flash 핸드셰이킹...");
 
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `당신은 대한민국 최고의 무협/선협 소설 번역가입니다. 
-다음 지침을 어길 시 엔진 오류로 간주합니다:
+          contents: [{ parts: [{ text: `당신은 대한민국 최고의 소설 전문 번역가입니다. 
+다음 지침을 어길 시 시스템 오류로 간주합니다:
 
-1. [No Omission]: 단 한 문장, 단 한 단어도 생략하거나 요약하지 마십시오. 
-2. [Structure]: 원문의 문단 구조와 줄바꿈을 100% 유지하여 가독성 있게 출력하십시오. 
-3. [Sentence Count]: 원문의 문장 개수와 번역문의 문장 개수를 1:1로 일치시키십시오.
-4. [Creative Flow]: 무협지 특유의 유려하고 긴 호흡의 문체를 사용하여 풍성하게 서술하십시오.
-5. [Fixed Name]: 주인공 성씨 '何'는 반드시 '하'로 고정하십시오.
+1. [No Omission]: 단 한 줄도 생략하거나 요약하지 마십시오.
+2. [Paragraphing]: 가독성을 위해 대화문 전후나 내용이 바뀔 때 '반드시' 줄바꿈(Enter)을 두 번씩 하십시오.
+3. [Format]: 번역문이 덩어리로 보이지 않도록 시각적으로 여백을 풍부하게 사용하십시오.
+4. [Fixed Name]: '何'는 '하'로 고정하십시오.
+5. [Creative Flow]: 무협 특유의 호쾌한 구어체로 번역하십시오.
 
 원문:
 ${rawData}` }] }],
-          generationConfig: { temperature: 0, topP: 0.1, topK: 1, maxOutputTokens: 8192 }
+          generationConfig: { temperature: 0, topP: 0.1, maxOutputTokens: 8192 }
         })
       });
 
@@ -174,18 +169,19 @@ ${rawData}` }] }],
       if(data.error) throw new Error(data.error.message);
       
       const translated = data.candidates[0].content.parts[0].text;
-      logStep("SUCCESS: 번역 패킷 수신 성공!", 'success');
+      logStep("SUCCESS: 번역 패킷 최적화 완료.", 'success');
 
       document.getElementById('mainInput').classList.add('shrink');
       const rb = document.getElementById('res-box');
-      rb.innerText = translated;
+      // 출력 시 가독성을 위해 이중 줄바꿈 처리 보강
+      rb.innerText = translated.replace(/\n/g, '\n\n'); 
       rb.style.display = 'block';
       document.getElementById('result-bottom-bar').style.display = 'flex';
       document.getElementById('loading-overlay').style.display = 'none';
 
     } catch(e) { 
       setStatus("엔진 오류 발생");
-      logStep(`에러: ${e.message}`, 'fail'); 
+      logStep(`ERROR: ${e.message}`, 'fail'); 
     }
   }
 </script>
