@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V2.74</title>
+<title>NANA NOVEL ENGINE V2.75</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -18,21 +18,24 @@
   .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 15px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
 
   .card { background: rgba(0,15,35,0.75); border: 1px solid var(--border); border-radius: 20px; padding: 20px; backdrop-filter: blur(15px); }
-  textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 15px; outline: none; margin-bottom: 15px; height: 250px; resize: none; transition: all 0.4s ease; line-height: 1.6; }
+  textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 14px; outline: none; margin-bottom: 15px; height: 250px; resize: none; transition: all 0.4s ease; line-height: 1.6; }
   textarea.shrink { height: 80px; font-size: 11px; opacity: 0.5; }
   
-  .master-api { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 13px; outline: none; margin-bottom: 15px; text-align: center; font-family: 'Orbitron'; }
+  .master-api { width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 12px; color: var(--neon); padding: 12px; font-size: 12px; outline: none; margin-bottom: 15px; text-align: center; font-family: 'Orbitron'; }
   .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); }
 
-  /* 결과창 (문단 간격 2/3 및 가독성 최적화) */
+  /* 결과창: 폰트 18px로 축소 및 모바일 문단 간격 강제 보정 */
   #res-box { 
     display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; 
-    overflow-y: auto; padding: 100px 40px 160px; 
+    overflow-y: auto; padding: 80px 30px 140px; 
     font-family: 'Noto Serif KR', serif; 
-    line-height: 1.85; /* 포비님 요청 반영: 2.2에서 약 2/3 수준으로 축소 보정 */
-    font-size: 19px; color: #ececec; 
-    white-space: pre-wrap; text-align: justify; word-break: break-all;
+    line-height: 1.9; /* 줄 간격 미세 조정 */
+    font-size: 18px; /* 포비님 요청: 18px로 하향 */
+    color: #ececec; 
+    white-space: pre-wrap; /* 줄바꿈 유지 */
+    text-align: justify; word-break: break-all;
     letter-spacing: -0.01em;
+    -webkit-overflow-scrolling: touch; /* 모바일 부드러운 스크롤 */
   }
   
   #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0, 10, 25, 0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 25px; align-items: center; gap: 15px; }
@@ -58,7 +61,7 @@
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V2.74</div>
+    <div class="engine-title">NANA NOVEL V2.75</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -121,44 +124,40 @@
       logStep("SYSTEM: NANA NOVEL ENGINE STARTING...");
       
       if(input.startsWith('http')) {
-        setStatus("데이터 획득 및 보안 우회 중..."); 
+        setStatus("데이터 획득 중..."); 
         let success = false;
         for(let s of CRAWL_STRATEGIES) {
-          logStep(`PROXY: ${s.name} 시도 중...`);
+          logStep(`PROXY: ${s.name} 시도...`);
           try {
             const res = await fetch(s.url(input));
             let text = "";
             if(s.name === 'AllOrigins') { const json = await res.json(); text = json.contents; }
             else { text = await res.text(); }
-            
             if(text && text.length > 200) {
-              logStep(`SUCCESS: ${s.name} 우회 터널 개통.`, 'success');
+              logStep(`SUCCESS: ${s.name} 개통.`, 'success');
               const doc = new DOMParser().parseFromString(text, 'text/html');
-              // 제목 중복 방지: 본문 외 메타 정보 제거
               doc.querySelectorAll('script, style, ads, ins, iframe, .ads, title, meta').forEach(e => e.remove());
               rawData = doc.body.innerText || doc.body.textContent;
               success = true; break;
             }
-          } catch(err) { logStep(`BLOCK: ${s.name} 응답 없음.`, 'fail'); }
+          } catch(err) { logStep(`BLOCK: ${s.name} 차단.`, 'fail'); }
         }
-        if(!success) throw new Error("모든 우회 서버가 차단되었습니다.");
+        if(!success) throw new Error("크롤링 실패.");
       }
 
       setStatus("나나 AI 최적화 번역 중..."); 
-      // [V2.74 핵심] 실시간 번역 로그 시각화 부활
-      logStep("API: Gemini 2.0 Flash 핸드셰이킹 시작...");
-      logStep("ENCRYPT: 보안 페이로드 구성 및 인증 확인...");
-      logStep("AI: 제미나이 엔진 번역 세션 개시...");
+      logStep("API: Gemini 2.0 Flash 핸드셰이킹...");
+      logStep("ENCRYPT: 보안 페이로드 구성 완료...");
 
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `소설 전문 번역가 모드:
-1. [No Omission]: 단 한 단어도 생략하지 마십시오.
-2. [Paragraphing]: 가독성을 위해 의미 단위로 줄바꿈을 하되, 너무 넓지 않게 간격을 조정하십시오.
-3. [Anti-Duplication]: 웹페이지 제목이 중복 출력되지 않게 본문부터 번역을 시작하십시오.
-4. [Name]: '何'는 '하'로 번역하십시오.
+          contents: [{ parts: [{ text: `소설 전문 번역 모드:
+1. [No Omission]: 단 한 단어도 생략 금지.
+2. [Structure]: 모바일 가독성을 위해 문장 끝에서 반드시 줄바꿈을 하고, 문단이 바뀔 때는 이중 줄바꿈(\\n\\n)을 철저히 하십시오.
+3. [Anti-Duplication]: 본문 내용만 번역하십시오.
+4. [Name]: '何'는 '하'로 번역.
 
 원문:
 ${rawData}` }] }],
@@ -166,13 +165,15 @@ ${rawData}` }] }],
         })
       });
 
-      logStep("WAIT: AI가 풍성한 문장을 생성하는 중...");
+      logStep("WAIT: AI가 문장을 유려하게 정렬 중...");
 
       const data = await geminiRes.json();
-      if(data.error) throw new Error(data.error.message);
-      
-      const translated = data.candidates[0].content.parts[0].text;
-      logStep("SUCCESS: 번역 패킷 수신 및 검증 완료!", 'success');
+      let translated = data.candidates[0].content.parts[0].text;
+
+      // 모바일 줄바꿈 강제 보정 로직 (V2.75)
+      translated = translated.split('\n').map(line => line.trim()).join('\n\n');
+
+      logStep("SUCCESS: 번역 및 문단 배치 완료!", 'success');
 
       document.getElementById('mainInput').classList.add('shrink');
       const rb = document.getElementById('res-box');
