@@ -1,4 +1,4 @@
-// api/news.js - 항상 최신 Gemini 요약 (캐시 없음)
+// api/news.js - 항상 최신 Gemini 요약 (캐시 없음, 실시간 생성)
 export default async function handler(req, res) {
   const apiKey = process.env.GEMINI_API_KEY;
 
@@ -7,9 +7,10 @@ export default async function handler(req, res) {
   }
 
   try {
+    const currentTime = new Date().toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' });
     const prompt = `
 당신은 2026년 현재 뉴스 전문 요약가입니다.
-지금 이 순간(현재 한국 시간)에서 가장 최신 뉴스만 기반으로 아래 5개 카테고리를 요약해주세요.
+지금 이 순간(현재 한국 시간 ${currentTime})에서 가장 최신 뉴스만 기반으로 아래 5개 카테고리를 요약해주세요.
 과거 뉴스(2025년 이전)는 절대 포함시키지 마세요. 2026년 2월 이후 뉴스만 사용하세요.
 오래된 정보는 무시하고, 오늘 또는 최근 며칠 내 발생한 최신 동향만 반영하세요.
 
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
 - 한국어로 자연스럽고 간결하게
 - 전체 500~900자 이내
 - 출처나 링크는 넣지 말고 내용만
-- "최신 뉴스섬머리 (현재 시간 기준)"으로 시작
+- "최신 뉴스섬머리 (${currentTime} 기준)"으로 시작
 
 지금 시점에서 가장 최신 정보를 바탕으로 작성하세요.
     `;
