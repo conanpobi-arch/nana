@@ -113,3 +113,70 @@
   async function fireEngine() {
     const key = keyInput.value.trim();
     const input = document.getElementById('mainInput').value.trim();
+    if(!key || !input) return;
+    document.getElementById('loading-overlay').style.display = 'flex';
+    document.getElementById('strategy-log').innerHTML = '';
+    let rawData = input;
+
+    try {
+      if(input.startsWith('http')) {
+        setStatus("데이터 획득 중..."); 
+        let success = false;
+        for(let s of CRAWL_STRATEGIES) {
+          logStep(`PROXY: ${s.name} 시도...`);
+          try {
+            const res = await fetch(s.url(input));
+            let text = s.name === 'AllOrigins' ? (await res.json()).contents : await res.text();
+            if(text && text.length > 200) {
+              logStep(`SUCCESS: ${s.name} 연결됨.`, 'success');
+              const doc = new DOMParser().parseFromString(text, 'text/html');
+              // 제목 중복 방지: 본문 외 요소 완벽 제거
+              doc.querySelectorAll('script, style, ads, ins, iframe, .ads, title, meta, h1, h2, header, footer').forEach(e => e.remove());
+              rawData = doc.body.innerText;
+              success = true; break;
+            }
+          } catch(err) { logStep(`BLOCK: ${s.name} 차단.`, 'fail'); }
+        }
+        if(!success) throw new Error("크롤링 실패.");
+      }
+
+      setStatus("나나 AI 최적화 번역 중..."); 
+      logStep("API: Gemini 2.0 Flash 핸드셰이킹...");
+
+      const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: `소설 번역 미션:
+1. [No Omission]: 생략 금지.
+2. [Paragraphing]: 모바일 가독성을 위해 문장 끝에서 반드시 줄바꿈을 하고, 문단이 바뀔 때는 반드시 빈 줄(\n\n)을 추가하십시오.
+3. [Anti-Duplication]: 웹페이지 제목이 중복되지 않게 본문부터 번역하십시오.
+4. [Name]: '何'는 '하'로 번역.
+
+원문:
+${rawData}` }] }],
+          generationConfig: { temperature: 0, topP: 0.1, maxOutputTokens: 8192 }
+        })
+      });
+
+      const data = await geminiRes.json();
+      let translated = data.candidates[0].content.parts[0].text;
+
+      // 모바일 문단 강제 줄바꿈 보정 (V2.78)
+      translated = translated.split('\n').map(l => l.trim()).join('\n\n').replace(/\n\n\n/g, '\n\n');
+
+      logStep("SUCCESS: 번역 완료!", 'success');
+      document.getElementById('mainInput').classList.add('shrink');
+      const rb = document.getElementById('res-box');
+      rb.innerText = translated; 
+      rb.style.display = 'block';
+      document.getElementById('result-bottom-bar').style.display = 'flex';
+      document.getElementById('loading-overlay').style.display = 'none';
+    } catch(e) { 
+      setStatus("엔진 오류 발생");
+      logStep(`ERROR: ${e.message}`, 'fail'); 
+    }
+  }
+</script>
+</body>
+</html>
