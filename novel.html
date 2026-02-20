@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA NOVEL ENGINE V2.78</title>
+<title>NANA NOVEL ENGINE V2.78.4</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
@@ -28,7 +28,7 @@
     display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; 
     overflow-y: auto; padding: 80px 30px 140px; 
     font-family: 'Noto Serif KR', serif; 
-    line-height: 2.1; 
+    line-height: 1.85; /* 줄 간격을 절반 수준으로 조정 */
     font-size: 18px; color: #ececec; 
     white-space: pre-wrap; text-align: justify; word-break: break-all;
     letter-spacing: -0.01em;
@@ -45,9 +45,7 @@
   @keyframes spin { to { transform: rotate(360deg); } }
   #strategy-log { color: #fff; font-size: 11px; width: 340px; text-align: left; background: rgba(0,20,40,0.8); padding: 15px; border-radius: 12px; font-family: monospace; border: 1px solid var(--border); max-height: 250px; overflow-y: auto; line-height: 1.5; }
   
-  /* 중단 버튼 스타일 */
-  .stop-btn { margin-top: 25px; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; color: #ff4444; padding: 10px 25px; border-radius: 12px; font-size: 12px; font-family: 'Orbitron'; cursor: pointer; font-weight: bold; transition: 0.3s; }
-  .stop-btn:hover { background: #ff4444; color: #000; }
+  .stop-btn { margin-top: 25px; background: rgba(255, 68, 68, 0.1); border: 1px solid #ff4444; color: #ff4444; padding: 10px 25px; border-radius: 12px; font-size: 12px; font-family: 'Orbitron'; cursor: pointer; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -62,7 +60,7 @@
 <div class="container">
   <div class="nav-header">
     <div onclick="location.href='index.html'" style="cursor:pointer; font-size:26px;">🏠</div>
-    <div class="engine-title">NANA NOVEL V2.78</div>
+    <div class="engine-title">NANA NOVEL V2.78.4</div>
     <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer; font-size:26px;">🗑️</div>
   </div>
   <div class="card">
@@ -114,13 +112,14 @@
     const key = keyInput.value.trim();
     const input = document.getElementById('mainInput').value.trim();
     if(!key || !input) return;
+
     document.getElementById('loading-overlay').style.display = 'flex';
     document.getElementById('strategy-log').innerHTML = '';
     let rawData = input;
 
     try {
       if(input.startsWith('http')) {
-        setStatus("데이터 획득 중..."); 
+        setStatus("데이터 추출 중...");
         let success = false;
         for(let s of CRAWL_STRATEGIES) {
           logStep(`PROXY: ${s.name} 시도...`);
@@ -128,52 +127,52 @@
             const res = await fetch(s.url(input));
             let text = s.name === 'AllOrigins' ? (await res.json()).contents : await res.text();
             if(text && text.length > 200) {
-              logStep(`SUCCESS: ${s.name} 연결됨.`, 'success');
               const doc = new DOMParser().parseFromString(text, 'text/html');
-              // 제목 중복 방지: 본문 외 요소 완벽 제거
               doc.querySelectorAll('script, style, ads, ins, iframe, .ads, title, meta, h1, h2, header, footer').forEach(e => e.remove());
               rawData = doc.body.innerText;
+              logStep(`SUCCESS: ${s.name} 연결됨.`, 'success');
               success = true; break;
             }
-          } catch(err) { logStep(`BLOCK: ${s.name} 차단.`, 'fail'); }
+          } catch(e) { logStep(`BLOCK: ${s.name} 실패.`, 'fail'); }
         }
         if(!success) throw new Error("크롤링 실패.");
       }
 
-      setStatus("나나 AI 최적화 번역 중..."); 
-      logStep("API: Gemini 2.0 Flash 핸드셰이킹...");
+      setStatus("나나 AI 번역 중...");
+      logStep("API: Gemini 2.0 Flash 통신...");
 
       const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${key}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: `소설 번역 미션:
-1. [No Omission]: 생략 금지.
-2. [Paragraphing]: 모바일 가독성을 위해 문장 끝에서 반드시 줄바꿈을 하고, 문단이 바뀔 때는 반드시 빈 줄(\n\n)을 추가하십시오.
-3. [Anti-Duplication]: 웹페이지 제목이 중복되지 않게 본문부터 번역하십시오.
+1. [No Omission]: 누락 금지.
+2. [Structure]: 문장 끝 줄바꿈 필수. 문단 구분 시 적절한 여백을 두십시오.
+3. [Anti-Duplication]: 제목 없이 본문만 번역.
 4. [Name]: '何'는 '하'로 번역.
 
 원문:
-${rawData}` }] }],
-          generationConfig: { temperature: 0, topP: 0.1, maxOutputTokens: 8192 }
+${rawData}` }] }]
         })
       });
 
       const data = await geminiRes.json();
+      
+      // 요청하신 대로 방금 전 추가한 '안전장치(검증)' 코드는 빼고 바로 결과 호출
       let translated = data.candidates[0].content.parts[0].text;
+      
+      // 문단 간격을 절반 수준으로 줄임 (한 줄 띄움 적용)
+      translated = translated.split('\n').map(l => l.trim()).join('\n').replace(/\n\n\n/g, '\n\n');
 
-      // 모바일 문단 강제 줄바꿈 보정 (V2.78)
-      translated = translated.split('\n').map(l => l.trim()).join('\n\n').replace(/\n\n\n/g, '\n\n');
-
-      logStep("SUCCESS: 번역 완료!", 'success');
-      document.getElementById('mainInput').classList.add('shrink');
+      logStep("SUCCESS: 패킷 수신 완료.", 'success');
       const rb = document.getElementById('res-box');
       rb.innerText = translated; 
       rb.style.display = 'block';
       document.getElementById('result-bottom-bar').style.display = 'flex';
       document.getElementById('loading-overlay').style.display = 'none';
+
     } catch(e) { 
-      setStatus("엔진 오류 발생");
+      setStatus("엔진 중단됨");
       logStep(`ERROR: ${e.message}`, 'fail'); 
     }
   }
