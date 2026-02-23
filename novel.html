@@ -109,6 +109,10 @@
     #chapter-detail { display: none; position: fixed; inset: 0; z-index: 5500; background: #050a14; overflow-y: auto; padding: 60px 30px 120px; font-family: 'Noto Serif KR', serif; font-size: 18px; line-height: 2.2; color: #ececec; }
     .detail-wrap { max-width: 750px; margin: 0 auto; }
     .detail-num { font-family: 'Orbitron'; color: var(--neon); font-size: 12px; letter-spacing: 3px; margin-bottom: 24px; }
+    .compiled-chapter-divider { color: var(--neon); font-family: 'Orbitron'; font-size: 11px; letter-spacing: 3px; margin: 50px 0 20px; padding: 12px 0; border-top: 1px solid rgba(0,255,204,0.2); border-bottom: 1px solid rgba(0,255,204,0.2); text-align: center; }
+    .compiled-title-block { text-align: center; margin-bottom: 50px; padding: 30px; border: 1px solid rgba(0,255,204,0.15); border-radius: 16px; background: rgba(0,255,204,0.03); }
+    .compiled-title-text { font-size: 22px; color: var(--neon); font-weight: 700; margin-bottom: 10px; }
+    .compiled-author-text { font-size: 14px; color: #888; }
     .detail-close { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 14px 40px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; font-size: 13px; }
   </style>
 </head>
@@ -149,7 +153,10 @@
         <div class="ch-novel-title" id="ch-novel-title"></div>
         <div style="font-size:11px;color:#888;margin-top:2px;" id="ch-novel-author"></div>
       </div>
-      <div class="library-btn-sm" onclick="moveToLibrary()">📚 서재로</div>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <div class="library-btn-sm" onclick="compileToDone()" style="color:var(--neon);border-color:rgba(0,255,204,0.3);">📕 합본</div>
+        <div class="library-btn-sm" onclick="moveToLibrary()">📚 서재로</div>
+      </div>
     </div>
     <div id="chapter-list"></div>
   </div>
@@ -420,26 +427,138 @@
           '<div class="ch-act-btn view">📖 보기</div>' +
           '<div class="ch-act-btn del">🗑️ 삭제</div>' +
         '</div>';
-      card.querySelector('.view').addEventListener('click', () => showChapterDetail(ch));
-      card.querySelector('.chapter-preview-text').addEventListener('click', () => showChapterDetail(ch));
+      var isCompiled = currentNovel && currentNovel.cover_emoji === '📕';
+      card.querySelector('.view').addEventListener('click', () => showChapterDetail(ch, isCompiled));
+      card.querySelector('.chapter-preview-text').addEventListener('click', () => showChapterDetail(ch, isCompiled));
       card.querySelector('.del').addEventListener('click', () => deleteChapter(ch.id));
       listEl.appendChild(card);
     });
   }
 
-  function showChapterDetail(ch) {
-    document.getElementById('detail-num').textContent = 'CHAPTER ' + ch.chapter_num;
+  function showChapterDetail(ch, isCompiled) {
+    var detailEl = document.getElementById('chapter-detail');
+    var numEl = document.getElementById('detail-num');
     var wrap = document.getElementById('detail-text');
     var text = ch.translated || ch.original || '';
-    wrap.innerHTML = renderParagraphs(text);
-    document.getElementById('chapter-detail').style.display = 'block';
-    document.getElementById('chapter-detail').scrollTop = 0;
+
+    if (isCompiled) {
+      // 합본: 챕터 구분선을 HTML로 이쁘게 렌더링
+      numEl.textContent = '';
+      var html = '';
+      // 제목 블록
+      var titleMatch = text.match(/═+\n\s+(.+?)\n/);
+      var authorMatch = text.match(/저자:\s*(.+?)\n/);
+      if (titleMatch) {
+        html += '<div class="compiled-title-block">';
+        html += '<div class="compiled-title-text">📕 ' + titleMatch[1].trim().replace(/</g,'&lt;') + '</div>';
+        if (authorMatch) html += '<div class="compiled-author-text">' + authorMatch[1].trim().replace(/</g,'&lt;') + '</div>';
+        html += '</div>';
+      }
+      // 챕터별 분리
+      var chapters = text.split(/─+\n\s+第\s*(\d+)\s+章\s*\n─+/);
+      if (chapters.length > 1) {
+        for (var i = 1; i < chapters.length; i += 2) {
+          var chapNum = chapters[i];
+          var chapText = chapters[i+1] || '';
+          html += '<div class="compiled-chapter-divider">第 ' + chapNum + ' 章</div>';
+          html += renderParagraphs(chapText.trim());
+        }
+      } else {
+        html += renderParagraphs(text);
+      }
+      wrap.innerHTML = html;
+    } else {
+      numEl.textContent = 'CHAPTER ' + ch.chapter_num;
+      wrap.innerHTML = renderParagraphs(text);
+    }
+
+    detailEl.style.display = 'block';
+    detailEl.scrollTop = 0;
   }
 
   async function deleteChapter(id) {
     if (!confirm('이 챕터를 삭제할까요?')) return;
     await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?id=eq.' + id, { method:'DELETE', headers:sbH() });
     loadChapters();
+  }
+
+  async function compileToDone() {
+    if (!currentNovel) return;
+    if (!confirm('모든 챕터를 하나의 단권으로 합쳐서 서재에 저장할까요?\n(기존 챕터는 그대로 유지됩니다)')) return;
+
+    try {
+      document.getElementById('loading-overlay').style.display = 'flex';
+      document.getElementById('engine-status-text').textContent = '합본 편집 중...';
+      document.getElementById('strategy-log').innerHTML = '';
+
+      // 챕터 전체 로드
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + currentNovel.id + '&order=chapter_num.asc', { headers: sbH() });
+      var chapters = await res.json();
+      if (!chapters.length) { alert('저장된 챕터가 없어요!'); document.getElementById('loading-overlay').style.display = 'none'; return; }
+
+      // 가독성 있게 합본 편집
+      var compiled = '';
+      compiled += '═══════════════════════════════════
+';
+      compiled += '  ' + currentNovel.title + '
+';
+      if (currentNovel.author) compiled += '  저자: ' + currentNovel.author + '
+';
+      compiled += '═══════════════════════════════════
+
+
+';
+
+      chapters.forEach(function(ch) {
+        var text = (ch.translated || ch.original || '').trim();
+        compiled += '────────────────────────────────
+';
+        compiled += '  第 ' + ch.chapter_num + ' 章
+';
+        compiled += '────────────────────────────────
+
+';
+        compiled += text;
+        compiled += '
+
+
+';
+      });
+
+      // 합본 소설을 새 novels 레코드로 서재에 저장
+      var newTitle = currentNovel.title + ' 【합본】';
+      var novelRes = await fetch(SUPABASE_URL + '/rest/v1/novels', {
+        method: 'POST',
+        headers: Object.assign({}, sbH(), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          title: newTitle,
+          author: currentNovel.author || null,
+          cover_emoji: '📕',
+          status: 'done'
+        })
+      });
+      var newNovel = await novelRes.json();
+      var newNovelId = newNovel[0].id;
+
+      // 합본 내용을 챕터 1로 저장
+      await fetch(SUPABASE_URL + '/rest/v1/novel_chapters', {
+        method: 'POST',
+        headers: sbH(),
+        body: JSON.stringify({
+          novel_id: newNovelId,
+          chapter_num: 1,
+          original: '',
+          translated: compiled
+        })
+      });
+
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('📕 합본이 서재에 저장됐어요!');
+
+    } catch(e) {
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('오류: ' + e.message);
+    }
   }
 
   async function moveToLibrary() {
