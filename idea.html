@@ -8,12 +8,12 @@
   <style>
     :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0,255,204,0.2); }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; position: fixed; }
+    body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
     #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
     .home-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; font-size: 24px; color: var(--neon); z-index: 100; transition: 0.3s; }
     .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
 
-    .container { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+    .container { position: fixed; inset: 0; z-index: 2; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; left: 50%; transform: translateX(-50%); width: 100%; }
     .container::-webkit-scrollbar { width: 4px; }
     .container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 
