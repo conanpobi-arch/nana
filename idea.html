@@ -170,7 +170,13 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       await saveToSupabase(selectedField, idea, data.result);
-      renderResult(selectedField, data.result);
+      // 입력창 및 선택 초기화
+      document.getElementById('ideaInput').value = '';
+      document.getElementById('ideaInput').placeholder = '아이디어를 자유롭게 적어주세요.';
+      document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
+      const savedField = selectedField;
+      selectedField = '';
+      renderResult(savedField, data.result);
     } catch (e) {
       document.getElementById('loading-overlay').style.display = 'none';
       alert('분석 중 오류가 발생했습니다: ' + e.message);
@@ -255,6 +261,7 @@
   function closeResult() {
     document.getElementById('res-box').style.display = 'none';
     document.getElementById('res-bottom-bar').style.display = 'none';
+    switchTab('new');
   }
 
   function copyResult() {
