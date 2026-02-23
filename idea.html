@@ -213,7 +213,7 @@
       document.getElementById('ideaInput').placeholder = '아이디어를 자유롭게 적어주세요.';
       document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
       selectedField = '';
-      renderResult(savedField, data.result);
+      renderResult(savedField, idea, data.result);
     } catch (e) {
       document.getElementById('loading-overlay').style.display = 'none';
       alert('오류: ' + e.message);
@@ -269,7 +269,7 @@
 
         // 본문 클릭 → 결과 보기
         card.querySelector('.history-card-body').addEventListener('click', function() {
-          renderResult(item.field, item.result);
+          renderResult(item.field, item.idea, item.result);
         });
 
         // 공유 버튼
