@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NANA LAB - 아이디어 체크</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0,255,204,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; position: fixed; }
+
+    #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
+
+    .home-btn {
+      position: fixed; top: 20px; left: 20px;
+      text-decoration: none; font-size: 24px; color: var(--neon);
+      z-index: 100; transition: 0.3s;
+    }
+    .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
+
+    .container {
+      position: relative; z-index: 2;
+      max-width: 700px; margin: 0 auto;
+      height: 100vh; display: flex; flex-direction: column;
+      padding: 20px 20px 20px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .container::-webkit-scrollbar { width: 4px; }
+    .container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+    .header { text-align: center; margin-bottom: 20px; padding-top: 50px; flex-shrink: 0; }
+    .page-title { font-family: 'Orbitron'; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-size: 1.6rem; letter-spacing: 6px; }
+    .page-sub { font-size: 11px; color: rgba(0,255,204,0.5); margin-top: 8px; letter-spacing: 2px; font-family: 'Orbitron'; }
+
+    /* 분야 선택 */
+    .section-label { font-size: 11px; color: rgba(0,255,204,0.7); letter-spacing: 3px; font-family: 'Orbitron'; margin-bottom: 10px; }
+
+    .field-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+      margin-bottom: 20px; flex-shrink: 0;
+    }
+    .field-btn {
+      background: rgba(0,255,204,0.04); border: 1px solid var(--border);
+      border-radius: 12px; padding: 11px 8px;
+      text-align: center; cursor: pointer; transition: 0.2s;
+      font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 8px;
+      justify-content: flex-start; padding-left: 14px;
+    }
+    .field-btn span { font-size: 18px; }
+    .field-btn:hover { background: rgba(0,255,204,0.1); border-color: var(--neon); color: #fff; }
+    .field-btn.active {
+      background: rgba(0,255,204,0.15); border-color: var(--neon);
+      color: var(--neon); box-shadow: 0 0 12px rgba(0,255,204,0.2);
+    }
+
+    /* 입력 영역 */
+    .input-area { flex-shrink: 0; margin-bottom: 15px; }
+    textarea {
+      width: 100%; background: rgba(0,0,0,0.5);
+      border: 1px solid var(--border); border-radius: 14px;
+      color: #fff; padding: 15px; font-size: 14px;
+      outline: none; height: 130px; resize: none;
+      font-family: 'Noto Sans KR'; line-height: 1.7;
+      transition: border-color 0.3s;
+    }
+    textarea:focus { border-color: var(--neon); }
+    textarea::placeholder { color: rgba(255,255,255,0.25); }
+
+    .btn-fire {
+      width: 100%; padding: 16px;
+      background: linear-gradient(135deg, var(--neon), #00b4ff);
+      color: #000; border: none; border-radius: 14px;
+      font-weight: 900; font-family: 'Orbitron'; cursor: pointer;
+      font-size: 13px; letter-spacing: 2px;
+      box-shadow: 0 5px 20px rgba(0,255,204,0.3);
+      transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-fire:active { transform: scale(0.98); }
+
+    /* 로딩 */
+    #loading-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.92); z-index: 9999;
+      flex-direction: column; align-items: center; justify-content: center;
+    }
+    .loader { width: 46px; height: 46px; border: 3px solid rgba(0,255,204,0.1); border-top: 3px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 18px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .load-text { color: var(--neon); font-family: 'Orbitron'; font-size: 13px; letter-spacing: 2px; }
+
+    /* 결과 */
+    #res-box {
+      display: none; position: fixed; inset: 0;
+      background: #050a14; z-index: 5000;
+      overflow-y: auto; padding: 50px 28px 140px;
+      font-family: 'Noto Sans KR'; line-height: 2.1;
+      font-size: 16px; color: #ececec;
+      word-break: keep-all; -webkit-overflow-scrolling: touch;
+    }
+    .res-field-badge {
+      display: inline-block; background: rgba(0,255,204,0.15);
+      border: 1px solid var(--neon); border-radius: 20px;
+      padding: 5px 16px; font-size: 12px; color: var(--neon);
+      font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 25px;
+    }
+    .res-paragraph {
+      display: block; margin-bottom: 28px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0,255,204,0.05);
+    }
+    .res-section-title {
+      color: var(--neon); font-weight: 700; font-size: 1.05em;
+      display: block; margin-top: 30px; margin-bottom: 8px;
+      border-left: 3px solid var(--neon); padding-left: 12px;
+    }
+
+    #res-bottom-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 5001; background: rgba(0,10,25,0.98);
+      border-top: 1px solid var(--border); backdrop-filter: blur(25px);
+      padding: 20px; align-items: center; gap: 12px;
+    }
+    .copy-btn {
+      width: 55px; height: 55px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border); border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; cursor: pointer;
+    }
+    .back-btn {
+      flex: 1; height: 55px;
+      background: linear-gradient(135deg, var(--neon), #00b4ff);
+      color: #000; border: none; border-radius: 14px;
+      font-weight: 900; font-family: 'Orbitron'; font-size: 14px; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="galaxy-bg"></div>
+<a href="index.html" class="home-btn">🏠</a>
+
+<div id="loading-overlay">
+  <div class="loader"></div>
+  <div class="load-text">IDEA ANALYZING...</div>
+</div>
+
+<div class="container">
+  <div class="header">
+    <div class="page-title">IDEA CHECK</div>
+    <div class="page-sub">AI-POWERED IDEA ANALYZER</div>
+  </div>
+
+  <div class="section-label">STEP 1 — 분야 선택</div>
+  <div class="field-grid">
+    <div class="field-btn" data-field="스타트업 / 창업" onclick="selectField(this)"><span>🚀</span>스타트업 / 창업</div>
+    <div class="field-btn" data-field="앱 / 웹 서비스" onclick="selectField(this)"><span>📱</span>앱 / 웹 서비스</div>
+    <div class="field-btn" data-field="투자 / 재테크" onclick="selectField(this)"><span>💰</span>투자 / 재테크</div>
+    <div class="field-btn" data-field="콘텐츠 / 미디어" onclick="selectField(this)"><span>🎬</span>콘텐츠 / 미디어</div>
+    <div class="field-btn" data-field="커머스 / 제품" onclick="selectField(this)"><span>🛍️</span>커머스 / 제품</div>
+    <div class="field-btn" data-field="헬스케어 / 의료" onclick="selectField(this)"><span>🏥</span>헬스케어 / 의료</div>
+    <div class="field-btn" data-field="게임 / 엔터테인먼트" onclick="selectField(this)"><span>🎮</span>게임 / 엔터테인먼트</div>
+    <div class="field-btn" data-field="부동산 / 인테리어" onclick="selectField(this)"><span>🏠</span>부동산 / 인테리어</div>
+    <div class="field-btn" data-field="AI / 자동화" onclick="selectField(this)"><span>🤖</span>AI / 자동화</div>
+    <div class="field-btn" data-field="교육 / 자기계발" onclick="selectField(this)"><span>📚</span>교육 / 자기계발</div>
+  </div>
+
+  <div class="section-label">STEP 2 — 아이디어 상세 내용</div>
+  <div class="input-area">
+    <textarea id="ideaInput" placeholder="아이디어를 자유롭게 적어주세요. 어떤 문제를 해결하려는지, 어떤 방식으로 접근하려는지 등 구체적일수록 좋습니다."></textarea>
+  </div>
+
+  <button class="btn-fire" onclick="analyzeIdea()">💡 IDEA ANALYZE START</button>
+</div>
+
+<div id="res-box"></div>
+<div id="res-bottom-bar">
+  <div class="copy-btn" onclick="copyResult()">📋</div>
+  <button class="back-btn" onclick="location.reload()">🔄 새 아이디어 분석</button>
+</div>
+
+<script>
+  let selectedField = '';
+
+  const placeholders = {
+    '스타트업 / 창업': '어떤 문제를 해결하려는 창업 아이디어인가요? 시장 규모나 수익 모델도 함께 적어주세요.',
+    '앱 / 웹 서비스': '어떤 앱이나 서비스인가요? 주요 기능과 사용 시나리오를 적어주세요.',
+    '투자 / 재테크': '어떤 투자 아이디어인가요? 예상 수익률, 리스크, 투자 기간 등을 적어주세요.',
+    '콘텐츠 / 미디어': '어떤 콘텐츠를 만들려 하나요? 채널, 형식, 타겟 시청자를 적어주세요.',
+    '커머스 / 제품': '어떤 제품이나 쇼핑 아이디어인가요? 제품 특징과 판매 방식을 적어주세요.',
+    '헬스케어 / 의료': '어떤 헬스케어 아이디어인가요? 대상 환자군이나 해결하려는 의료 문제를 적어주세요.',
+    '게임 / 엔터테인먼트': '어떤 게임이나 엔터테인먼트 아이디어인가요? 장르, 핵심 재미 요소를 적어주세요.',
+    '부동산 / 인테리어': '어떤 부동산 또는 인테리어 아이디어인가요? 지역, 규모, 방식을 적어주세요.',
+    'AI / 자동화': '어떤 AI 또는 자동화 아이디어인가요? 어떤 작업을 자동화하려는지 적어주세요.',
+    '교육 / 자기계발': '어떤 교육 아이디어인가요? 학습 대상, 방식, 커리큘럼 방향을 적어주세요.',
+  };
+
+  function selectField(el) {
+    document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    selectedField = el.dataset.field;
+
+    // placeholder 변경
+    const textarea = document.getElementById('ideaInput');
+    textarea.placeholder = placeholders[selectedField] || '아이디어를 자유롭게 적어주세요.';
+
+    // STEP 2로 부드럽게 스크롤
+    setTimeout(() => {
+      document.querySelector('.input-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      textarea.focus();
+    }, 150);
+  }
+
+  async function analyzeIdea() {
+    const idea = document.getElementById('ideaInput').value.trim();
+    if (!selectedField) return alert('분야를 먼저 선택해주세요!');
+    if (!idea) return alert('아이디어 내용을 입력해주세요!');
+
+    document.getElementById('loading-overlay').style.display = 'flex';
+
+    try {
+      const res = await fetch('/api/idea', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ field: selectedField, idea })
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      renderResult(selectedField, data.result);
+    } catch (e) {
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('분석 중 오류가 발생했습니다: ' + e.message);
+    }
+  }
+
+  function renderResult(field, text) {
+    const rb = document.getElementById('res-box');
+
+    const escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // 섹션 제목 패턴 (숫자. 또는 ✅ ⚠️ 등 이모지로 시작하는 줄)
+    const lines = escaped.split('\n');
+    let html = `<div class="res-field-badge">💡 ${field}</div>`;
+    let buffer = [];
+
+    function flushBuffer() {
+      if (buffer.length === 0) return;
+      const content = buffer.join('<br>').trim();
+      if (content) html += `<p class="res-paragraph">${content}</p>`;
+      buffer = [];
+    }
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (!trimmed) {
+        flushBuffer();
+      } else if (/^(\d+\.|[✅⚠️🔴🟡🟢🔥💡📌🎯👉▶])/.test(trimmed)) {
+        flushBuffer();
+        html += `<span class="res-section-title">${trimmed}</span>`;
+      } else {
+        buffer.push(trimmed);
+      }
+    });
+    flushBuffer();
+
+    rb.innerHTML = html;
+    rb.style.display = 'block';
+    rb.scrollTop = 0;
+    document.getElementById('res-bottom-bar').style.display = 'flex';
+    document.getElementById('loading-overlay').style.display = 'none';
+  }
+
+  function copyResult() {
+    const text = document.getElementById('res-box').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.copy-btn');
+      btn.innerText = '✅';
+      setTimeout(() => btn.innerText = '📋', 1500);
+    });
+  }
+</script>
+</body>
+</html>
