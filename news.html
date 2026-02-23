@@ -128,33 +128,6 @@
     }
   }
 
-  // ── RSS 로드 (CORS 프록시 사용) ──
-  var RSS_SOURCES = [
-    { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'BBC', cat: 'world' },
-    { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'BBC Tech', cat: 'tech' },
-    { url: 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml', name: 'BBC Science', cat: 'science' },
-    { url: 'https://feeds.nbcnews.com/nbcnews/public/business', name: 'NBC Business', cat: 'business' },
-    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', name: 'NYT', cat: 'world' },
-    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', name: 'NYT Tech', cat: 'tech' },
-  ];
-
-  async function fetchRss(source) {
-    var proxy = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + '&count=5';
-    var res = await fetch(proxy);
-    var data = await res.json();
-    if (data.status !== 'ok') return [];
-    return data.items.map(function(item) {
-      return {
-        title: item.title,
-        desc: item.description ? item.description.replace(/<[^>]+>/g, '').slice(0, 120) : '',
-        link: item.link,
-        date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '',
-        source: source.name,
-        cat: source.cat
-      };
-    });
-  }
-
   async function loadRss() {
     rssLoaded = true;
     var listEl = document.getElementById('rss-list');
@@ -162,16 +135,12 @@
     document.getElementById('brew-date').textContent = d.getFullYear() + '년 ' + (d.getMonth()+1) + '월 ' + d.getDate() + '일 DAILY BRIEF';
 
     try {
-      var results = await Promise.allSettled(RSS_SOURCES.map(fetchRss));
-      allRssItems = [];
-      results.forEach(function(r) {
-        if (r.status === 'fulfilled') allRssItems = allRssItems.concat(r.value);
-      });
-      // 날짜순 정렬
-      allRssItems.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      var res = await fetch('/api/rss');
+      var data = await res.json();
+      allRssItems = data.items || [];
       renderRss(allRssItems);
     } catch(e) {
-      listEl.innerHTML = '<div class="rss-error">⚠️ 헤드라인 불러오기 실패</div>';
+      listEl.innerHTML = '<div class="rss-error">⚠️ 헤드라인 불러오기 실패: ' + e.message + '</div>';
     }
   }
 
