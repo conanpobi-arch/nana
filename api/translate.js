@@ -11,11 +11,12 @@ export default async function handler(req, res) {
   const { text } = req.body;
   if (!text) return res.status(400).json({ error: '텍스트 누락' });
 
-  const prompt = `다음 영어 소설 텍스트를 자연스러운 한국어로 번역해주세요.
+  const prompt = `다음 중국어 소설 텍스트를 자연스러운 한국어로 번역해주세요.
 번역 규칙:
 - 원문의 문체와 분위기를 최대한 살려주세요
 - 대화체는 한국어 대화체로 자연스럽게
 - 번역문만 출력하고 설명이나 주석은 제외
+- 대화의 맥락을 살피고 인물들간의 위계와 인척관계를 잘 살펴서 존댓말과 반말 그리고 존중과 편안한 어투를 잘 구별해서 사용하라
 
 원문:
 ${text}`;
