@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -190,28 +190,7 @@
     }
   }
 
-  // ── 알람 등록 ──
-  function scheduleAlarms(todos) {
-    alarmTimers.forEach(function(t) { clearTimeout(t); });
-    alarmTimers = [];
-    var now = Date.now();
-    todos.forEach(function(item) {
-      if (!item.alarm || !item.date || !item.time || item.done) return;
-      var alarmTime = new Date(item.date + 'T' + item.time).getTime();
-      var diff = alarmTime - now;
-      if (diff > 0 && diff < 7 * 24 * 60 * 60 * 1000) { // 7일 이내만
-        var t = setTimeout(function() {
-          if (Notification.permission === 'granted') {
-            new Notification('🔔 NANA LAB 알람', {
-              body: item.title + (item.memo ? '\n' + item.memo : ''),
-              icon: '/profile.png'
-            });
-          }
-        }, diff);
-        alarmTimers.push(t);
-      }
-    });
-  }
+
 
   // ── 로드 ──
   async function loadTodos() {
@@ -434,8 +413,62 @@
     filtered.forEach(function(item) { listEl.appendChild(makeTodoCard(item)); });
   }
 
-  requestNotificationPermission();
-  loadTodos();
+  // ── Service Worker 등록 ──
+  async function initSW() {
+    if (!('serviceWorker' in navigator)) return;
+    try {
+      var reg = await navigator.serviceWorker.register('/sw.js');
+      console.log('SW 등록 완료');
+      window._swReg = reg;
+    } catch(e) { console.warn('SW 등록 실패:', e); }
+  }
+
+  // ── 알람 SW에 전달 ──
+  function scheduleAlarms(todos) {
+    alarmTimers.forEach(function(t) { clearTimeout(t); });
+    alarmTimers = [];
+    if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+      // SW 없으면 setTimeout fallback
+      var now = Date.now();
+      todos.forEach(function(item) {
+        if (!item.alarm || !item.date || !item.time || item.done) return;
+        var alarmTime = new Date(item.date + 'T' + item.time).getTime();
+        var diff = alarmTime - now;
+        if (diff > 0 && diff < 7 * 24 * 60 * 60 * 1000) {
+          var t = setTimeout(function() {
+            if (Notification.permission === 'granted') {
+              new Notification('🔔 NANA LAB 알람', {
+                body: item.title + (item.memo ? '\n' + item.memo : ''),
+                vibrate: [300, 100, 300]
+              });
+            }
+          }, diff);
+          alarmTimers.push(t);
+        }
+      });
+      return;
+    }
+    // SW에 알람 전달
+    todos.forEach(function(item) {
+      if (!item.alarm || !item.date || !item.time || item.done) return;
+      navigator.serviceWorker.controller.postMessage({
+        type: 'SCHEDULE_ALARM',
+        alarm: { id: item.id, title: item.title, memo: item.memo, date: item.date, time: item.time }
+      });
+    });
+  }
+
+  async function requestNotificationPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      var perm = await Notification.requestPermission();
+      return perm;
+    }
+    return Notification.permission;
+  }
+
+  initSW().then(function() {
+    loadTodos();
+  });
 </script>
 </body>
 </html>
