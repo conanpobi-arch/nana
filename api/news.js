@@ -42,7 +42,7 @@ Google Search를 사용하여 아래 5개 카테고리의 최신 소식을 요�
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          tools: [{ google_search: {} }],
+          tools: [{ googleSearch: {} }],
           generationConfig: {
             temperature: 0.3, // 정확도 우선
             maxOutputTokens: 3072, // 모바일 502 에러 방지를 위한 최적화 용량
