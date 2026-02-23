@@ -481,12 +481,34 @@
   }
 
   function extractTextFromDoc(doc) {
-    doc.querySelectorAll('script, style, ins, iframe, .ads, noscript, svg').forEach(e => e.remove());
-    doc.querySelectorAll('p, div, br, li, h1, h2, h3, h4, h5, h6, tr, blockquote').forEach(el => {
+    // 노이즈 제거
+    doc.querySelectorAll('script, style, ins, iframe, noscript, svg, header, footer, nav, aside, .ads, .ad, .banner, .menu, .comment, #comment, .sidebar').forEach(e => e.remove());
+
+    // ixdzs.tw 전용: 본문 컨테이너 우선 시도
+    var contentSelectors = [
+      '#content', '.content', '#chaptercontent', '.chapter-content',
+      '#bookcontent', '.book-content', '#articlecontent', '.article-content',
+      '#novel-content', '.novel-content', '#text', '.text-content',
+      'article', 'main', '.main-content', '#main'
+    ];
+    var bodyEl = null;
+    for (var sel of contentSelectors) {
+      var el = doc.querySelector(sel);
+      if (el && el.innerText && el.innerText.trim().length > 200) {
+        bodyEl = el;
+        break;
+      }
+    }
+
+    // 본문 컨테이너 못 찾으면 body 전체 사용
+    if (!bodyEl) bodyEl = doc.body;
+
+    bodyEl.querySelectorAll('p, div, br, li, h3, h4, h5, h6, tr, blockquote').forEach(el => {
       el.insertAdjacentText('beforebegin', el.tagName === 'BR' ? '\n' : '\n\n');
       if (el.tagName !== 'BR') el.insertAdjacentText('afterend', '\n\n');
     });
-    return (doc.body.innerText || doc.body.textContent || '')
+
+    return (bodyEl.innerText || bodyEl.textContent || '')
       .replace(/\t/g,' ').replace(/\r\n/g,'\n').replace(/\r/g,'\n')
       .replace(/[ \t]{2,}/g,' ').replace(/\n{4,}/g,'\n\n\n').trim();
   }
