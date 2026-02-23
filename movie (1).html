@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NANA LAB - 영화보기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --neon: #00ffcc; --border: rgba(0,255,204,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+
+    /* 상단 바 */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: 48px;
+      background: rgba(0, 10, 25, 0.95);
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      display: flex; align-items: center; padding: 0 16px; gap: 14px;
+    }
+
+    .home-btn {
+      text-decoration: none; font-size: 22px; color: var(--neon);
+      transition: 0.2s; flex-shrink: 0;
+    }
+    .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
+
+    .top-title {
+      font-family: 'Orbitron'; color: var(--neon);
+      font-size: 13px; letter-spacing: 4px;
+      text-shadow: 0 0 10px var(--neon); flex-shrink: 0;
+    }
+
+    .top-divider {
+      width: 1px; height: 20px;
+      background: var(--border); flex-shrink: 0;
+    }
+
+    .top-url {
+      font-size: 11px; color: rgba(0,255,204,0.4);
+      font-family: 'Orbitron'; letter-spacing: 1px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* iframe */
+    #movie-frame {
+      position: fixed;
+      top: 48px; left: 0; right: 0; bottom: 0;
+      width: 100%; height: calc(100% - 48px);
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <a href="index.html" class="home-btn">🏠</a>
+    <div class="top-divider"></div>
+    <div class="top-title">🎬 MOVIE</div>
+    <div class="top-divider"></div>
+    <div class="top-url">tvroom11.org</div>
+  </div>
+
+  <div id="launch-area" style="
+    position: fixed; top: 48px; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: radial-gradient(circle at center, #001220 0%, #000 100%);
+    gap: 20px;
+  ">
+    <div style="font-size: 60px;">🎬</div>
+    <div style="font-family: 'Orbitron'; color: #00ffcc; font-size: 14px; letter-spacing: 4px; text-shadow: 0 0 15px #00ffcc;">MOVIE THEATER</div>
+    <div style="font-size: 13px; color: rgba(255,255,255,0.4); text-align: center; line-height: 1.8;">보안 정책으로 인해 외부 창으로 열립니다</div>
+    <button onclick="window.open('https://tvroom11.org/', '_blank')" style="
+      padding: 16px 40px;
+      background: linear-gradient(135deg, #00ffcc, #00b4ff);
+      color: #000; border: none; border-radius: 14px;
+      font-weight: 900; font-family: 'Orbitron'; font-size: 14px;
+      letter-spacing: 2px; cursor: pointer;
+      box-shadow: 0 5px 20px rgba(0,255,204,0.4);
+    ">▶ 영화 보러 가기</button>
+  </div>
+
+</body>
+</html>
