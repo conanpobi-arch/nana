@@ -76,6 +76,7 @@
     .share-opt-btn:active { border-color: var(--neon); background: rgba(0,255,204,0.08); }
     .share-cancel-btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: #aaa; margin-top: 8px; font-family: 'Orbitron'; }
   </style>
+  <script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"></script>
 </head>
 <body>
 <div id="galaxy-bg"></div>
@@ -149,6 +150,8 @@
 </div>
 
 <script>
+  Kakao.init('0fd231ff7768019f7db8b055f3aa98f0');
+
   const SUPABASE_URL = 'https://hbfvyhlrnccccerzbami.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZnZ5aGxybmNjY2NlcnpiYW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1ODc2NzIsImV4cCI6MjA4NzE2MzY3Mn0.V9LJZAzCGinYmwzvWGLbfLhAFRnz4pDG_rVaTwTg74A';
 
