@@ -6,30 +6,30 @@
   <title>NANA LAB - 아이디어 체크</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0,255,204,0.2); }
+    :root { --neon: #00ffcc; --border: rgba(0,255,204,0.2); }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-    body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; }
-    #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
+    html { height: 100%; background: #000; }
+    body { min-height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+
+    #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); pointer-events: none; }
+
     .home-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; font-size: 24px; color: var(--neon); z-index: 100; transition: 0.3s; }
-    .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
 
-    .container { position: fixed; inset: 0; z-index: 2; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; -webkit-overflow-scrolling: touch; left: 50%; transform: translateX(-50%); width: 100%; }
-    .container::-webkit-scrollbar { width: 4px; }
-    .container::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+    .container { position: relative; z-index: 2; max-width: 700px; margin: 0 auto; padding: 70px 20px 40px; }
 
-    .header { text-align: center; margin-bottom: 18px; padding-top: 50px; flex-shrink: 0; }
+    .header { text-align: center; margin-bottom: 18px; }
     .page-title { font-family: 'Orbitron'; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-size: 1.6rem; letter-spacing: 6px; }
     .page-sub { font-size: 11px; color: rgba(0,255,204,0.5); margin-top: 8px; letter-spacing: 2px; font-family: 'Orbitron'; }
 
-    .tab-bar { display: flex; gap: 8px; margin-bottom: 18px; flex-shrink: 0; }
-    .tab-btn { flex: 1; padding: 10px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; }
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 18px; }
+    .tab-btn { flex: 1; padding: 10px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; }
     .tab-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
 
     .section-label { font-size: 11px; color: rgba(0,255,204,0.7); letter-spacing: 3px; font-family: 'Orbitron'; margin-bottom: 10px; }
+
     .field-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 20px; }
-    .field-btn { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; cursor: pointer; transition: 0.2s; font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 8px; }
-    .field-btn span { font-size: 18px; }
-    .field-btn:hover { background: rgba(0,255,204,0.1); border-color: var(--neon); color: #fff; }
+    .field-btn { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; cursor: pointer; transition: 0.2s; font-size: 13px; color: #ccc; display: flex; align-items: center; gap: 8px; user-select: none; -webkit-user-select: none; }
+    .field-btn span { font-size: 18px; pointer-events: none; }
     .field-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); box-shadow: 0 0 12px rgba(0,255,204,0.2); }
 
     .input-area { margin-bottom: 15px; }
@@ -37,14 +37,27 @@
     textarea:focus { border-color: var(--neon); }
     textarea::placeholder { color: rgba(255,255,255,0.25); }
 
-    .btn-fire { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 13px; letter-spacing: 2px; box-shadow: 0 5px 20px rgba(0,255,204,0.3); transition: 0.2s; }
-    .btn-fire:active { transform: scale(0.98); }
+    .btn-fire { width: 100%; padding: 16px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 13px; letter-spacing: 2px; box-shadow: 0 5px 20px rgba(0,255,204,0.3); }
 
+    #history-panel { display: none; }
+    .history-card { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 12px; transition: 0.2s; }
+    .history-card-field { font-size: 11px; color: var(--neon); font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 6px; pointer-events: none; }
+    .history-card-idea { font-size: 13px; color: #ddd; line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; pointer-events: none; }
+    .history-card-date { font-size: 11px; color: rgba(255,255,255,0.3); pointer-events: none; }
+    .history-card-body { cursor: pointer; }
+    .history-card-actions { display: flex; gap: 8px; margin-top: 10px; }
+    .hc-btn { flex: 1; padding: 8px 4px; border-radius: 8px; font-size: 12px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #aaa; text-align: center; transition: 0.2s; user-select: none; }
+    .hc-btn.share:active, .hc-btn.share:hover { border-color: var(--neon); color: var(--neon); }
+    .hc-btn.del:active, .hc-btn.del:hover { border-color: #ff4444; color: #ff4444; }
+    .history-empty { text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 60px 0; font-family: 'Orbitron'; letter-spacing: 2px; }
+
+    /* 로딩 */
     #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
     .loader { width: 46px; height: 46px; border: 3px solid rgba(0,255,204,0.1); border-top: 3px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 18px; }
     @keyframes spin { to { transform: rotate(360deg); } }
     .load-text { color: var(--neon); font-family: 'Orbitron'; font-size: 13px; letter-spacing: 2px; }
 
+    /* 결과 */
     #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 50px 28px 140px; font-family: 'Noto Sans KR'; line-height: 2.1; font-size: 16px; color: #ececec; word-break: keep-all; -webkit-overflow-scrolling: touch; }
     .res-field-badge { display: inline-block; background: rgba(0,255,204,0.15); border: 1px solid var(--neon); border-radius: 20px; padding: 5px 16px; font-size: 12px; color: var(--neon); font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 25px; }
     .res-paragraph { display: block; margin-bottom: 28px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,255,204,0.05); }
@@ -54,27 +67,14 @@
     .copy-btn { width: 55px; height: 55px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; }
     .back-btn { flex: 1; height: 55px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-weight: 900; font-family: 'Orbitron'; font-size: 14px; cursor: pointer; }
 
-    /* 히스토리 */
-    #history-panel { display: none; }
-    .history-card { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; }
-    .history-card:hover { border-color: var(--neon); background: rgba(0,255,204,0.08); }
-    .history-card-field { font-size: 11px; color: var(--neon); font-family: 'Orbitron'; letter-spacing: 1px; margin-bottom: 6px; }
-    .history-card-idea { font-size: 13px; color: #ddd; line-height: 1.5; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .history-card-date { font-size: 11px; color: rgba(255,255,255,0.3); }
-    .history-empty { text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 60px 0; font-family: 'Orbitron'; letter-spacing: 2px; }
-    .history-card-actions { display: flex; gap: 8px; margin-top: 10px; }
-    .hc-btn { flex: 1; padding: 7px 4px; border-radius: 8px; font-size: 11px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #aaa; text-align: center; transition: 0.2s; }
-    .hc-btn:hover { border-color: var(--neon); color: var(--neon); }
-    .hc-btn.del:hover { border-color: #ff4444; color: #ff4444; }
-
     /* 공유 모달 */
     #share-modal { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: flex-end; justify-content: center; }
     .share-sheet { width: 100%; max-width: 700px; background: rgba(0,15,35,0.98); border: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 30px 25px 50px; }
     .share-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 2px; margin-bottom: 20px; text-align: center; }
     .share-btns { display: flex; flex-direction: column; gap: 12px; }
-    .share-btn { width: 100%; padding: 16px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #fff; text-align: left; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
-    .share-btn:hover { border-color: var(--neon); background: rgba(0,255,204,0.08); }
-    .share-cancel { width: 100%; padding: 14px; border-radius: 14px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: #aaa; margin-top: 8px; font-family: 'Orbitron'; }
+    .share-opt-btn { width: 100%; padding: 16px; border-radius: 14px; font-size: 14px; font-weight: 700; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #fff; text-align: left; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+    .share-opt-btn:active { border-color: var(--neon); background: rgba(0,255,204,0.08); }
+    .share-cancel-btn { width: 100%; padding: 14px; border-radius: 14px; font-size: 13px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: #aaa; margin-top: 8px; font-family: 'Orbitron'; }
   </style>
 </head>
 <body>
@@ -93,10 +93,11 @@
   </div>
 
   <div class="tab-bar">
-    <div class="tab-btn active" onclick="switchTab('new')">💡 NEW IDEA</div>
-    <div class="tab-btn" onclick="switchTab('history')">📂 HISTORY</div>
+    <div class="tab-btn active" id="tab-new" onclick="switchTab('new')">💡 NEW IDEA</div>
+    <div class="tab-btn" id="tab-history" onclick="switchTab('history')">📂 HISTORY</div>
   </div>
 
+  <!-- 새 아이디어 패널 -->
   <div id="new-panel">
     <div class="section-label">STEP 1 — 분야 선택</div>
     <div class="field-grid">
@@ -111,16 +112,27 @@
       <div class="field-btn" data-field="AI / 자동화" onclick="selectField(this)"><span>🤖</span>AI / 자동화</div>
       <div class="field-btn" data-field="교육 / 자기계발" onclick="selectField(this)"><span>📚</span>교육 / 자기계발</div>
     </div>
-    <div class="section-label">STEP 2 — 아이디어 상세 내용</div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <div class="section-label" style="margin-bottom:0">STEP 2 — 아이디어 상세 내용</div>
+      <div onclick="document.getElementById('ideaInput').value=''" style="font-size:22px; cursor:pointer; color:rgba(0,255,204,0.5); transition:0.2s;" onmouseover="this.style.color='#00ffcc'" onmouseout="this.style.color='rgba(0,255,204,0.5)'">🗑️</div>
+    </div>
     <div class="input-area">
       <textarea id="ideaInput" placeholder="아이디어를 자유롭게 적어주세요."></textarea>
     </div>
     <button class="btn-fire" onclick="analyzeIdea()">💡 IDEA ANALYZE START</button>
   </div>
 
+  <!-- 히스토리 패널 -->
   <div id="history-panel">
     <div id="history-list"></div>
   </div>
+</div>
+
+<!-- 결과 -->
+<div id="res-box"></div>
+<div id="res-bottom-bar">
+  <div class="copy-btn" onclick="copyResult()">📋</div>
+  <button class="back-btn" onclick="closeResult()">🔄 새 아이디어 분석</button>
 </div>
 
 <!-- 공유 모달 -->
@@ -128,18 +140,12 @@
   <div class="share-sheet" onclick="event.stopPropagation()">
     <div class="share-title">📤 SHARE IDEA</div>
     <div class="share-btns">
-      <button class="share-btn" onclick="shareEmail()"><span style="font-size:22px">📧</span><span>이메일로 보내기</span></button>
-      <button class="share-btn" onclick="shareKakao()"><span style="font-size:22px">💬</span><span>카카오톡으로 보내기</span></button>
-      <button class="share-btn" onclick="shareCopy()"><span style="font-size:22px">📋</span><span>클립보드 복사</span></button>
+      <button class="share-opt-btn" onclick="shareEmail()"><span style="font-size:22px">📧</span><span>이메일로 보내기</span></button>
+      <button class="share-opt-btn" onclick="shareKakao()"><span style="font-size:22px">💬</span><span>카카오톡으로 보내기</span></button>
+      <button class="share-opt-btn" onclick="shareCopy()"><span style="font-size:22px">📋</span><span>클립보드 복사</span></button>
     </div>
-    <button class="share-cancel" onclick="closeShare()">취소</button>
+    <button class="share-cancel-btn" onclick="closeShare()">취소</button>
   </div>
-</div>
-
-<div id="res-box"></div>
-<div id="res-bottom-bar">
-  <div class="copy-btn" onclick="copyResult()">📋</div>
-  <button class="back-btn" onclick="closeResult()">🔄 새 아이디어 분석</button>
 </div>
 
 <script>
@@ -147,6 +153,7 @@
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZnZ5aGxybmNjY2NlcnpiYW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1ODc2NzIsImV4cCI6MjA4NzE2MzY3Mn0.V9LJZAzCGinYmwzvWGLbfLhAFRnz4pDG_rVaTwTg74A';
 
   let selectedField = '';
+  let _shareField = '', _shareIdea = '', _shareResult = '';
 
   const placeholders = {
     '스타트업 / 창업': '어떤 문제를 해결하려는 창업 아이디어인가요? 시장 규모나 수익 모델도 함께 적어주세요.',
@@ -161,15 +168,16 @@
     '교육 / 자기계발': '어떤 교육 아이디어인가요? 학습 대상, 방식, 커리큘럼 방향을 적어주세요.',
   };
 
+  // ── 탭 전환 ──
   function switchTab(tab) {
-    document.querySelectorAll('.tab-btn').forEach((b, i) => {
-      b.classList.toggle('active', (i === 0 && tab === 'new') || (i === 1 && tab === 'history'));
-    });
+    document.getElementById('tab-new').classList.toggle('active', tab === 'new');
+    document.getElementById('tab-history').classList.toggle('active', tab === 'history');
     document.getElementById('new-panel').style.display = tab === 'new' ? 'block' : 'none';
     document.getElementById('history-panel').style.display = tab === 'history' ? 'block' : 'none';
     if (tab === 'history') loadHistory();
   }
 
+  // ── 분야 선택 ──
   function selectField(el) {
     document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
@@ -178,14 +186,14 @@
     textarea.placeholder = placeholders[selectedField] || '아이디어를 자유롭게 적어주세요.';
     setTimeout(() => {
       document.querySelector('.input-area').scrollIntoView({ behavior: 'smooth', block: 'center' });
-      textarea.focus();
     }, 150);
   }
 
+  // ── 분석 ──
   async function analyzeIdea() {
     const idea = document.getElementById('ideaInput').value.trim();
-    if (!selectedField) return alert('분야를 먼저 선택해주세요!');
-    if (!idea) return alert('아이디어 내용을 입력해주세요!');
+    if (!selectedField) { alert('분야를 먼저 선택해주세요!'); return; }
+    if (!idea) { alert('아이디어 내용을 입력해주세요!'); return; }
     document.getElementById('loading-overlay').style.display = 'flex';
     try {
       const res = await fetch('/api/idea', {
@@ -193,156 +201,185 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ field: selectedField, idea })
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
       const data = await res.json();
       await saveToSupabase(selectedField, idea, data.result);
-      // 입력창 및 선택 초기화
+      const savedField = selectedField;
+      // 초기화
       document.getElementById('ideaInput').value = '';
       document.getElementById('ideaInput').placeholder = '아이디어를 자유롭게 적어주세요.';
       document.querySelectorAll('.field-btn').forEach(b => b.classList.remove('active'));
-      const savedField = selectedField;
       selectedField = '';
       renderResult(savedField, data.result);
     } catch (e) {
       document.getElementById('loading-overlay').style.display = 'none';
-      alert('분석 중 오류가 발생했습니다: ' + e.message);
+      alert('오류: ' + e.message);
     }
   }
 
+  // ── Supabase 저장 ──
   async function saveToSupabase(field, idea, result) {
     try {
-      await fetch(`${SUPABASE_URL}/rest/v1/ideas`, {
+      await fetch(SUPABASE_URL + '/rest/v1/ideas', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'apikey': SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
           'Prefer': 'return=minimal'
         },
-        body: JSON.stringify({ field, idea, result })
+        body: JSON.stringify({ field: field, idea: idea, result: result })
       });
     } catch (e) {
-      console.warn('Supabase 저장 실패:', e.message);
+      console.warn('저장 실패:', e.message);
     }
   }
 
+  // ── 히스토리 로드 ──
   async function loadHistory() {
     const listEl = document.getElementById('history-list');
     listEl.innerHTML = '<div class="history-empty">LOADING...</div>';
     try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/ideas?order=created_at.desc&limit=50`, {
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+      const res = await fetch(SUPABASE_URL + '/rest/v1/ideas?order=created_at.desc&limit=50', {
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
       });
       const data = await res.json();
       if (!data.length) {
         listEl.innerHTML = '<div class="history-empty">저장된 아이디어가 없습니다</div>';
         return;
       }
-      listEl.innerHTML = data.map(item => {
+      listEl.innerHTML = '';
+      data.forEach(function(item) {
         const date = new Date(item.created_at).toLocaleString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
-        const ideaEsc = item.idea.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const resultEsc = JSON.stringify(item.result);
-        const fieldEsc = JSON.stringify(item.field);
-        const ideaJson = JSON.stringify(item.idea);
-        return `<div class="history-card">
-          <div onclick='showHistory(${fieldEsc}, ${resultEsc})' style="cursor:pointer">
-            <div class="history-card-field">💡 ${item.field}</div>
-            <div class="history-card-idea">${ideaEsc}</div>
-            <div class="history-card-date">${date}</div>
-          </div>
-          <div class="history-card-actions">
-            <div class="hc-btn" onclick="openShare(${fieldEsc}, ${ideaJson}, ${resultEsc})">📤 공유</div>
-            <div class="hc-btn del" onclick="deleteIdea(${item.id}, this)">🗑️ 삭제</div>
-          </div>
-        </div>`;
-      }).join('');
+        const card = document.createElement('div');
+        card.className = 'history-card';
+        card.innerHTML =
+          '<div class="history-card-body">' +
+            '<div class="history-card-field">💡 ' + item.field + '</div>' +
+            '<div class="history-card-idea">' + item.idea.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div>' +
+            '<div class="history-card-date">' + date + '</div>' +
+          '</div>' +
+          '<div class="history-card-actions">' +
+            '<div class="hc-btn share">📤 공유</div>' +
+            '<div class="hc-btn del">🗑️ 삭제</div>' +
+          '</div>';
+
+        // 본문 클릭 → 결과 보기
+        card.querySelector('.history-card-body').addEventListener('click', function() {
+          renderResult(item.field, item.result);
+        });
+
+        // 공유 버튼
+        card.querySelector('.hc-btn.share').addEventListener('click', function(e) {
+          e.stopPropagation();
+          openShare(item.field, item.idea, item.result);
+        });
+
+        // 삭제 버튼
+        card.querySelector('.hc-btn.del').addEventListener('click', function(e) {
+          e.stopPropagation();
+          deleteIdea(item.id, card);
+        });
+
+        listEl.appendChild(card);
+      });
     } catch (e) {
       listEl.innerHTML = '<div class="history-empty">불러오기 실패</div>';
     }
   }
 
-  function showHistory(field, result) {
-    renderResult(field, result);
-  }
-
-  function renderResult(field, text) {
-    const rb = document.getElementById('res-box');
-    const escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const lines = escaped.split('\n');
-    let html = `<div class="res-field-badge">💡 ${field}</div>`;
-    let buffer = [];
-    function flushBuffer() {
-      if (!buffer.length) return;
-      const content = buffer.join('<br>').trim();
-      if (content) html += `<p class="res-paragraph">${content}</p>`;
-      buffer = [];
-    }
-    lines.forEach(line => {
-      const trimmed = line.trim();
-      if (!trimmed) { flushBuffer(); }
-      else if (/^(\d+\.|[✅⚠️🔴🟡🟢🔥💡📌🎯👉▶])/.test(trimmed)) { flushBuffer(); html += `<span class="res-section-title">${trimmed}</span>`; }
-      else { buffer.push(trimmed); }
-    });
-    flushBuffer();
-    rb.innerHTML = html;
-    rb.style.display = 'block';
-    rb.scrollTop = 0;
-    document.getElementById('res-bottom-bar').style.display = 'flex';
-    document.getElementById('loading-overlay').style.display = 'none';
-  }
-
-  // 삭제
-  async function deleteIdea(id, el) {
+  // ── 삭제 ──
+  async function deleteIdea(id, cardEl) {
     if (!confirm('이 아이디어를 삭제할까요?')) return;
     try {
-      await fetch(, {
+      await fetch(SUPABASE_URL + '/rest/v1/ideas?id=eq.' + id, {
         method: 'DELETE',
-        headers: { 'apikey': SUPABASE_KEY, 'Authorization':  }
+        headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
       });
-      el.closest('.history-card').remove();
+      cardEl.remove();
       if (!document.querySelector('.history-card')) {
         document.getElementById('history-list').innerHTML = '<div class="history-empty">저장된 아이디어가 없습니다</div>';
       }
-    } catch(e) { alert('삭제 실패: ' + e.message); }
+    } catch (e) {
+      alert('삭제 실패: ' + e.message);
+    }
   }
 
-  // 공유
-  let _shareField = '', _shareIdea = '', _shareResult = '';
+  // ── 공유 ──
   function openShare(field, idea, result) {
-    _shareField = field; _shareIdea = idea; _shareResult = result;
+    _shareField = field;
+    _shareIdea = idea;
+    _shareResult = result;
     document.getElementById('share-modal').style.display = 'flex';
   }
-  function closeShare() { document.getElementById('share-modal').style.display = 'none'; }
+
+  function closeShare() {
+    document.getElementById('share-modal').style.display = 'none';
+  }
 
   function getShareText() {
-    return ;
+    return '[NANA LAB 아이디어 분석]\n\n분야: ' + _shareField + '\n\n📝 아이디어:\n' + _shareIdea + '\n\n📊 분석 결과:\n' + _shareResult;
   }
 
   function shareEmail() {
-    const subject = encodeURIComponent();
-    const body = encodeURIComponent(getShareText());
-    window.open();
+    var subject = encodeURIComponent('[아이디어] ' + _shareField + ' - ' + _shareIdea.slice(0,20));
+    var body = encodeURIComponent(getShareText());
+    window.open('mailto:?subject=' + subject + '&body=' + body);
     closeShare();
   }
 
   function shareKakao() {
-    const text = getShareText();
+    var text = getShareText();
     if (navigator.share) {
-      navigator.share({ title: , text });
+      navigator.share({ title: '[아이디어] ' + _shareField, text: text });
     } else {
-      navigator.clipboard.writeText(text).then(() => {
-        alert('텍스트가 복사됐어요!
-카카오톡에서 붙여넣기 해주세요 😊');
+      navigator.clipboard.writeText(text).then(function() {
+        alert('텍스트가 복사됐어요!\n카카오톡에서 붙여넣기 해주세요 😊');
       });
     }
     closeShare();
   }
 
   function shareCopy() {
-    navigator.clipboard.writeText(getShareText()).then(() => {
+    navigator.clipboard.writeText(getShareText()).then(function() {
       alert('클립보드에 복사됐어요!');
     });
     closeShare();
+  }
+
+  // ── 결과 렌더링 ──
+  function renderResult(field, text) {
+    var rb = document.getElementById('res-box');
+    var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    var lines = escaped.split('\n');
+    var html = '<div class="res-field-badge">💡 ' + field + '</div>';
+    var buffer = [];
+
+    function flushBuffer() {
+      if (!buffer.length) return;
+      var content = buffer.join('<br>').trim();
+      if (content) html += '<p class="res-paragraph">' + content + '</p>';
+      buffer = [];
+    }
+
+    lines.forEach(function(line) {
+      var trimmed = line.trim();
+      if (!trimmed) {
+        flushBuffer();
+      } else if (/^(\d+\.|[✅⚠️🔴🟡🟢🔥💡📌🎯👉▶])/.test(trimmed)) {
+        flushBuffer();
+        html += '<span class="res-section-title">' + trimmed + '</span>';
+      } else {
+        buffer.push(trimmed);
+      }
+    });
+    flushBuffer();
+
+    rb.innerHTML = html;
+    rb.style.display = 'block';
+    rb.scrollTop = 0;
+    document.getElementById('res-bottom-bar').style.display = 'flex';
+    document.getElementById('loading-overlay').style.display = 'none';
   }
 
   function closeResult() {
@@ -352,11 +389,11 @@
   }
 
   function copyResult() {
-    const text = document.getElementById('res-box').innerText;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.querySelector('.copy-btn');
+    var text = document.getElementById('res-box').innerText;
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector('.copy-btn');
       btn.innerText = '✅';
-      setTimeout(() => btn.innerText = '📋', 1500);
+      setTimeout(function() { btn.innerText = '📋'; }, 1500);
     });
   }
 </script>
