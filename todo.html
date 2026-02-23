@@ -56,8 +56,8 @@
     .cal-day-label:last-child { color: #6699ff; }
     .cal-cell { text-align: center; padding: 6px 2px; border-radius: 8px; font-size: 13px; color: #aaa; cursor: pointer; transition: 0.2s; position: relative; min-height: 36px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
     .cal-cell:hover { background: rgba(0,255,204,0.1); color: #fff; }
-    .cal-cell.today { background: rgba(0,255,204,0.15); color: var(--neon); font-weight: 700; border: 1px solid var(--neon); }
-    .cal-cell.selected { background: rgba(0,255,204,0.25); color: var(--neon); font-weight: 700; }
+    .cal-cell.today { background: rgba(255,220,0,0.15); color: #ffd700; font-weight: 700; border: 1px solid #ffd700; }
+    .cal-cell.selected { background: rgba(255,255,255,0.15); color: #fff; font-weight: 700; border: 1px solid rgba(255,255,255,0.5); }
     .cal-cell.has-todo::after { content: ''; width: 4px; height: 4px; background: var(--neon); border-radius: 50%; position: absolute; bottom: 3px; }
     .cal-cell.empty { cursor: default; }
     .cal-cell.other-month { color: rgba(255,255,255,0.2); }
@@ -267,10 +267,10 @@
   }
 
   // ── 모달 ──
-  function openModal() {
-    // 오늘 날짜 기본값
-    var d = new Date();
-    document.getElementById('input-date').value = d.toISOString().slice(0,10);
+  function openModal(date) {
+    // 선택된 날짜 or 오늘 날짜
+    var d = date || new Date().toISOString().slice(0,10);
+    document.getElementById('input-date').value = d;
     document.getElementById('input-time').value = '';
     document.getElementById('input-title').value = '';
     document.getElementById('input-memo').value = '';
@@ -365,6 +365,7 @@
     selectedDate = date;
     renderCalendar();
     showCalTodos(date);
+    openModal(date);
   }
 
   function showCalTodos(date) {
