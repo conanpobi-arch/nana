@@ -219,7 +219,7 @@
   <!-- 번역 탭 -->
   <div id="panel-translate">
     <div class="card">
-      <input class="master-api" id="apiKeyInput" placeholder="GEMINI API KEY" type="password">
+      <!-- API 키는 Vercel 환경변수로 처리 -->
       <div class="novel-select-row">
         <select class="novel-select" id="quick-novel-select">
           <option value="">저장할 소설 선택 (선택사항)...</option>
@@ -246,7 +246,6 @@
   const SUPABASE_URL = 'https://hbfvyhlrnccccerzbami.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZnZ5aGxybmNjY2NlcnpiYW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1ODc2NzIsImV4cCI6MjA4NzE2MzY3Mn0.V9LJZAzCGinYmwzvWGLbfLhAFRnz4pDG_rVaTwTg74A';
 
-  const keyInput = document.getElementById('apiKeyInput');
   const statusText = document.getElementById('engine-status-text');
 
   let currentTab = 'translate';
@@ -256,12 +255,7 @@
   let lastTranslated = '';
   let lastOriginal = '';
 
-  // API 키 localStorage 저장
-  const SAVED_KEY = localStorage.getItem('nana_gemini_key') || '';
-  if (SAVED_KEY) keyInput.value = SAVED_KEY;
-  keyInput.addEventListener('change', () => {
-    if (keyInput.value.trim().length > 10) localStorage.setItem('nana_gemini_key', keyInput.value.trim());
-  });
+
 
   function sbH() {
     return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
@@ -642,6 +636,7 @@
     const key = keyInput.value.trim();
     const input = document.getElementById('mainInput').value.trim();
     if (!key || !input) { alert('API 키와 원문을 입력해주세요!'); return; }
+    saveKey(); // 번역 시작 시 키 저장
 
     document.getElementById('loading-overlay').style.display = 'flex';
     document.getElementById('strategy-log').innerHTML = '';
