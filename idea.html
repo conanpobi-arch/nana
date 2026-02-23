@@ -351,11 +351,13 @@
   }
 
   // ── 결과 렌더링 ──
-  function renderResult(field, text) {
+  function renderResult(field, idea, text) {
     var rb = document.getElementById('res-box');
     var escaped = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     var lines = escaped.split('\n');
+    var ideaEsc = idea.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     var html = '<div class="res-field-badge">💡 ' + field + '</div>';
+    html += '<div style="background:rgba(0,255,204,0.05);border:1px solid rgba(0,255,204,0.15);border-radius:12px;padding:14px 16px;margin-bottom:25px;font-size:14px;color:#ccc;line-height:1.8;white-space:pre-wrap;">' + ideaEsc + '</div>';
     var buffer = [];
 
     function flushBuffer() {
