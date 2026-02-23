@@ -92,8 +92,8 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ── 모달 ── */
-    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: flex-end; justify-content: center; }
-    .modal-sheet { width: 100%; max-width: 700px; background: rgba(0,15,35,0.98); border: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 28px 24px 50px; }
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+    .modal-sheet { width: 100%; max-width: 500px; background: rgba(0,15,35,0.98); border: 1px solid var(--border); border-radius: 24px; padding: 28px 24px 32px; }
     .modal-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 3px; margin-bottom: 20px; text-align: center; }
     .modal-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 13px 15px; font-size: 14px; outline: none; font-family: 'Noto Sans KR'; margin-bottom: 12px; transition: border-color 0.3s; }
     .modal-input:focus { border-color: var(--neon); }
@@ -581,13 +581,23 @@ ${rawData}`
   }
 
   // ── 챕터 저장 모달 ──
-  function openSaveModal() {
-    // 진행 중 소설 목록 최신화
-    var novels = allNovels.filter(n => n.status === 'progress');
-    updateQuickSelects(novels);
-    // 번역 탭에서 선택한 소설 자동 선택
-    var qSel = document.getElementById('quick-novel-select').value;
-    if (qSel) document.getElementById('save-novel-select').value = qSel;
+  async function openSaveModal() {
+    // DB에서 직접 최신 소설 목록 불러오기
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novels?status=eq.progress&order=created_at.desc', { headers: sbH() });
+      var novels = await res.json();
+      var sel = document.getElementById('save-novel-select');
+      sel.innerHTML = '<option value="">소설 선택...</option>';
+      novels.forEach(n => {
+        var opt = document.createElement('option');
+        opt.value = n.id;
+        opt.textContent = (n.cover_emoji || '📖') + ' ' + n.title;
+        sel.appendChild(opt);
+      });
+      // 번역 탭에서 선택한 소설 자동 선택
+      var qSel = document.getElementById('quick-novel-select').value;
+      if (qSel) sel.value = qSel;
+    } catch(e) {}
     document.getElementById('save-modal').style.display = 'flex';
   }
   function closeSaveModal() { document.getElementById('save-modal').style.display = 'none'; }
