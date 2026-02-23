@@ -7,95 +7,211 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root { --neon: #00ffcc; --border: rgba(0,255,204,0.2); }
-    * { box-sizing: border-box; }
-    body { margin:0; background:#000; color:#fff; font-family:'Noto Sans KR', sans-serif; height:100vh; overflow: hidden; }
-    .bg-gradient { position: fixed; inset: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); z-index: -1; }
-    
-    .container { 
-      max-width:950px; margin:0 auto; height: 100vh; padding: 20px;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { background: #000; }
+    body { min-height: 100vh; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+    .bg-gradient { position: fixed; inset: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); z-index: 0; pointer-events: none; }
 
-    .home-btn {
-      position: fixed; top: 20px; left: 20px; width: 40px; height: 40px;
-      background: transparent; display: flex; align-items: center; justify-content: center;
-      text-decoration: none; font-size: 24px; transition: 0.3s; z-index: 100; color: var(--neon);
-    }
+    .home-btn { position: fixed; top: 20px; left: 20px; text-decoration: none; font-size: 24px; color: var(--neon); z-index: 100; transition: 0.3s; }
     .home-btn:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
 
-    .header-area { text-align: center; margin-bottom: 25px; flex-shrink: 0; }
-    .news-header-title { 
-      font-family:'Orbitron'; color:var(--neon); text-shadow:0 0 15px var(--neon); 
-      font-size: 2rem; letter-spacing: 8px; margin: 0;
-    }
-    #data-time { 
-      font-family: 'Orbitron'; font-size: 13px; color: rgba(0,255,204,0.7); 
-      margin-top: 10px; letter-spacing: 2px;
-    }
-    
-    #news-box { 
-      width: 100%; height: 70vh; background: rgba(0,15,35,0.7); 
-      border: 1px solid var(--border); border-radius: 20px; 
-      backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-      overflow-y: auto; position: relative;
-    }
+    .container { position: relative; z-index: 2; max-width: 950px; margin: 0 auto; padding: 70px 20px 40px; }
 
-    #news-content { padding: 45px; line-height: 2.1; font-size: 16px; color: #ececec; white-space: pre-wrap; word-break: keep-all; }
+    .header-area { text-align: center; margin-bottom: 22px; }
+    .news-header-title { font-family: 'Orbitron'; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-size: 1.8rem; letter-spacing: 8px; }
+    #data-time { font-family: 'Orbitron'; font-size: 11px; color: rgba(0,255,204,0.6); margin-top: 8px; letter-spacing: 2px; }
 
+    /* 탭 */
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 18px; }
+    .tab-btn { flex: 1; padding: 11px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; }
+    .tab-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
+
+    /* AI 요약 박스 */
+    #news-box { width: 100%; background: rgba(0,15,35,0.7); border: 1px solid var(--border); border-radius: 20px; backdrop-filter: blur(20px); overflow-y: auto; max-height: 75vh; }
     #news-box::-webkit-scrollbar { width: 5px; }
-    #news-box::-webkit-scrollbar-track { background: transparent; }
     #news-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-    #news-box::-webkit-scrollbar-thumb:hover { background: var(--neon); }
+    #news-content { padding: 35px 40px; line-height: 2.1; font-size: 16px; color: #ececec; white-space: pre-wrap; word-break: keep-all; }
+    .category-item { color: var(--neon); font-weight: 700; font-size: 1.1em; display: block; margin-top: 30px; margin-bottom: 8px; border-left: 4px solid var(--neon); padding-left: 15px; }
+    .loading { text-align: center; color: var(--neon); font-size: 15px; padding: 100px 0; font-family: 'Orbitron'; letter-spacing: 4px; }
 
-    .category-item { 
-      color: var(--neon); font-weight: 700; font-size: 1.2em; 
-      display: block; margin-top: 35px; margin-bottom: 10px;
-      border-left: 4px solid var(--neon); padding-left: 15px;
-    }
+    /* RSS Morning Brew 스타일 */
+    #rss-panel { display: none; }
+    .rss-source-section { margin-bottom: 28px; }
+    .rss-source-label { font-family: 'Orbitron'; font-size: 11px; letter-spacing: 3px; color: rgba(0,255,204,0.6); margin-bottom: 10px; padding-left: 4px; }
 
-    .loading { text-align:center; color:var(--neon); font-size:18px; padding:150px 0; font-family: 'Orbitron'; letter-spacing: 4px; }
+    .rss-card { background: rgba(0,15,35,0.6); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; margin-bottom: 10px; transition: 0.2s; text-decoration: none; display: block; }
+    .rss-card:hover { border-color: var(--neon); background: rgba(0,255,204,0.05); transform: translateY(-1px); }
+    .rss-card-category { font-size: 10px; color: var(--neon); font-family: 'Orbitron'; letter-spacing: 2px; margin-bottom: 6px; }
+    .rss-card-title { font-size: 14px; color: #eee; line-height: 1.6; font-weight: 700; margin-bottom: 6px; word-break: keep-all; }
+    .rss-card-desc { font-size: 12px; color: #888; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .rss-card-date { font-size: 10px; color: rgba(255,255,255,0.25); margin-top: 8px; font-family: 'Orbitron'; }
+    .rss-card-source { font-size: 10px; color: rgba(0,255,204,0.4); margin-top: 4px; }
+
+    .rss-loading { text-align: center; color: var(--neon); font-size: 13px; padding: 60px 0; font-family: 'Orbitron'; letter-spacing: 3px; }
+    .rss-error { text-align: center; color: #ff6666; font-size: 13px; padding: 40px 0; }
+
+    /* 필터 바 */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 11px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #aaa; white-space: nowrap; transition: 0.2s; user-select: none; flex-shrink: 0; }
+    .filter-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
+
+    .brew-date { font-family: 'Orbitron'; font-size: 11px; color: rgba(0,255,204,0.5); letter-spacing: 2px; text-align: center; margin-bottom: 20px; }
   </style>
 </head>
 <body>
-  <div class="bg-gradient"></div>
-  <div class="container">
-    <a href="index.html" class="home-btn">🏠</a>
-    <div class="header-area">
-      <div class="news-header-title">NEWS SUMMARY</div>
-      <div id="data-time">LOADING DATA...</div>
-    </div>
+<div class="bg-gradient"></div>
+<a href="index.html" class="home-btn">🏠</a>
+
+<div class="container">
+  <div class="header-area">
+    <div class="news-header-title">NEWS REPORT</div>
+    <div id="data-time">LOADING DATA...</div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-btn active" id="tab-ai" onclick="switchTab('ai')">🤖 AI 요약</div>
+    <div class="tab-btn" id="tab-rss" onclick="switchTab('rss')">📰 DAILY BRIEF</div>
+  </div>
+
+  <!-- AI 요약 패널 -->
+  <div id="ai-panel">
     <div id="news-box">
       <div id="news-content" class="loading">SYNCING GLOBAL NETWORK...</div>
     </div>
   </div>
 
-  <script>
-    async function loadNews() {
-      const contentEl = document.getElementById('news-content');
-      const timeEl = document.getElementById('data-time');
+  <!-- RSS Daily Brief 패널 -->
+  <div id="rss-panel">
+    <div class="brew-date" id="brew-date"></div>
+    <div class="filter-bar">
+      <div class="filter-btn active" data-cat="all" onclick="filterRss(this)">🌐 전체</div>
+      <div class="filter-btn" data-cat="world" onclick="filterRss(this)">🌍 세계</div>
+      <div class="filter-btn" data-cat="tech" onclick="filterRss(this)">💻 테크</div>
+      <div class="filter-btn" data-cat="business" onclick="filterRss(this)">💼 비즈니스</div>
+      <div class="filter-btn" data-cat="science" onclick="filterRss(this)">🔬 과학</div>
+    </div>
+    <div id="rss-list"><div class="rss-loading">FETCHING HEADLINES...</div></div>
+  </div>
+</div>
 
-      try {
-        const res = await fetch('/api/news');
-        if (!res.ok) throw new Error(`HTTP ERROR ${res.status}`);
-        const data = await res.json();
+<script>
+  let currentTab = 'ai';
+  let allRssItems = [];
+  let rssLoaded = false;
 
-        timeEl.innerText = `LAST UPDATED: ${data.generatedAt}`;
+  // ── 탭 전환 ──
+  function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-ai').classList.toggle('active', tab === 'ai');
+    document.getElementById('tab-rss').classList.toggle('active', tab === 'rss');
+    document.getElementById('ai-panel').style.display = tab === 'ai' ? 'block' : 'none';
+    document.getElementById('rss-panel').style.display = tab === 'rss' ? 'block' : 'none';
+    if (tab === 'rss' && !rssLoaded) loadRss();
+  }
 
-        // 본문 텍스트 정제 (서두 멘트 및 # 기호 삭제)
-        let cleanText = data.summary
-          .replace(/#/g, '') 
-          .replace(/^(알겠습니다|네|현재|요청하신).*?\n/g, '')
-          .trim();
-
-        const formatted = cleanText.replace(/(\d\.\s[^\n]+)/g, '<span class="category-item">$1</span>');
-        
-        contentEl.innerHTML = formatted;
-        contentEl.classList.remove('loading');
-      } catch (err) {
-        contentEl.innerHTML = `<p style="color:#ff4444; text-align:center;">⚠️ CRITICAL ERROR: ${err.message}</p>`;
-      }
+  // ── AI 요약 ──
+  async function loadNews() {
+    var contentEl = document.getElementById('news-content');
+    var timeEl = document.getElementById('data-time');
+    try {
+      var res = await fetch('/api/news');
+      if (!res.ok) throw new Error('HTTP ERROR ' + res.status);
+      var data = await res.json();
+      timeEl.innerText = 'LAST UPDATED: ' + data.generatedAt;
+      var cleanText = data.summary.replace(/#/g, '').replace(/^(알겠습니다|네|현재|요청하신).*?\n/g, '').trim();
+      var formatted = cleanText.replace(/(\d\.\s[^\n]+)/g, '<span class="category-item">$1</span>');
+      contentEl.innerHTML = formatted;
+      contentEl.classList.remove('loading');
+    } catch (err) {
+      contentEl.innerHTML = '<p style="color:#ff4444;text-align:center;">⚠️ ERROR: ' + err.message + '</p>';
     }
-    window.addEventListener('load', loadNews);
-  </script>
+  }
+
+  // ── RSS 로드 (CORS 프록시 사용) ──
+  var RSS_SOURCES = [
+    { url: 'https://feeds.bbci.co.uk/news/world/rss.xml', name: 'BBC', cat: 'world' },
+    { url: 'https://feeds.bbci.co.uk/news/technology/rss.xml', name: 'BBC Tech', cat: 'tech' },
+    { url: 'https://feeds.bbci.co.uk/news/science_and_environment/rss.xml', name: 'BBC Science', cat: 'science' },
+    { url: 'https://feeds.nbcnews.com/nbcnews/public/business', name: 'NBC Business', cat: 'business' },
+    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/World.xml', name: 'NYT', cat: 'world' },
+    { url: 'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml', name: 'NYT Tech', cat: 'tech' },
+  ];
+
+  async function fetchRss(source) {
+    var proxy = 'https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(source.url) + '&count=5';
+    var res = await fetch(proxy);
+    var data = await res.json();
+    if (data.status !== 'ok') return [];
+    return data.items.map(function(item) {
+      return {
+        title: item.title,
+        desc: item.description ? item.description.replace(/<[^>]+>/g, '').slice(0, 120) : '',
+        link: item.link,
+        date: item.pubDate ? new Date(item.pubDate).toLocaleDateString('ko-KR', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) : '',
+        source: source.name,
+        cat: source.cat
+      };
+    });
+  }
+
+  async function loadRss() {
+    rssLoaded = true;
+    var listEl = document.getElementById('rss-list');
+    var d = new Date();
+    document.getElementById('brew-date').textContent = d.getFullYear() + '년 ' + (d.getMonth()+1) + '월 ' + d.getDate() + '일 DAILY BRIEF';
+
+    try {
+      var results = await Promise.allSettled(RSS_SOURCES.map(fetchRss));
+      allRssItems = [];
+      results.forEach(function(r) {
+        if (r.status === 'fulfilled') allRssItems = allRssItems.concat(r.value);
+      });
+      // 날짜순 정렬
+      allRssItems.sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+      renderRss(allRssItems);
+    } catch(e) {
+      listEl.innerHTML = '<div class="rss-error">⚠️ 헤드라인 불러오기 실패</div>';
+    }
+  }
+
+  function renderRss(items) {
+    var listEl = document.getElementById('rss-list');
+    if (!items.length) { listEl.innerHTML = '<div class="rss-loading">기사가 없어요</div>'; return; }
+
+    // 소스별 그룹
+    var groups = {};
+    items.forEach(function(item) {
+      if (!groups[item.source]) groups[item.source] = [];
+      groups[item.source].push(item);
+    });
+
+    var html = '';
+    Object.keys(groups).forEach(function(source) {
+      var catEmoji = groups[source][0].cat === 'tech' ? '💻' : groups[source][0].cat === 'business' ? '💼' : groups[source][0].cat === 'science' ? '🔬' : '🌍';
+      html += '<div class="rss-source-section">';
+      html += '<div class="rss-source-label">' + catEmoji + ' ' + source + '</div>';
+      groups[source].forEach(function(item) {
+        html += '<a class="rss-card" href="' + item.link + '" target="_blank">' +
+          '<div class="rss-card-title">' + item.title.replace(/</g,'&lt;') + '</div>' +
+          (item.desc ? '<div class="rss-card-desc">' + item.desc.replace(/</g,'&lt;') + '</div>' : '') +
+          '<div class="rss-card-date">' + item.date + '</div>' +
+        '</a>';
+      });
+      html += '</div>';
+    });
+    listEl.innerHTML = html;
+  }
+
+  function filterRss(el) {
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    el.classList.add('active');
+    var cat = el.dataset.cat;
+    var filtered = cat === 'all' ? allRssItems : allRssItems.filter(function(i) { return i.cat === cat; });
+    renderRss(filtered);
+  }
+
+  loadNews();
+</script>
 </body>
 </html>
