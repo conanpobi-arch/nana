@@ -3,56 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>NANA NOVEL ENGINE : WHTK v2.1</title>
+  <title>NANA NOVEL : ALL-IN-ONE</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
     :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0,255,204,0.2); }
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow-x: hidden; }
     #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%); }
-    #star-field { position: fixed; inset: 0; z-index: 1; background-image: radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px); background-size: 150px 150px; opacity: 0.1; }
-    #main-view { position: relative; z-index: 2; max-width: 850px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 2vh 20px 40px; }
+    #main-view { position: relative; z-index: 2; max-width: 850px; margin: 0 auto; min-height: 100vh; padding: 2vh 20px 40px; }
     
-    /* 헤더 및 아이콘 스타일 */
+    /* 헤더 UI */
     .nav-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 15px; }
-    .home-icon { cursor: pointer; font-size: 26px; transition: 0.3s; color: var(--neon); }
-    .home-icon:active { transform: scale(0.9); opacity: 0.7; }
-    .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 14px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
-    .trash-icon { cursor: pointer; font-size: 24px; transition: 0.3s; }
-    .trash-icon:active { transform: scale(0.9); color: #ff4d4d; }
+    .home-icon { cursor: pointer; font-size: 26px; color: var(--neon); transition: 0.3s; }
+    .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 15px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
+    .trash-icon { cursor: pointer; font-size: 26px; transition: 0.3s; }
 
+    /* 탭 스타일 */
     .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 5px; }
     .tab-btn { flex: 1; min-width: 80px; padding: 12px 5px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 10px; cursor: pointer; text-align: center; }
     .tab-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
     
+    /* 카드 및 입력창 */
     .card { background: rgba(0,15,35,0.75); border: 1px solid var(--border); border-radius: 20px; padding: 20px; backdrop-filter: blur(15px); margin-bottom: 16px; }
-    textarea, .modal-input, .novel-select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 14px; outline: none; margin-bottom: 15px; font-family: 'Noto Sans KR'; }
-    .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 13px; letter-spacing: 1px; }
+    textarea, .modal-input, .novel-select { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 14px; outline: none; margin-bottom: 12px; font-family: 'Noto Sans KR'; }
+    .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 13px; }
     
-    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
-    #strategy-log { width: 85%; max-width: 400px; background: #000; padding: 15px; border-radius: 10px; font-size: 11px; font-family: monospace; color: #0f0; border: 1px solid var(--border); height: 220px; overflow-y: auto; line-height: 1.5; }
-    
-    /* 소설 카드 스타일 */
+    /* 소설 리스트 아이콘 & 버튼 */
     .novel-card { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; }
-    .novel-emoji { font-size: 30px; }
-    .novel-info { flex: 1; min-width: 0; }
-    .novel-title-text { font-size: 15px; color: #eee; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .novel-info { flex: 1; cursor: pointer; }
+    .novel-btns { display: flex; gap: 10px; }
+    .n-icon-btn { cursor: pointer; font-size: 18px; opacity: 0.6; }
+    .n-icon-btn:hover { opacity: 1; color: var(--neon); }
+
+    /* 챕터 뷰 (기존 기능) */
+    #chapter-view { display: none; position: fixed; inset: 0; z-index: 500; background: #000b1a; overflow-y: auto; padding: 20px; }
+    .ch-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .back-btn { font-size: 26px; cursor: pointer; color: var(--neon); }
+
+    /* 로딩/로그 */
+    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+    #strategy-log { width: 85%; max-width: 400px; background: #000; padding: 15px; color: #0f0; border: 1px solid var(--border); height: 200px; overflow-y: auto; font-size: 11px; font-family: monospace; }
   </style>
 </head>
 <body>
 <div id="galaxy-bg"></div>
-<div id="star-field"></div>
-
 <div id="loading-overlay">
-  <div style="width: 50px; height: 50px; border: 4px solid rgba(0,255,204,0.1); border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px;"></div>
-  <div style="color:var(--neon); font-family:'Orbitron'; margin-bottom:15px;">WHTK v2.1 ACTIVE</div>
   <div id="strategy-log"></div>
+  <button class="btn-fire" id="copy-cmd-btn" style="width:200px; margin-top:10px; display:none;" onclick="copyAiCommand()">📋 명령 복사</button>
+  <button class="btn-fire" style="width:200px; margin-top:10px; background:#444; color:#fff;" onclick="document.getElementById('loading-overlay').style.display='none'">닫기</button>
 </div>
 
 <div id="main-view">
   <div class="nav-header">
     <div class="home-icon" onclick="goHome()">🏠</div>
-    <div class="engine-title">NANA NOVEL : WHTK v2.1</div>
+    <div class="engine-title">NANA : ALL-IN-ONE</div>
     <div class="trash-icon" onclick="clearAll()">🗑️</div>
   </div>
 
@@ -65,29 +69,24 @@
 
   <div id="panel-translate">
     <div class="card">
-      <div style="display:flex; gap:8px; margin-bottom:12px;">
-        <select class="novel-select" id="quick-novel-select" style="margin-bottom:0;"></select>
-        <button style="padding:0 15px; border-radius:12px; background:rgba(0,255,204,0.1); border:1px solid var(--neon); color:var(--neon); cursor:pointer;" onclick="openNovelModal()">＋</button>
+      <div style="display:flex; gap:8px;">
+        <select class="novel-select" id="quick-novel-select"></select>
+        <button onclick="openNovelModal()" style="height:45px; width:45px; border-radius:12px; border:1px solid var(--neon); background:none; color:var(--neon); cursor:pointer;">+</button>
       </div>
-      <textarea id="mainInput" placeholder="📌 원문을 입력하거나 URL을 넣으세요..."></textarea>
-      <button class="btn-fire" onclick="alert('단일 번역 기능을 실행합니다 (준비중)')">🔥 단일 번역 실행</button>
+      <textarea id="mainInput" placeholder="원문 또는 URL 입력..." style="height:200px;"></textarea>
+      <button class="btn-fire" onclick="alert('준비중입니다')">🔥 단일 번역 시작</button>
     </div>
   </div>
 
   <div id="panel-auto" style="display:none;">
     <div class="card">
-      <div style="font-family:'Orbitron'; color:var(--neon); font-size:11px; margin-bottom:15px; letter-spacing:2px;">🛰️ AUTO COLLECTOR ENGINE</div>
-      <input class="modal-input" id="auto-base-url" placeholder="주소 패턴 (예: https://.../p)">
+      <input class="modal-input" id="auto-base-url" placeholder="주소 패턴 (https://.../p)">
       <div style="display:flex; gap:10px;">
         <input type="number" class="modal-input" id="page-start" placeholder="시작">
         <input type="number" class="modal-input" id="page-end" placeholder="종료">
       </div>
       <select class="novel-select" id="auto-novel-select"></select>
-      
-      <div style="display:flex; gap:10px;">
-        <button class="btn-fire" style="flex:2;" onclick="startAutoEngine()">🚀 엔진 점화</button>
-        <button id="copy-cmd-btn" class="btn-fire" style="flex:1; background:rgba(255,255,255,0.1); color:var(--neon); display:none;" onclick="copyAiCommand()">📋 명령 복사</button>
-      </div>
+      <button class="btn-fire" onclick="startAutoEngine()">🚀 엔진 점화</button>
     </div>
   </div>
 
@@ -95,121 +94,107 @@
   <div id="panel-done" style="display:none;"><div id="novel-list-done"></div></div>
 </div>
 
-<div id="novel-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); z-index:5000; align-items:center; justify-content:center; padding:20px;">
-  <div class="card" style="width:100%; max-width:400px; background:#051020;">
-    <div style="font-family:'Orbitron'; color:var(--neon); text-align:center; margin-bottom:20px;">NEW PROJECT</div>
-    <input class="modal-input" id="novel-title-input" placeholder="소설 제목">
-    <input class="modal-input" id="novel-author-input" placeholder="작가명">
-    <div style="display:flex; gap:10px;">
-      <button class="btn-fire" style="background:rgba(255,255,255,0.1); color:#fff;" onclick="document.getElementById('novel-modal').style.display='none'">취소</button>
-      <button class="btn-fire" onclick="saveNovel()">생성</button>
-    </div>
+<div id="chapter-view">
+  <div class="ch-header">
+    <div class="back-btn" onclick="closeChapterView()">←</div>
+    <div id="ch-novel-title" class="engine-title"></div>
   </div>
+  <div id="chapter-list"></div>
 </div>
 
 <script>
-  // 🔑 포비님의 Supabase 설정 (변경 금지)
   const SUPABASE_URL = 'https://hbfvyhlrnccccerzbami.supabase.co';
   const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhiZnZ5aGxybmNjY2NlcnpiYW1pIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1ODc2NzIsImV4cCI6MjA4NzE2MzY3Mn0.V9LJZAzCGinYmwzvWGLbfLhAFRnz4pDG_rVaTwTg74A';
   const sbH = () => ({ 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY });
 
   let lastPacket = null;
+  let currentNovelId = null;
 
-  // 🏠 홈으로 아이콘 함수
-  function goHome() {
-    switchTab('translate');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+  function goHome() { switchTab('translate'); window.scrollTo(0,0); }
+  function clearAll() { if(confirm("초기화할까요?")) { document.querySelectorAll('input, textarea').forEach(i=>i.value=''); } }
 
-  // 🗑️ 쓰레기통 초기화 함수
-  function clearAll() {
-    if(confirm("입력된 모든 내용을 초기화할까요?")) {
-      document.getElementById('mainInput').value = '';
-      document.getElementById('auto-base-url').value = '';
-      document.getElementById('page-start').value = '';
-      document.getElementById('page-end').value = '';
-      document.getElementById('strategy-log').innerHTML = '> [시스템] 데이터가 초기화되었습니다.';
-    }
-  }
-
-  // 탭 전환 로직
   function switchTab(tab) {
     ['translate', 'auto', 'progress', 'done'].forEach(t => {
-      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
-      document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
+      document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+      document.getElementById('panel-'+t).style.display = t===tab ? 'block' : 'none';
     });
-    if(tab === 'progress' || tab === 'done') loadNovels(tab);
+    if(tab==='progress' || tab==='done') loadNovels(tab);
     updateSelectors();
   }
 
-  // 데이터 로딩 및 셀렉터 업데이트
   async function updateSelectors() {
-    try {
-      const res = await fetch(`${SUPABASE_URL}/rest/v1/novels?status=eq.progress`, { headers: sbH() });
-      const data = await res.json();
-      const opts = '<option value="">소설 선택...</option>' + data.map(n => `<option value="${n.id}">${n.title}</option>`).join('');
-      document.getElementById('quick-novel-select').innerHTML = opts;
-      document.getElementById('auto-novel-select').innerHTML = opts;
-    } catch(e) { console.error("데이터 로딩 실패", e); }
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/novels?status=eq.progress`, { headers: sbH() });
+    const data = await res.json();
+    const opts = '<option value="">소설 선택...</option>' + data.map(n=>`<option value="${n.id}">${n.title}</option>`).join('');
+    document.getElementById('quick-novel-select').innerHTML = opts;
+    document.getElementById('auto-novel-select').innerHTML = opts;
   }
 
-  // 🚀 자동 엔진 패킷 생성
+  async function loadNovels(status) {
+    const list = document.getElementById('novel-list-'+status);
+    list.innerHTML = '로딩 중...';
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/novels?status=eq.${status}&order=created_at.desc`, { headers: sbH() });
+    const data = await res.json();
+    list.innerHTML = data.map(n => `
+      <div class="novel-card">
+        <div class="novel-info" onclick="openChapterView('${n.id}', '${n.title}')">
+          <div style="font-weight:bold;">${n.cover_emoji || '📖'} ${n.title}</div>
+          <div style="font-size:11px; color:#888;">${n.author || '작가미상'}</div>
+        </div>
+        <div class="novel-btns">
+          <div class="n-icon-btn" onclick="toggleStatus('${n.id}', '${n.status}')">${n.status==='done'?'✍️':'📚'}</div>
+          <div class="n-icon-btn" onclick="deleteNovel('${n.id}')" style="color:#ff4444;">🗑️</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function toggleStatus(id, cur) {
+    await fetch(`${SUPABASE_URL}/rest/v1/novels?id=eq.${id}`, { method:'PATCH', headers:sbH(), body:JSON.stringify({status:cur==='done'?'progress':'done'}) });
+    loadNovels(cur);
+  }
+
+  async function deleteNovel(id) {
+    if(confirm("정말 삭제할까요?")) {
+      await fetch(`${SUPABASE_URL}/rest/v1/novels?id=eq.${id}`, { method:'DELETE', headers:sbH() });
+      loadNovels('progress'); loadNovels('done');
+    }
+  }
+
+  async function openChapterView(id, title) {
+    currentNovelId = id;
+    document.getElementById('ch-novel-title').textContent = title;
+    document.getElementById('chapter-view').style.display = 'block';
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/novel_chapters?novel_id=eq.${id}&order=chapter_num.asc`, { headers: sbH() });
+    const data = await res.json();
+    document.getElementById('chapter-list').innerHTML = data.map(c=>`
+      <div style="padding:15px; border-bottom:1px solid #222;">
+        <div style="color:var(--neon); font-family:Orbitron; font-size:12px;">CH ${c.chapter_num}</div>
+        <div style="font-size:13px; color:#ccc; margin-top:5px;">${(c.translated || '').substring(0,100)}...</div>
+      </div>
+    `).join('');
+  }
+
+  function closeChapterView() { document.getElementById('chapter-view').style.display = 'none'; }
+
   function startAutoEngine() {
     const url = document.getElementById('auto-base-url').value;
-    const start = document.getElementById('page-start').value;
-    const end = document.getElementById('page-end').value;
-    const novelSelect = document.getElementById('auto-novel-select');
-    const novelTitle = novelSelect.options[novelSelect.selectedIndex].text;
-    const novelId = novelSelect.value;
-
-    if(!url || !start || !end || !novelId) return alert("와탕카! 모든 정보를 입력해 주세요.");
-
-    lastPacket = `포비다. 와탕카! 아래 소설 수집 시작해라.\n\n` +
-                 `[제목] ${novelTitle}\n` +
-                 `[주소] ${url}\n` +
-                 `[범위] ${start}p ~ ${end}p\n` +
-                 `[ID] ${novelId}\n\n` +
-                 `위 주소 접속해서 한국식 한자음으로 번역 후 내 Supabase DB(novel_chapters)로 직송해라.`;
-
+    const s = document.getElementById('page-start').value;
+    const e = document.getElementById('page-end').value;
+    const nid = document.getElementById('auto-novel-select').value;
+    if(!url || !s || !e || !nid) return alert("정보를 모두 입력하세요!");
+    
+    lastPacket = `포비다. 와탕카! 수집 시작.\n[ID] ${nid}\n[URL] ${url}\n[범위] ${s}~${e}p\n번역 후 DB 직송해라.`;
     document.getElementById('loading-overlay').style.display = 'flex';
-    document.getElementById('strategy-log').innerHTML = `> [시스템] WHTK 자동화 브릿지 가동\n> [인증] 코난포비(POBY) 세션 확인\n> [준비] AI 전송용 패킷 생성 완료\n\n> ⚠️ 아래 [명령 복사] 버튼을 누르고 채팅창에 붙여넣으세요!`;
+    document.getElementById('strategy-log').innerHTML = `> 패킷 생성 완료\n> 대기 중...`;
     document.getElementById('copy-cmd-btn').style.display = 'block';
   }
 
   function copyAiCommand() {
-    navigator.clipboard.writeText(lastPacket).then(() => {
-        alert("와탕카! 명령어가 복사되었습니다. 이제 채팅창에 붙여넣으세요.");
-        document.getElementById('loading-overlay').style.display = 'none';
-    });
+    navigator.clipboard.writeText(lastPacket).then(()=>alert("복사됨!"));
   }
 
-  async function saveNovel() {
-    const title = document.getElementById('novel-title-input').value;
-    const author = document.getElementById('novel-author-input').value;
-    if(!title) return alert("제목을 입력하세요.");
-    await fetch(`${SUPABASE_URL}/rest/v1/novels`, {
-      method: 'POST', headers: sbH(),
-      body: JSON.stringify({ title, author, cover_emoji: '📖', status: 'progress' })
-    });
-    document.getElementById('novel-modal').style.display = 'none';
-    updateSelectors();
-  }
-
-  async function loadNovels(status) {
-    const list = document.getElementById('novel-list-' + status);
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/novels?status=eq.${status}&order=created_at.desc`, { headers: sbH() });
-    const data = await res.json();
-    list.innerHTML = data.map(n => `<div class="novel-card"><div class="novel-emoji">📖</div><div class="novel-info"><div class="novel-title-text">${n.title}</div><div style="font-size:11px;color:#666;">${n.author}</div></div></div>`).join('');
-  }
-
-  function openNovelModal() { document.getElementById('novel-modal').style.display = 'flex'; }
-  
-  // 초기 가동
   window.onload = updateSelectors;
 </script>
-
-<style>
-  @keyframes spin { to { transform: rotate(360deg); } }
-</style>
 </body>
 </html>
