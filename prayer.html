@@ -124,28 +124,41 @@
   /* 기도문 박스 */
   #prayer-box {
     width: min(620px, 92vw);
-    max-height: 45vh;
-    overflow-y: auto;
+    height: 45vh;
+    overflow: hidden;
     background: rgba(0,0,0,0.38);
     border: 1px solid rgba(201,168,76,0.25);
     border-radius: 4px;
-    padding: 30px 36px;
+    padding: 0 36px;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     opacity: 0;
     animation: fadeInUp 1.5s ease 1s forwards;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(201,168,76,0.3) transparent;
     position: relative;
   }
+  /* 위아래 페이드 마스크 */
   #prayer-box::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    height: 60px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.38), transparent);
+    z-index: 2;
+    pointer-events: none;
   }
-  #prayer-box::-webkit-scrollbar { width: 4px; }
-  #prayer-box::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+  #prayer-box::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(0,0,0,0.38), transparent);
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* 스크롤 애니메이션 래퍼 */
+  #prayer-scroll-wrap {
+    display: flex;
+    flex-direction: column;
+    animation: none;
+  }
 
   #prayer-text {
     font-size: clamp(14px, 2.5vw, 17px);
@@ -356,7 +369,9 @@
   </div>
 
   <div id="prayer-box">
-    <div id="prayer-text"></div>
+    <div id="prayer-scroll-wrap">
+      <div id="prayer-text"></div>
+    </div>
     <textarea id="prayer-edit" spellcheck="false"></textarea>
   </div>
 </div>
@@ -523,16 +538,74 @@
     document.getElementById('prayer-edit').value = currentPrayer;
   }
 
+  // ── 자동 스크롤 ──
+  let scrollAnim = null;
+  let scrollPos = 0;
+  let scrollSpeed = 0.5; // px per frame (느릴수록 천천히)
+  let scrollPaused = false;
+
+  function startAutoScroll() {
+    const wrap = document.getElementById('prayer-scroll-wrap');
+    const box = document.getElementById('prayer-box');
+    if (!wrap || !box) return;
+
+    const totalH = wrap.scrollHeight;
+    const boxH = box.clientHeight;
+
+    // 텍스트가 박스보다 짧으면 스크롤 안 함
+    if (totalH <= boxH) return;
+
+    scrollPos = 0;
+    wrap.style.transform = 'translateY(0px)';
+
+    function step() {
+      if (scrollPaused) { scrollAnim = requestAnimationFrame(step); return; }
+      scrollPos += scrollSpeed;
+      // 끝에 도달하면 처음으로 부드럽게 리셋
+      if (scrollPos >= totalH - boxH + 60) {
+        scrollPos = 0;
+        wrap.style.transition = 'none';
+        wrap.style.transform = 'translateY(0px)';
+        // 잠깐 멈췄다가 다시 시작
+        setTimeout(() => {
+          wrap.style.transition = '';
+          scrollAnim = requestAnimationFrame(step);
+        }, 2000);
+        return;
+      }
+      wrap.style.transform = `translateY(-${scrollPos}px)`;
+      scrollAnim = requestAnimationFrame(step);
+    }
+    // 2초 뒤 시작 (기도문 읽을 시간)
+    setTimeout(() => { scrollAnim = requestAnimationFrame(step); }, 2000);
+  }
+
+  function stopAutoScroll() {
+    if (scrollAnim) cancelAnimationFrame(scrollAnim);
+    scrollPos = 0;
+    const wrap = document.getElementById('prayer-scroll-wrap');
+    if (wrap) wrap.style.transform = 'translateY(0px)';
+  }
+
+  // 박스 터치/클릭하면 일시정지
+  document.getElementById('prayer-box').addEventListener('mouseenter', () => { scrollPaused = true; });
+  document.getElementById('prayer-box').addEventListener('mouseleave', () => { scrollPaused = false; });
+
   // ── 편집 모드 토글 ──
   function toggleEdit() {
     isEditing = !isEditing;
     const btn = document.getElementById('edit-btn');
     const hint = document.getElementById('edit-hint');
+    const wrap = document.getElementById('prayer-scroll-wrap');
     const pText = document.getElementById('prayer-text');
     const pEdit = document.getElementById('prayer-edit');
+    const box = document.getElementById('prayer-box');
 
     if (isEditing) {
-      pText.style.display = 'none';
+      stopAutoScroll();
+      wrap.style.display = 'none';
+      box.style.overflow = 'auto';
+      box.style.padding = '30px 36px';
       pEdit.style.display = 'block';
       pEdit.value = currentPrayer;
       pEdit.focus();
@@ -544,11 +617,15 @@
       currentPrayer = pEdit.value;
       localStorage.setItem('daily_prayer_custom', currentPrayer);
       pText.textContent = currentPrayer;
-      pText.style.display = 'block';
       pEdit.style.display = 'none';
+      box.style.overflow = 'hidden';
+      box.style.padding = '0 36px';
+      wrap.style.display = 'flex';
       btn.textContent = '✏️';
       btn.classList.remove('active');
       hint.style.display = 'none';
+      // 스크롤 재시작
+      setTimeout(startAutoScroll, 500);
     }
   }
 
@@ -595,6 +672,8 @@
   setDate();
   loadPrayer();
   loadBg(true);
+  // 페이지 로드 후 자동 스크롤 시작
+  setTimeout(startAutoScroll, 3000);
 
   // 저장된 유튜브 링크 복원
   const savedYt = localStorage.getItem('prayer_yt_link');
