@@ -325,9 +325,6 @@
     animation: bgKenBurns 30s ease-in-out alternate infinite;
   }
 </style>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 </head>
 <body>
 
@@ -574,6 +571,9 @@
     const id = getYtId(input);
     if (!id) { alert('올바른 유튜브 링크 또는 영상 ID를 입력해주세요.'); return; }
 
+    // 링크 저장
+    localStorage.setItem('prayer_yt_link', input);
+
     const frame = document.getElementById('yt-frame');
     frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&controls=0&mute=${isMuted ? 1 : 0}`;
   }
@@ -595,6 +595,12 @@
   setDate();
   loadPrayer();
   loadBg(true);
+
+  // 저장된 유튜브 링크 복원
+  const savedYt = localStorage.getItem('prayer_yt_link');
+  if (savedYt) {
+    document.getElementById('yt-input').value = savedYt;
+  }
 </script>
 </body>
 </html>
