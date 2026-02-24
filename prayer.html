@@ -450,25 +450,30 @@
   let bgIndex = 0;
   let currentBgUrl = '';
 
-  // Picsum Photos 자연 사진 ID 목록
-  const BG_IDS = [
-    15, 28, 37, 40, 41, 42, 43, 45, 57, 58,
-    59, 61, 62, 63, 64, 65, 66, 67, 68, 69,
-    70, 71, 72, 73, 74, 75, 76, 110, 111, 112,
-    113, 114, 115, 116, 117, 118, 119, 120, 121, 122
-  ];
-
-  function getBgUrl() {
-    const id = BG_IDS[bgIndex % BG_IDS.length];
-    const w = Math.min(Math.round(window.innerWidth * (window.devicePixelRatio || 1)), 2400);
-    const h = Math.min(Math.round(window.innerHeight * (window.devicePixelRatio || 1)), 1600);
-    return `https://picsum.photos/${w}/${h}?image=${id}&t=${Date.now()}`;
+  // ── Bing 월페이퍼 로드 ──
+  async function getBingImageUrl() {
+    try {
+      // CORS 우회 프록시 사용
+      const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=ko-KR');
+      const res = await fetch(proxyUrl);
+      const json = await res.json();
+      const data = JSON.parse(json.contents);
+      const images = data.images;
+      const img = images[bgIndex % images.length];
+      return 'https://www.bing.com' + img.url;
+    } catch(e) {
+      // fallback: Picsum
+      const id = [15, 28, 37, 40, 42, 57, 62, 70][bgIndex % 8];
+      const w = Math.min(Math.round(window.innerWidth * (window.devicePixelRatio || 1)), 2400);
+      const h = Math.min(Math.round(window.innerHeight * (window.devicePixelRatio || 1)), 1600);
+      return `https://picsum.photos/${w}/${h}?image=${id}`;
+    }
   }
 
   // ── 배경 로드 ──
-  function loadBg(first) {
+  async function loadBg(first) {
+    const url = await getBingImageUrl();
     bgIndex++;
-    const url = getBgUrl();
 
     const img = new Image();
     img.onload = function() {
@@ -488,7 +493,7 @@
       }
       // 사진 크레딧
       const credit = document.getElementById('photo-credit');
-      credit.innerHTML = `📷 <a href="https://unsplash.com/?utm_source=prayer_app&utm_medium=referral" target="_blank">Unsplash</a>`;
+      credit.innerHTML = `📷 <a href="https://www.bing.com" target="_blank">Bing 오늘의 배경</a>`;
       credit.style.opacity = '1';
       setTimeout(() => { credit.style.opacity = '0'; }, 4000);
     };
