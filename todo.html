@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -18,11 +18,28 @@
     .page-title { font-family: 'Orbitron'; color: var(--neon); text-shadow: 0 0 15px var(--neon); font-size: 1.6rem; letter-spacing: 6px; }
     .page-sub { font-size: 11px; color: rgba(0,255,204,0.5); margin-top: 8px; letter-spacing: 2px; font-family: 'Orbitron'; }
 
+    /* 날짜/시간 표시 */
+    #live-clock {
+      display: none;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #fff;
+      letter-spacing: 1px;
+      cursor: pointer;
+      font-family: 'Noto Sans KR', sans-serif;
+      font-weight: 400;
+      opacity: 0.9;
+      transition: opacity 0.3s;
+      user-select: none;
+    }
+    #live-clock:hover { opacity: 1; }
+    .page-sub { cursor: pointer; transition: color 0.2s; }
+    .page-sub:hover { color: rgba(0,255,204,0.8); }
+
     .tab-bar { display: flex; gap: 8px; margin-bottom: 18px; }
     .tab-btn { flex: 1; padding: 10px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; }
     .tab-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
 
-    /* 할일 카드 */
     .todo-item { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; transition: 0.2s; }
     .todo-item.done { opacity: 0.45; }
     .todo-top { display: flex; align-items: flex-start; gap: 12px; }
@@ -44,7 +61,6 @@
     .todo-icon-btn:hover { color: var(--neon); }
     .todo-icon-btn.del:hover { color: #ff4444; }
 
-    /* 캘린더 */
     .calendar-wrap { background: rgba(0,15,35,0.7); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 16px; }
     .cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .cal-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 2px; }
@@ -64,7 +80,6 @@
     .add-fab { position: fixed; bottom: 30px; right: 20px; width: 60px; height: 60px; background: linear-gradient(135deg, var(--neon), #00b4ff); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; cursor: pointer; box-shadow: 0 5px 20px rgba(0,255,204,0.4); z-index: 50; color: #000; font-weight: 900; transition: 0.2s; border: none; }
     .add-fab:active { transform: scale(0.93); }
 
-    /* 모달 공통 */
     .modal-overlay { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: flex-end; justify-content: center; }
     .modal-sheet { width: 100%; max-width: 700px; background: rgba(0,15,35,0.98); border: 1px solid var(--border); border-radius: 24px 24px 0 0; padding: 28px 24px 50px; }
     .modal-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 3px; margin-bottom: 20px; text-align: center; }
@@ -79,7 +94,6 @@
     .imp-btn.active-normal { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
     .imp-btn.active-low { background: rgba(255,255,255,0.08); border-color: #888; color: #aaa; }
 
-    /* 알람 토글 */
     .alarm-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; padding: 12px 15px; background: rgba(255,215,0,0.05); border: 1px solid rgba(255,215,0,0.2); border-radius: 12px; }
     .alarm-label { font-size: 13px; color: #ffd700; display: flex; align-items: center; gap: 8px; }
     .alarm-toggle { width: 44px; height: 24px; background: rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; position: relative; transition: 0.3s; border: 1px solid var(--border); }
@@ -104,7 +118,8 @@
 <div class="container">
   <div class="header">
     <div class="page-title">TODO</div>
-    <div class="page-sub">TASK & SCHEDULE MANAGER</div>
+    <div class="page-sub" onclick="toggleClock()" title="클릭하면 날짜/시간 표시">TASK &amp; SCHEDULE MANAGER</div>
+    <div id="live-clock" onclick="toggleClock()"></div>
   </div>
   <div class="tab-bar">
     <div class="tab-btn active" id="tab-todo" onclick="switchTab('todo')">✅ 할일</div>
@@ -128,7 +143,6 @@
 
 <button class="add-fab" onclick="openModal()">+</button>
 
-<!-- 추가/수정 모달 -->
 <div id="add-modal" class="modal-overlay" onclick="closeModal()">
   <div class="modal-sheet" onclick="event.stopPropagation()">
     <div class="modal-title" id="modal-title-text">+ NEW TASK</div>
@@ -165,10 +179,43 @@
   let calYear, calMonth, selectedDate = null;
   let allTodos = [];
   let alarmTimers = [];
+  let clockVisible = true;
+  let clockInterval = null;
 
   const today = new Date();
   calYear = today.getFullYear();
   calMonth = today.getMonth();
+
+  // ── 날짜/시간 표시 ──
+  function getClockText() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = String(now.getMonth() + 1).padStart(2, '0');
+    var day = String(now.getDate()).padStart(2, '0');
+    var weekDays = ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'];
+    var week = weekDays[now.getDay()];
+    var hours = now.getHours();
+    var ampm = hours < 12 ? '오전' : '오후';
+    var h = hours % 12 || 12;
+    var min = String(now.getMinutes()).padStart(2, '0');
+    return year + '년 ' + month + '월 ' + day + '일 ' + week + ' ' + ampm + ' ' + h + ':' + min;
+  }
+
+  function toggleClock() {
+    clockVisible = !clockVisible;
+    var el = document.getElementById('live-clock');
+    if (clockVisible) {
+      el.style.display = 'block';
+      el.textContent = getClockText();
+      // 매분 갱신
+      clockInterval = setInterval(function() {
+        el.textContent = getClockText();
+      }, 1000);
+    } else {
+      el.style.display = 'none';
+      if (clockInterval) clearInterval(clockInterval);
+    }
+  }
 
   function switchTab(tab) {
     currentTab = tab;
@@ -183,16 +230,12 @@
     return { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY };
   }
 
-  // ── 알람 권한 요청 ──
   async function requestNotificationPermission() {
     if ('Notification' in window && Notification.permission === 'default') {
       await Notification.requestPermission();
     }
   }
 
-
-
-  // ── 로드 ──
   async function loadTodos() {
     try {
       var res = await fetch(SUPABASE_URL + '/rest/v1/todos?order=date.asc,created_at.asc', { headers: sbHeaders() });
@@ -204,7 +247,6 @@
     }
   }
 
-  // ── 렌더링 ──
   function renderTodos(todos) {
     var listEl = document.getElementById('todo-list');
     if (!todos.length) { listEl.innerHTML = '<div class="empty-state">할일이 없어요 😊</div>'; return; }
@@ -217,15 +259,10 @@
     var card = document.createElement('div');
     card.className = 'todo-item' + (item.done ? ' done' : '');
     card.dataset.id = item.id;
-
     var impClass = item.importance === 'high' ? 'imp-high' : item.importance === 'low' ? 'imp-low' : 'imp-normal';
     var impLabel = item.importance === 'high' ? '🔴 높음' : item.importance === 'low' ? '⚪ 낮음' : '🟡 보통';
     var dateStr = '';
-    if (item.date) {
-      dateStr = item.date;
-      if (item.time) dateStr += ' ' + item.time.slice(0,5);
-    }
-
+    if (item.date) { dateStr = item.date; if (item.time) dateStr += ' ' + item.time.slice(0,5); }
     card.innerHTML =
       '<div class="todo-top">' +
         '<div class="todo-check ' + (item.done ? 'checked' : '') + '">✓</div>' +
@@ -243,7 +280,6 @@
           '<div class="todo-icon-btn del">🗑️</div>' +
         '</div>' +
       '</div>';
-
     card.querySelector('.todo-check').addEventListener('click', function(e) { e.stopPropagation(); toggleDone(item.id, !item.done); });
     card.querySelector('.todo-body').addEventListener('click', function() { openModal(null, item); });
     card.querySelector('.edit').addEventListener('click', function(e) { e.stopPropagation(); openModal(null, item); });
@@ -251,7 +287,6 @@
     return card;
   }
 
-  // ── 완료 토글 ──
   async function toggleDone(id, done) {
     try {
       await fetch(SUPABASE_URL + '/rest/v1/todos?id=eq.' + id, {
@@ -263,7 +298,6 @@
     } catch(e) {}
   }
 
-  // ── 삭제 ──
   async function deleteTodo(id, card) {
     if (!confirm('삭제할까요?')) return;
     try {
@@ -275,37 +309,27 @@
     } catch(e) {}
   }
 
-  // ── 모달 열기 ──
   function openModal(date, editItem) {
     editingId = editItem ? editItem.id : null;
     document.getElementById('modal-title-text').textContent = editItem ? '✏️ EDIT TASK' : '+ NEW TASK';
     document.getElementById('modal-save-btn').textContent = editItem ? '수정' : '저장';
-
     var d = editItem ? editItem.date : (date || new Date().toISOString().slice(0,10));
     document.getElementById('input-date').value = d || '';
     document.getElementById('input-time').value = editItem ? (editItem.time ? editItem.time.slice(0,5) : '') : '';
     document.getElementById('input-title').value = editItem ? editItem.title : '';
     document.getElementById('input-memo').value = editItem ? (editItem.memo || '') : '';
-
-    // 중요도
     var imp = editItem ? editItem.importance : 'high';
     selectedImp = imp;
     document.querySelectorAll('.imp-btn').forEach(function(b) { b.className = 'imp-btn'; });
     var activeBtn = document.querySelector('.imp-btn[data-imp="' + imp + '"]');
     if (activeBtn) activeBtn.classList.add('active-' + imp);
-
-    // 알람
     alarmOn = editItem ? !!editItem.alarm : false;
     document.getElementById('alarm-toggle').className = 'alarm-toggle' + (alarmOn ? ' on' : '');
-
     document.getElementById('add-modal').style.display = 'flex';
     setTimeout(function() { document.getElementById('input-title').focus(); }, 200);
   }
 
-  function closeModal() {
-    document.getElementById('add-modal').style.display = 'none';
-    editingId = null;
-  }
+  function closeModal() { document.getElementById('add-modal').style.display = 'none'; editingId = null; }
 
   function selectImp(el) {
     document.querySelectorAll('.imp-btn').forEach(function(b) { b.className = 'imp-btn'; });
@@ -319,33 +343,22 @@
     if (alarmOn) requestNotificationPermission();
   }
 
-  // ── 저장/수정 ──
   async function saveTodo() {
     var title = document.getElementById('input-title').value.trim();
     if (!title) { alert('할일을 입력해주세요!'); return; }
     var date = document.getElementById('input-date').value || null;
     var time = document.getElementById('input-time').value || null;
     var memo = document.getElementById('input-memo').value.trim() || null;
-
-    if (alarmOn && (!date || !time)) {
-      alert('알람을 설정하려면 날짜와 시간을 입력해주세요!');
-      return;
-    }
-
+    if (alarmOn && (!date || !time)) { alert('알람을 설정하려면 날짜와 시간을 입력해주세요!'); return; }
     document.getElementById('loading-overlay').style.display = 'flex';
     try {
       var payload = { title: title, memo: memo, date: date, time: time, importance: selectedImp, alarm: alarmOn };
-
       if (editingId) {
-        // 수정
         await fetch(SUPABASE_URL + '/rest/v1/todos?id=eq.' + editingId, {
           method: 'PATCH', headers: sbHeaders(), body: JSON.stringify(payload)
         });
-        allTodos.forEach(function(t) {
-          if (t.id === editingId) { Object.assign(t, payload); }
-        });
+        allTodos.forEach(function(t) { if (t.id === editingId) { Object.assign(t, payload); } });
       } else {
-        // 신규
         payload.done = false;
         var res = await fetch(SUPABASE_URL + '/rest/v1/todos', {
           method: 'POST',
@@ -355,7 +368,6 @@
         var newItems = await res.json();
         if (newItems && newItems[0]) allTodos.push(newItems[0]);
       }
-
       renderTodos(allTodos);
       if (currentTab === 'cal') renderCalendar();
       scheduleAlarms(allTodos);
@@ -364,7 +376,6 @@
     document.getElementById('loading-overlay').style.display = 'none';
   }
 
-  // ── 캘린더 ──
   function renderCalendar() {
     document.getElementById('cal-title').textContent = calYear + '년 ' + (calMonth + 1) + '월';
     var grid = document.getElementById('cal-grid');
@@ -413,22 +424,18 @@
     filtered.forEach(function(item) { listEl.appendChild(makeTodoCard(item)); });
   }
 
-  // ── Service Worker 등록 ──
   async function initSW() {
     if (!('serviceWorker' in navigator)) return;
     try {
       var reg = await navigator.serviceWorker.register('/sw.js');
-      console.log('SW 등록 완료');
       window._swReg = reg;
-    } catch(e) { console.warn('SW 등록 실패:', e); }
+    } catch(e) {}
   }
 
-  // ── 알람 SW에 전달 ──
   function scheduleAlarms(todos) {
     alarmTimers.forEach(function(t) { clearTimeout(t); });
     alarmTimers = [];
     if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
-      // SW 없으면 setTimeout fallback
       var now = Date.now();
       todos.forEach(function(item) {
         if (!item.alarm || !item.date || !item.time || item.done) return;
@@ -437,10 +444,7 @@
         if (diff > 0 && diff < 7 * 24 * 60 * 60 * 1000) {
           var t = setTimeout(function() {
             if (Notification.permission === 'granted') {
-              new Notification('🔔 NANA LAB 알람', {
-                body: item.title + (item.memo ? '\n' + item.memo : ''),
-                vibrate: [300, 100, 300]
-              });
+              new Notification('🔔 NANA LAB 알람', { body: item.title + (item.memo ? '\n' + item.memo : ''), vibrate: [300, 100, 300] });
             }
           }, diff);
           alarmTimers.push(t);
@@ -448,7 +452,6 @@
       });
       return;
     }
-    // SW에 알람 전달
     todos.forEach(function(item) {
       if (!item.alarm || !item.date || !item.time || item.done) return;
       navigator.serviceWorker.controller.postMessage({
@@ -458,17 +461,15 @@
     });
   }
 
-  async function requestNotificationPermission() {
-    if ('Notification' in window && Notification.permission === 'default') {
-      var perm = await Notification.requestPermission();
-      return perm;
-    }
-    return Notification.permission;
-  }
+  initSW().then(function() { loadTodos(); });
 
-  initSW().then(function() {
-    loadTodos();
-  });
+  // 시계 상시 표시
+  (function() {
+    var el = document.getElementById('live-clock');
+    el.style.display = 'block';
+    el.textContent = getClockText();
+    setInterval(function() { el.textContent = getClockText(); }, 1000);
+  })();
 </script>
 </body>
 </html>
