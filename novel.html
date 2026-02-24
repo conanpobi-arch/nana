@@ -335,7 +335,7 @@
         '</div>' +
       '</div>' +
       '<div class="novel-btns">' +
-        '<div class="n-icon-btn lib" title="서재로 이동">📚</div>' +
+        '<div class="n-icon-btn lib" title="' + (novel.status === 'done' ? '진행 중으로 이동' : '서재로 이동') + '">' + (novel.status === 'done' ? '✍️' : '📚') + '</div>' +
         '<div class="n-icon-btn del" title="삭제">🗑️</div>' +
       '</div>';
 
