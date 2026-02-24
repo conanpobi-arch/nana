@@ -1,9 +1,23 @@
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open('paw-arch-v1').then((cache) => cache.addAll(['./index.html'])));
+  e.waitUntil(caches.open('paw-arch-v1').then((cache) => cache.addAll([
+    './index.html',
+    './prayer.html',
+    './novel.html',
+    './todo.html',
+    './movie.html',
+    './idea.html'
+  ])));
 });
+
 self.addEventListener('fetch', (e) => {
+  // HTML 페이지는 항상 네트워크에서 직접 가져오기 (캐시 사용 안 함)
+  if (e.request.mode === 'navigate') {
+    e.respondWith(fetch(e.request));
+    return;
+  }
   e.respondWith(caches.match(e.request).then((res) => res || fetch(e.request)));
 });
+
 // 알람 메시지 수신
 self.addEventListener('message', function(e) {
   if (e.data && e.data.type === 'SCHEDULE_ALARM') {
