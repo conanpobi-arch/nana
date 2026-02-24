@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오늘의 기도</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Cinzel:wght@400;600&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c9a84c;
+    --gold-light: #e8d5a3;
+    --white: rgba(255,255,255,0.92);
+    --shadow: rgba(0,0,0,0.55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body, html {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    font-family: 'Noto Serif KR', serif;
+    background: #111;
+  }
+
+  /* 배경 이미지 레이어 */
+  #bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: opacity 2s ease;
+  }
+  #bg-layer-next {
+    position: fixed; inset: 0; z-index: 1;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 2.5s ease;
+  }
+
+  /* 그라디언트 오버레이 */
+  #overlay {
+    position: fixed; inset: 0; z-index: 2;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.25) 0%,
+      rgba(0,0,0,0.1) 30%,
+      rgba(0,0,0,0.15) 60%,
+      rgba(0,0,0,0.65) 100%
+    );
+  }
+
+  /* 빛 번짐 효과 */
+  #light-ray {
+    position: fixed; inset: 0; z-index: 3;
+    background: radial-gradient(ellipse at 50% 20%, rgba(201,168,76,0.08) 0%, transparent 60%);
+    pointer-events: none;
+    animation: lightPulse 8s ease-in-out infinite;
+  }
+  @keyframes lightPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  /* 메인 컨테이너 */
+  #main {
+    position: fixed; inset: 0; z-index: 10;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+  }
+
+  /* 십자가 장식 */
+  .cross-deco {
+    color: var(--gold);
+    font-size: 22px;
+    letter-spacing: 12px;
+    margin-bottom: 10px;
+    opacity: 0.8;
+    text-shadow: 0 0 20px rgba(201,168,76,0.6);
+    animation: fadeInDown 1.5s ease forwards;
+  }
+
+  /* 날짜/제목 */
+  #date-label {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(11px, 2vw, 13px);
+    color: var(--gold-light);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0;
+    animation: fadeInDown 1.5s ease 0.3s forwards;
+    text-shadow: 0 2px 8px var(--shadow);
+  }
+
+  #main-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(24px, 5vw, 38px);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 20px var(--shadow), 0 0 40px rgba(201,168,76,0.2);
+    margin-bottom: 30px;
+    opacity: 0;
+    animation: fadeInDown 1.5s ease 0.5s forwards;
+    letter-spacing: 3px;
+  }
+
+  /* 구분선 */
+  .divider {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 28px;
+    opacity: 0;
+    animation: fadeIn 1.5s ease 0.8s forwards;
+    width: min(560px, 90vw);
+  }
+  .divider-line {
+    flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  .divider-icon { color: var(--gold); font-size: 14px; opacity: 0.9; }
+
+  /* 기도문 박스 */
+  #prayer-box {
+    width: min(620px, 92vw);
+    max-height: 45vh;
+    overflow-y: auto;
+    background: rgba(0,0,0,0.38);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 4px;
+    padding: 30px 36px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    animation: fadeInUp 1.5s ease 1s forwards;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201,168,76,0.3) transparent;
+    position: relative;
+  }
+  #prayer-box::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+  #prayer-box::-webkit-scrollbar { width: 4px; }
+  #prayer-box::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+  #prayer-text {
+    font-size: clamp(14px, 2.5vw, 17px);
+    line-height: 2.4;
+    color: var(--white);
+    font-weight: 300;
+    text-align: center;
+    white-space: pre-line;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+    letter-spacing: 0.5px;
+  }
+
+  /* 편집 모드 텍스트에어리어 */
+  #prayer-edit {
+    display: none;
+    width: 100%; min-height: 200px;
+    background: transparent;
+    border: none; outline: none;
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(14px, 2.5vw, 17px);
+    line-height: 2.4;
+    color: var(--white);
+    font-weight: 300;
+    text-align: center;
+    resize: none;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.7);
+    caret-color: var(--gold);
+  }
+
+  /* 하단 컨트롤 바 */
+  #bottom-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 18px 30px 24px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 14px;
+    opacity: 0;
+    animation: fadeIn 2s ease 1.5s forwards;
+  }
+
+  /* 유튜브 입력 */
+  #yt-section {
+    display: flex; align-items: center; gap: 10px;
+    flex: 1;
+  }
+  #yt-input {
+    flex: 1;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 30px;
+    color: #fff;
+    padding: 9px 18px;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    outline: none;
+    transition: border-color 0.3s;
+    max-width: 280px;
+  }
+  #yt-input::placeholder { color: rgba(255,255,255,0.3); }
+  #yt-input:focus { border-color: var(--gold); }
+
+  .ctrl-btn {
+    width: 42px; height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(201,168,76,0.4);
+    background: rgba(0,0,0,0.45);
+    color: var(--gold-light);
+    font-size: 17px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+  .ctrl-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); transform: scale(1.05); }
+  .ctrl-btn.active { background: rgba(201,168,76,0.25); border-color: var(--gold); }
+
+  /* 오른쪽 버튼 그룹 */
+  #right-btns { display: flex; gap: 10px; align-items: center; }
+
+  /* 이미지 출처 */
+  #photo-credit {
+    position: fixed; bottom: 80px; right: 18px; z-index: 20;
+    font-size: 10px; color: rgba(255,255,255,0.3);
+    font-family: 'Noto Sans KR', sans-serif;
+    text-align: right;
+    opacity: 0;
+    transition: opacity 0.5s;
+  }
+  #photo-credit a { color: rgba(255,255,255,0.35); text-decoration: none; }
+
+  /* 유튜브 iframe (숨김) */
+  #yt-frame { position: fixed; top: -9999px; left: -9999px; width: 1px; height: 1px; }
+
+  /* 로딩 */
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #0a0a0a;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px;
+    transition: opacity 1s ease;
+  }
+  .loading-cross { font-size: 40px; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  .loading-text {
+    font-family: 'Cinzel', serif;
+    color: var(--gold);
+    font-size: 13px;
+    letter-spacing: 5px;
+    opacity: 0.7;
+  }
+
+  /* 편집 힌트 */
+  #edit-hint {
+    position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+    z-index: 20;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.4);
+    border-radius: 20px;
+    padding: 8px 20px;
+    font-size: 12px;
+    color: var(--gold-light);
+    font-family: 'Noto Sans KR', sans-serif;
+    display: none;
+    animation: fadeIn 0.5s ease;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* 배경 변경 효과 */
+  @keyframes bgKenBurns {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.06); }
+  }
+  #bg-layer, #bg-layer-next {
+    animation: bgKenBurns 30s ease-in-out alternate infinite;
+  }
+</style>
+</head>
+<body>
+
+<div id="loading-screen">
+  <div class="loading-cross">✝</div>
+  <div class="loading-text">PREPARING YOUR PRAYER</div>
+</div>
+
+<div id="bg-layer"></div>
+<div id="bg-layer-next"></div>
+<div id="overlay"></div>
+<div id="light-ray"></div>
+
+<div id="photo-credit"></div>
+
+<div id="edit-hint">✏️ 기도문을 자유롭게 수정하세요 — 저장 버튼으로 완료</div>
+
+<div id="main">
+  <div class="cross-deco">✦ ✝ ✦</div>
+  <div id="date-label"></div>
+  <div id="main-title">오늘의 기도</div>
+
+  <div class="divider">
+    <div class="divider-line"></div>
+    <div class="divider-icon">✦</div>
+    <div class="divider-line"></div>
+  </div>
+
+  <div id="prayer-box">
+    <div id="prayer-text"></div>
+    <textarea id="prayer-edit" spellcheck="false"></textarea>
+  </div>
+</div>
+
+<div id="bottom-bar">
+  <div id="yt-section">
+    <span style="font-size:18px;">🎵</span>
+    <input id="yt-input" type="text" placeholder="유튜브 링크 또는 영상 ID 입력...">
+    <div class="ctrl-btn" onclick="playYoutube()" title="재생">▶</div>
+    <div class="ctrl-btn" id="mute-btn" onclick="toggleMute()" title="음소거">🔊</div>
+  </div>
+  <div id="right-btns">
+    <div class="ctrl-btn" onclick="refreshBg()" title="배경 변경">🌄</div>
+    <div class="ctrl-btn" id="edit-btn" onclick="toggleEdit()" title="기도문 편집">✏️</div>
+  </div>
+</div>
+
+<iframe id="yt-frame" allow="autoplay"></iframe>
+
+<script>
+  // ── 기본 기도문 ──
+  const DEFAULT_PRAYERS = [
+    `주님,
+오늘 하루를 주심에 감사드립니다.
+
+이 아름다운 피조세계 앞에 서서
+당신의 위대하심을 고백합니다.
+
+어제의 무거움은 내려놓고
+오늘의 은혜로 다시 일어서게 하소서.
+
+두려움이 아닌 믿음으로
+걱정이 아닌 감사로
+이 하루를 걸어가게 하소서.
+
+당신의 평화가
+이 마음에 가득하기를 기도합니다.
+
+아멘.`,
+    `하나님 아버지,
+이 고요한 아침에 무릎 꿇습니다.
+
+저를 부르신 뜻대로
+사랑하며 살게 하소서.
+
+연약할 때 강하게 하시고
+홀로일 때 함께하시며
+길을 잃을 때 빛이 되어주소서.
+
+오늘 만나는 모든 이들에게
+당신의 사랑을 전하는
+통로가 되게 하소서.
+
+아멘.`,
+    `주님,
+당신이 만드신 이 세상이
+얼마나 아름다운지요.
+
+산과 들, 바다와 하늘
+그 모든 것이 당신의 솜씨입니다.
+
+이 아름다움을 보는 눈과
+감사할 수 있는 마음을 주셔서
+감사합니다.
+
+오늘도 당신의 창조 안에서
+기쁨으로 살아가게 하소서.
+
+아멘.`
+  ];
+
+  let currentPrayer = '';
+  let isEditing = false;
+  let isMuted = false;
+  let ytPlayer = null;
+  let bgIndex = 0;
+  let currentBgUrl = '';
+
+  // Unsplash 자연 풍경 키워드
+  const BG_KEYWORDS = [
+    'nature,landscape,mountain',
+    'sunrise,sky,clouds',
+    'forest,light,morning',
+    'ocean,peaceful,horizon',
+    'valley,meadow,golden',
+    'waterfall,nature,serene',
+    'snow,mountain,winter',
+    'autumn,forest,mist'
+  ];
+
+  function getUnsplashUrl(keyword) {
+    const w = Math.min(window.innerWidth * window.devicePixelRatio, 2400);
+    const h = Math.min(window.innerHeight * window.devicePixelRatio, 1600);
+    return `https://source.unsplash.com/${Math.round(w)}x${Math.round(h)}/?${keyword}&sig=${Date.now()}`;
+  }
+
+  // ── 배경 로드 ──
+  function loadBg(first) {
+    const keyword = BG_KEYWORDS[bgIndex % BG_KEYWORDS.length];
+    bgIndex++;
+    const url = getUnsplashUrl(keyword);
+
+    const img = new Image();
+    img.onload = function() {
+      if (first) {
+        document.getElementById('bg-layer').style.backgroundImage = `url(${url})`;
+        hideLanding();
+      } else {
+        const next = document.getElementById('bg-layer-next');
+        next.style.backgroundImage = `url(${url})`;
+        next.style.opacity = '1';
+        setTimeout(() => {
+          document.getElementById('bg-layer').style.backgroundImage = `url(${url})`;
+          next.style.transition = 'none';
+          next.style.opacity = '0';
+          setTimeout(() => { next.style.transition = 'opacity 2.5s ease'; }, 50);
+        }, 2600);
+      }
+      // 사진 크레딧
+      const credit = document.getElementById('photo-credit');
+      credit.innerHTML = `📷 <a href="https://unsplash.com/?utm_source=prayer_app&utm_medium=referral" target="_blank">Unsplash</a>`;
+      credit.style.opacity = '1';
+      setTimeout(() => { credit.style.opacity = '0'; }, 4000);
+    };
+    img.onerror = function() {
+      // fallback: 그라디언트
+      const fallbacks = [
+        'linear-gradient(135deg, #1a3a5c 0%, #0d1f35 50%, #2c1810 100%)',
+        'linear-gradient(135deg, #1a2c1a 0%, #0d1f0d 50%, #1a2c35 100%)',
+        'linear-gradient(135deg, #3a2c1a 0%, #1a1a2c 50%, #0d1f35 100%)',
+      ];
+      const fb = fallbacks[bgIndex % fallbacks.length];
+      if (first) {
+        document.getElementById('bg-layer').style.background = fb;
+        hideLanding();
+      }
+    };
+    img.src = url;
+  }
+
+  function refreshBg() { loadBg(false); }
+
+  // ── 로딩 화면 숨기기 ──
+  function hideLanding() {
+    const ls = document.getElementById('loading-screen');
+    ls.style.opacity = '0';
+    setTimeout(() => { ls.style.display = 'none'; }, 1000);
+  }
+
+  // ── 날짜 표시 ──
+  function setDate() {
+    const now = new Date();
+    const days = ['주일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+    const label = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}`;
+    document.getElementById('date-label').textContent = label;
+  }
+
+  // ── 기도문 설정 ──
+  function loadPrayer() {
+    const saved = localStorage.getItem('daily_prayer_custom');
+    if (saved) {
+      currentPrayer = saved;
+    } else {
+      const dayIdx = new Date().getDay() % DEFAULT_PRAYERS.length;
+      currentPrayer = DEFAULT_PRAYERS[dayIdx];
+    }
+    document.getElementById('prayer-text').textContent = currentPrayer;
+    document.getElementById('prayer-edit').value = currentPrayer;
+  }
+
+  // ── 편집 모드 토글 ──
+  function toggleEdit() {
+    isEditing = !isEditing;
+    const btn = document.getElementById('edit-btn');
+    const hint = document.getElementById('edit-hint');
+    const pText = document.getElementById('prayer-text');
+    const pEdit = document.getElementById('prayer-edit');
+
+    if (isEditing) {
+      pText.style.display = 'none';
+      pEdit.style.display = 'block';
+      pEdit.value = currentPrayer;
+      pEdit.focus();
+      btn.textContent = '💾';
+      btn.classList.add('active');
+      hint.style.display = 'block';
+    } else {
+      // 저장
+      currentPrayer = pEdit.value;
+      localStorage.setItem('daily_prayer_custom', currentPrayer);
+      pText.textContent = currentPrayer;
+      pText.style.display = 'block';
+      pEdit.style.display = 'none';
+      btn.textContent = '✏️';
+      btn.classList.remove('active');
+      hint.style.display = 'none';
+    }
+  }
+
+  // ── 유튜브 재생 ──
+  function getYtId(input) {
+    input = input.trim();
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+      /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for (const p of patterns) {
+      const m = input.match(p);
+      if (m) return m[1];
+    }
+    return null;
+  }
+
+  function playYoutube() {
+    const input = document.getElementById('yt-input').value;
+    const id = getYtId(input);
+    if (!id) { alert('올바른 유튜브 링크 또는 영상 ID를 입력해주세요.'); return; }
+
+    const frame = document.getElementById('yt-frame');
+    frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&controls=0&mute=${isMuted ? 1 : 0}`;
+  }
+
+  function toggleMute() {
+    isMuted = !isMuted;
+    document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔊';
+    // iframe 재로드로 음소거 반영
+    const frame = document.getElementById('yt-frame');
+    if (frame.src && frame.src.includes('youtube')) {
+      frame.src = frame.src.replace(/mute=\d/, `mute=${isMuted ? 1 : 0}`);
+    }
+  }
+
+  // ── 배경 자동 변경 (30분마다) ──
+  setInterval(refreshBg, 30 * 60 * 1000);
+
+  // ── 초기화 ──
+  setDate();
+  loadPrayer();
+  loadBg(true);
+</script>
+</body>
+</html>
