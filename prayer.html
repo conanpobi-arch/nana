@@ -240,6 +240,35 @@
   /* 유튜브 iframe (숨김) */
   #yt-frame { position: fixed; top: -9999px; left: -9999px; width: 1px; height: 1px; }
 
+  /* 홈 버튼 */
+  .home-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9000;
+    font-size: 26px;
+    text-decoration: none;
+    color: rgba(201,168,76,0.7);
+    transition: 0.3s;
+    text-shadow: none;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(201,168,76,0.2);
+    backdrop-filter: blur(8px);
+  }
+  .home-btn:hover {
+    color: #fff;
+    background: rgba(201,168,76,0.2);
+    border-color: rgba(201,168,76,0.6);
+    transform: scale(1.1);
+    text-shadow: 0 0 15px rgba(201,168,76,0.8), 0 0 30px rgba(201,168,76,0.4);
+  }
+
   /* 로딩 */
   #loading-screen {
     position: fixed; inset: 0; z-index: 9999;
@@ -298,6 +327,8 @@
 </style>
 </head>
 <body>
+
+<a href="index.html" class="home-btn">🏠</a>
 
 <div id="loading-screen">
   <div class="loading-cross">✝</div>
@@ -375,7 +406,7 @@
 홀로일 때 함께하시며
 길을 잃을 때 빛이 되어주소서.
 
-오늘   만나는 모든 이들에게
+오늘 만나는 모든 이들에게
 당신의 사랑을 전하는
 통로가 되게 하소서.
 
@@ -404,29 +435,25 @@
   let bgIndex = 0;
   let currentBgUrl = '';
 
-  // Unsplash 자연 풍경 키워드
-  const BG_KEYWORDS = [
-    'nature,landscape,mountain',
-    'sunrise,sky,clouds',
-    'forest,light,morning',
-    'ocean,peaceful,horizon',
-    'valley,meadow,golden',
-    'waterfall,nature,serene',
-    'snow,mountain,winter',
-    'autumn,forest,mist'
+  // Picsum Photos 자연 사진 ID 목록
+  const BG_IDS = [
+    15, 28, 37, 40, 41, 42, 43, 45, 57, 58,
+    59, 61, 62, 63, 64, 65, 66, 67, 68, 69,
+    70, 71, 72, 73, 74, 75, 76, 110, 111, 112,
+    113, 114, 115, 116, 117, 118, 119, 120, 121, 122
   ];
 
-  function getUnsplashUrl(keyword) {
-    const w = Math.min(window.innerWidth * window.devicePixelRatio, 2400);
-    const h = Math.min(window.innerHeight * window.devicePixelRatio, 1600);
-    return `https://source.unsplash.com/${Math.round(w)}x${Math.round(h)}/?${keyword}&sig=${Date.now()}`;
+  function getBgUrl() {
+    const id = BG_IDS[bgIndex % BG_IDS.length];
+    const w = Math.min(Math.round(window.innerWidth * (window.devicePixelRatio || 1)), 2400);
+    const h = Math.min(Math.round(window.innerHeight * (window.devicePixelRatio || 1)), 1600);
+    return `https://picsum.photos/${w}/${h}?image=${id}&t=${Date.now()}`;
   }
 
   // ── 배경 로드 ──
   function loadBg(first) {
-    const keyword = BG_KEYWORDS[bgIndex % BG_KEYWORDS.length];
     bgIndex++;
-    const url = getUnsplashUrl(keyword);
+    const url = getBgUrl();
 
     const img = new Image();
     img.onload = function() {
