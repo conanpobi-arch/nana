@@ -3,26 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB v2.80.0</title>
+<title>NANA LAB v2.81.0</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
   :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-  body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; overflow: hidden; cursor: default; }
+
+  /* ✅ 핵심 수정: overflow:hidden → overflow-y:auto 로 변경 */
+  body, html {
+    width: 100%;
+    min-height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    cursor: default;
+  }
 
   #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); }
   .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; }
   @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
   #meteor-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
 
-  .main-container { position: relative; z-index: 10; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 4vh; padding-bottom: 20px; }
-  
+  .main-container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px 40px;
+  }
+
   .couple-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 25px var(--neon); margin-bottom: 12px; object-fit: cover; }
   .main-title { font-family: 'Orbitron'; font-size: 1.7rem; letter-spacing: 5px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 18px; text-align: center; }
 
-  .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; max-width: 330px; }
-  .menu-btn { background: rgba(0, 255, 204, 0.05); border: 1px solid var(--border); border-radius: 12px; padding: 14px 5px; text-align: center; cursor: pointer; backdrop-filter: blur(8px); transition: 0.2s; text-decoration: none; color: #fff; display: flex; flex-direction: column; align-items: center; }
-  .menu-btn:hover { background: rgba(0, 255, 204, 0.12); border-color: var(--neon); }
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 330px;
+  }
+
+  .menu-btn {
+    background: rgba(0, 255, 204, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 5px;
+    text-align: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: 0.2s;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 20;
+  }
+  .menu-btn:hover, .menu-btn:active {
+    background: rgba(0, 255, 204, 0.12);
+    border-color: var(--neon);
+  }
   .menu-btn div { font-size: 11px; color: var(--neon); margin-top: 7px; font-weight: bold; }
   .menu-btn span { font-size: 22px; }
 
@@ -35,11 +81,19 @@
   }
 
   @media (min-height: 750px) {
-    .main-container { justify-content: center; padding-top: 0; }
     .couple-img { width: 140px; height: 140px; }
     .main-title { font-size: 2.2rem; }
     .menu-btn { padding: 20px 10px; }
     .menu-btn span { font-size: 28px; }
+  }
+
+  /* 화면 작을 때 자동 축소 */
+  @media (max-height: 640px) {
+    .couple-img { width: 75px; height: 75px; margin-bottom: 8px; }
+    .main-title { font-size: 1.2rem; margin-bottom: 10px; }
+    .menu-btn { padding: 10px 5px; }
+    .menu-btn span { font-size: 18px; }
+    .menu-btn div { font-size: 10px; margin-top: 4px; }
   }
 
   #history-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
@@ -61,7 +115,7 @@
 <div class="main-container">
   <img src="profile.png" class="couple-img" alt="Couple">
   <h1 class="main-title">NANA LAB</h1>
-  
+
   <div class="menu-grid">
     <a href="novel.html" class="menu-btn"><span>📖</span><div>소설번역기</div></a>
     <a href="#" class="menu-btn"><span>📥</span><div>동영상다운로더</div></a>
@@ -75,7 +129,7 @@
 
   <button id="bgm-indicator" class="bgm-force-btn" onclick="startBgmEngine(this)">▶ SYNC AUDIO SYSTEM</button>
 
-  <div style="margin-top:20px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer;" onclick="openModal(event)">SYSTEM VERSION v2.80.0</div>
+  <div style="margin-top:20px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer; position:relative; z-index:20;" onclick="openModal(event)">SYSTEM VERSION v2.81.0</div>
 </div>
 
 <div id="history-modal" onclick="closeModal()">
@@ -84,7 +138,8 @@
     <table>
       <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
       <tbody>
-        <tr style="color:#fff;"><td>v2.80.0</td><td>26-02-20</td><td>뉴스섬머리 링크 연결 및 모바일 최적화 레이아웃</td></tr>
+        <tr style="color:#fff;"><td>v2.81.0</td><td>26-02-24</td><td>메뉴 버튼 클릭 오류 수정 (overflow 레이아웃 개선)</td></tr>
+        <tr><td>v2.80.0</td><td>26-02-20</td><td>뉴스섬머리 링크 연결 및 모바일 최적화 레이아웃</td></tr>
         <tr><td>v2.79.5</td><td>26-02-20</td><td>pocosmall.mp3 음원 교체 및 오디오 엔진 고도화</td></tr>
         <tr><td>v2.79.0</td><td>26-02-20</td><td>오디오 강제 돌파 엔진 및 디버깅 로그 통합</td></tr>
         <tr><td>v2.78.9</td><td>26-02-18</td><td>번역 엔진 문단 간격 복구 및 줄바꿈 최적화</td></tr>
