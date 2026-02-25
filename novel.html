@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>NANA NOVEL ENGINE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@300;400;500&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+  <style>
+    :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0,255,204,0.2); }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body, html { width: 100%; height: 100%; background: #000; color: #fff; font-family: 'Noto Sans KR', sans-serif; }
+
+    #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at bottom, #0d1d31 0%, #0c0d13 100%); }
+    #star-field { position: fixed; inset: 0; z-index: 1; background-image: radial-gradient(white, rgba(255,255,255,0.2) 2px, transparent 40px); background-size: 150px 150px; opacity: 0.1; }
+
+    #main-view { position: relative; z-index: 2; max-width: 850px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; padding: 2vh 20px 40px; }
+    .nav-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 5px; margin-bottom: 15px; }
+    .home-icon { cursor: pointer; font-size: 26px; transition: 0.3s; color: var(--neon); }
+    .home-icon:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--neon), 0 0 30px var(--neon); }
+    .engine-title { font-family: 'Orbitron'; color: var(--neon); font-size: 15px; font-weight: bold; letter-spacing: 2px; text-shadow: 0 0 10px var(--neon); }
+
+    .tab-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn { flex: 1; padding: 10px; background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 12px; color: #aaa; font-family: 'Orbitron'; font-size: 11px; letter-spacing: 1px; cursor: pointer; transition: 0.2s; text-align: center; user-select: none; -webkit-user-select: none; }
+    .tab-btn.active { background: rgba(0,255,204,0.15); border-color: var(--neon); color: var(--neon); }
+
+    .card { background: rgba(0,15,35,0.75); border: 1px solid var(--border); border-radius: 20px; padding: 20px; backdrop-filter: blur(15px); margin-bottom: 16px; }
+    textarea { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 15px; font-size: 14px; outline: none; margin-bottom: 15px; height: 220px; resize: none; transition: all 0.4s ease; line-height: 1.6; font-family: 'Noto Sans KR'; }
+    textarea:focus { border-color: var(--neon); }
+
+    .novel-select-row { display: flex; gap: 8px; margin-bottom: 12px; align-items: center; }
+    .novel-select { flex: 1; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 12px 15px; font-size: 13px; outline: none; font-family: 'Noto Sans KR'; appearance: none; }
+    .novel-select:focus { border-color: var(--neon); }
+    .new-novel-btn { padding: 11px 14px; background: rgba(0,255,204,0.1); border: 1px solid var(--neon); border-radius: 12px; color: var(--neon); font-size: 18px; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+    .new-novel-btn:hover { background: rgba(0,255,204,0.2); }
+
+    .btn-fire { width: 100%; padding: 18px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 15px; font-weight: 900; font-family: 'Orbitron'; cursor: pointer; font-size: 14px; box-shadow: 0 5px 15px rgba(0,255,204,0.3); letter-spacing: 1px; }
+
+    .novel-card { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 14px; transition: 0.2s; }
+    .novel-card:hover { border-color: var(--neon); background: rgba(0,255,204,0.08); }
+    .novel-emoji { font-size: 34px; flex-shrink: 0; cursor: pointer; }
+    .novel-info { flex: 1; cursor: pointer; min-width: 0; }
+    .novel-title-text { font-size: 15px; color: #eee; font-weight: 700; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .novel-author-text { font-size: 12px; color: #888; margin-bottom: 5px; }
+    .novel-meta-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .novel-chap-count { font-size: 11px; color: var(--neon); font-family: 'Orbitron'; }
+    .status-badge { font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+    .status-progress { background: rgba(0,255,204,0.1); color: var(--neon); border: 1px solid var(--border); }
+    .status-done { background: rgba(255,215,0,0.1); color: #ffd700; border: 1px solid rgba(255,215,0,0.3); }
+    .novel-btns { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .n-icon-btn { font-size: 16px; cursor: pointer; color: rgba(255,255,255,0.2); padding: 4px; transition: 0.2s; }
+    .n-icon-btn:hover { color: var(--neon); }
+    .n-icon-btn.del:hover { color: #ff4444; }
+    .empty-state { text-align: center; color: rgba(255,255,255,0.3); font-size: 13px; padding: 50px 0; font-family: 'Orbitron'; letter-spacing: 2px; }
+
+    /* 챕터 목록 뷰 */
+    #chapter-view { display: none; position: fixed; inset: 0; z-index: 200; background: #000b1a; overflow-y: auto; padding: 20px; }
+    .ch-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; max-width: 850px; margin-left: auto; margin-right: auto; padding-top: 10px; }
+    .back-btn { font-size: 26px; cursor: pointer; color: var(--neon); flex-shrink: 0; }
+    .ch-novel-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 2px; }
+    .ch-list-wrap { max-width: 850px; margin: 0 auto; }
+    .chapter-card { background: rgba(0,255,204,0.04); border: 1px solid var(--border); border-radius: 14px; padding: 16px; margin-bottom: 10px; }
+    .chapter-num-label { font-family: 'Orbitron'; font-size: 11px; color: var(--neon); letter-spacing: 2px; margin-bottom: 8px; }
+    .chapter-preview-text { font-size: 13px; color: #aaa; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+    .chapter-action-row { display: flex; gap: 8px; margin-top: 10px; }
+    .ch-act-btn { flex: 1; padding: 7px; border-radius: 8px; font-size: 11px; cursor: pointer; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: #aaa; text-align: center; transition: 0.2s; }
+    .ch-act-btn:hover { border-color: var(--neon); color: var(--neon); }
+    .ch-act-btn.del:hover { border-color: #ff4444; color: #ff4444; }
+    .library-btn-sm { font-size: 12px; color: #ffd700; cursor: pointer; font-family: 'Orbitron'; border: 1px solid rgba(255,215,0,0.3); padding: 6px 10px; border-radius: 8px; margin-left: auto; white-space: nowrap; }
+
+    /* 결과 박스 */
+    #res-box { display: none; position: fixed; inset: 0; background: #050a14; z-index: 5000; overflow-y: auto; padding: 60px 30px 160px; font-family: 'Noto Serif KR', serif; line-height: 2.2; font-size: 18px; color: #ececec; text-align: justify; word-break: break-all; letter-spacing: -0.01em; -webkit-overflow-scrolling: touch; }
+    .trans-paragraph { display: block; margin-bottom: 35px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,255,204,0.05); }
+
+    #result-bottom-bar { display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 5001; background: rgba(0,10,25,0.98); border-top: 1px solid var(--border); backdrop-filter: blur(25px); padding: 20px 25px; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .copy-icon-btn { width: 56px; height: 56px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; flex-shrink: 0; }
+    .save-chap-btn { flex: 1; height: 56px; background: rgba(0,255,204,0.1); border: 1px solid var(--neon); color: var(--neon); border-radius: 14px; font-family: 'Orbitron'; font-size: 12px; font-weight: 900; cursor: pointer; letter-spacing: 1px; min-width: 100px; }
+    .back-main-btn { flex: 1; height: 56px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-weight: 900; font-family: 'Orbitron'; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* 로딩 */
+    #loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 9999; flex-direction: column; align-items: center; justify-content: center; }
+    .main-loader { width: 50px; height: 50px; border: 4px solid rgba(0,255,204,0.1); border-top: 4px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
+    #engine-status-text { color: var(--neon); font-size: 16px; margin-bottom: 15px; letter-spacing: 1px; font-weight: bold; text-shadow: 0 0 10px var(--neon); }
+    #strategy-log { color: #fff; font-size: 11px; width: 340px; text-align: left; background: rgba(0,20,40,0.8); padding: 15px; border-radius: 12px; font-family: monospace; border: 1px solid var(--border); max-height: 200px; overflow-y: auto; line-height: 1.5; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* 모달 */
+    .modal-overlay { display: none; position: fixed; inset: 0; z-index: 8000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+    .modal-sheet { width: 100%; max-width: 500px; background: rgba(0,15,35,0.98); border: 1px solid var(--border); border-radius: 24px; padding: 28px 24px 32px; }
+    .modal-title { font-family: 'Orbitron'; color: var(--neon); font-size: 13px; letter-spacing: 3px; margin-bottom: 20px; text-align: center; }
+    .modal-input { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 12px; color: #fff; padding: 13px 15px; font-size: 14px; outline: none; font-family: 'Noto Sans KR'; margin-bottom: 12px; transition: border-color 0.3s; }
+    .modal-input:focus { border-color: var(--neon); }
+    .modal-input::placeholder { color: rgba(255,255,255,0.25); }
+    .emoji-select { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .emoji-btn { width: 44px; height: 44px; border-radius: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); font-size: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .emoji-btn.active { border-color: var(--neon); background: rgba(0,255,204,0.15); }
+    .modal-btns { display: flex; gap: 10px; }
+    .modal-cancel { flex: 1; padding: 14px; border-radius: 12px; border: 1px solid var(--border); background: transparent; color: #aaa; font-size: 13px; cursor: pointer; font-family: 'Orbitron'; }
+    .modal-save-btn { flex: 2; padding: 14px; border-radius: 12px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; font-weight: 900; font-size: 13px; cursor: pointer; font-family: 'Orbitron'; }
+
+    /* 챕터 전체 읽기 */
+    #chapter-detail { display: none; position: fixed; inset: 0; z-index: 5500; background: #050a14; overflow-y: auto; padding: 60px 30px 120px; font-family: 'Noto Serif KR', serif; font-size: 18px; line-height: 2.2; color: #ececec; }
+    .detail-wrap { max-width: 750px; margin: 0 auto; }
+    .detail-num { font-family: 'Orbitron'; color: var(--neon); font-size: 12px; letter-spacing: 3px; margin-bottom: 24px; }
+    .compiled-chapter-divider { color: var(--neon); font-family: 'Orbitron'; font-size: 11px; letter-spacing: 3px; margin: 50px 0 20px; padding: 12px 0; border-top: 1px solid rgba(0,255,204,0.2); border-bottom: 1px solid rgba(0,255,204,0.2); text-align: center; }
+    .compiled-title-block { text-align: center; margin-bottom: 50px; padding: 30px; border: 1px solid rgba(0,255,204,0.15); border-radius: 16px; background: rgba(0,255,204,0.03); }
+    .compiled-title-text { font-size: 22px; color: var(--neon); font-weight: 700; margin-bottom: 10px; }
+    .compiled-author-text { font-size: 14px; color: #888; }
+    .detail-close { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 14px 40px; background: linear-gradient(135deg, var(--neon), #00b4ff); color: #000; border: none; border-radius: 14px; font-family: 'Orbitron'; font-weight: 900; cursor: pointer; font-size: 13px; }
+
+    /* 초기화 스크린 */
+    #init-screen { display: flex; position: fixed; inset: 0; z-index: 99999; background: #000b1a; flex-direction: column; align-items: center; justify-content: center; gap: 16px; }
+    .init-loader { width: 40px; height: 40px; border: 3px solid rgba(0,255,204,0.1); border-top: 3px solid var(--neon); border-radius: 50%; animation: spin 1s infinite linear; }
+    .init-text { font-family: 'Orbitron'; color: var(--neon); font-size: 12px; letter-spacing: 3px; }
+  </style>
+</head>
+<body>
+<div id="galaxy-bg"></div>
+<div id="star-field"></div>
+
+<!-- 초기화 스크린 (키 로딩 중) -->
+<div id="init-screen">
+  <div class="init-loader"></div>
+  <div class="init-text">INITIALIZING...</div>
+</div>
+
+<!-- 로딩 -->
+<div id="loading-overlay">
+  <div class="main-loader"></div>
+  <div id="engine-status-text">INITIALIZING...</div>
+  <div id="strategy-log"></div>
+</div>
+
+<!-- 결과 박스 -->
+<div id="res-box"></div>
+<div id="result-bottom-bar">
+  <div class="copy-icon-btn" onclick="copyResult()">📋</div>
+  <button class="save-chap-btn" onclick="openSaveModal()">💾 저장</button>
+  <button class="back-main-btn" onclick="closeResult()">← 돌아가기</button>
+</div>
+
+<!-- 챕터 전체 읽기 -->
+<div id="chapter-detail">
+  <div class="detail-wrap">
+    <div class="detail-num" id="detail-num"></div>
+    <div id="detail-text"></div>
+  </div>
+  <button class="detail-close" onclick="document.getElementById('chapter-detail').style.display='none'">✕ 닫기</button>
+</div>
+
+<!-- 챕터 목록 뷰 -->
+<div id="chapter-view">
+  <div class="ch-list-wrap">
+    <div class="ch-header">
+      <div class="back-btn" onclick="closeChapterView()">←</div>
+      <div>
+        <div class="ch-novel-title" id="ch-novel-title"></div>
+        <div style="font-size:11px;color:#888;margin-top:2px;" id="ch-novel-author"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-left:auto;">
+        <div class="library-btn-sm" onclick="compileToDone()" style="color:var(--neon);border-color:rgba(0,255,204,0.3);">📕 합본</div>
+        <div class="library-btn-sm" onclick="moveToLibrary()">📚 서재로</div>
+      </div>
+    </div>
+    <div id="chapter-list"></div>
+  </div>
+</div>
+
+<!-- 새 소설 모달 -->
+<div id="novel-modal" class="modal-overlay" onclick="closeNovelModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">📖 새 소설 프로젝트</div>
+    <input class="modal-input" id="novel-title-input" placeholder="소설 제목">
+    <input class="modal-input" id="novel-author-input" placeholder="작가 (선택사항)">
+    <div style="font-size:11px;color:rgba(0,255,204,0.7);font-family:'Orbitron';letter-spacing:2px;margin-bottom:10px;">표지 이모지</div>
+    <div class="emoji-select" id="emoji-select">
+      <div class="emoji-btn active" data-emoji="📖">📖</div>
+      <div class="emoji-btn" data-emoji="📚">📚</div>
+      <div class="emoji-btn" data-emoji="🔮">🔮</div>
+      <div class="emoji-btn" data-emoji="⚔️">⚔️</div>
+      <div class="emoji-btn" data-emoji="🌙">🌙</div>
+      <div class="emoji-btn" data-emoji="🐉">🐉</div>
+      <div class="emoji-btn" data-emoji="🕵️">🕵️</div>
+      <div class="emoji-btn" data-emoji="💀">💀</div>
+      <div class="emoji-btn" data-emoji="🌹">🌹</div>
+      <div class="emoji-btn" data-emoji="🚀">🚀</div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeNovelModal()">취소</button>
+      <button class="modal-save-btn" onclick="saveNovel()">시작하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 챕터 저장 모달 -->
+<div id="save-modal" class="modal-overlay" onclick="closeSaveModal()">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">💾 챕터 저장</div>
+    <select id="save-novel-select" style="width:100%;background:rgba(0,0,0,0.5);border:1px solid var(--border);border-radius:12px;color:#fff;padding:13px 15px;font-size:14px;outline:none;font-family:'Noto Sans KR';margin-bottom:12px;appearance:none;"></select>
+    <div style="font-size:11px;color:rgba(0,255,204,0.5);margin-bottom:18px;text-align:center;font-family:'Orbitron';" id="save-chapter-num-label">소설을 선택하면 챕터 번호가 표시됩니다</div>
+    <div class="modal-btns">
+      <button class="modal-cancel" onclick="closeSaveModal()">취소</button>
+      <button class="modal-save-btn" onclick="confirmSaveChapter()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 메인 뷰 -->
+<div id="main-view">
+  <div class="nav-header">
+    <div class="home-icon" onclick="location.href='index.html'">🏠</div>
+    <div class="engine-title">NANA NOVEL</div>
+    <div onclick="document.getElementById('mainInput').value=''" style="cursor:pointer;font-size:26px;">🗑️</div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-btn active" id="tab-translate" onclick="switchTab('translate')">🔄 번역</div>
+    <div class="tab-btn" id="tab-progress" onclick="switchTab('progress')">✍️ 진행 중</div>
+    <div class="tab-btn" id="tab-done" onclick="switchTab('done')">📚 서재</div>
+  </div>
+
+  <!-- 번역 탭 -->
+  <div id="panel-translate">
+    <div class="card">
+      <div class="novel-select-row">
+        <select class="novel-select" id="quick-novel-select">
+          <option value="">저장할 소설 선택 (선택사항)...</option>
+        </select>
+        <div class="new-novel-btn" onclick="openNovelModal()" title="새 소설 추가">＋</div>
+      </div>
+      <textarea id="mainInput" placeholder="📌 소설 URL 또는 원문 텍스트를 입력하세요..."></textarea>
+      <button class="btn-fire" onclick="fireEngine()">🔥 번역 시작</button>
+    </div>
+  </div>
+
+  <!-- 진행 중 탭 -->
+  <div id="panel-progress" style="display:none;">
+    <div id="novel-list-progress"><div class="empty-state">탭을 누르면 로딩됩니다</div></div>
+  </div>
+
+  <!-- 서재 탭 -->
+  <div id="panel-done" style="display:none;">
+    <div id="novel-list-done"><div class="empty-state">탭을 누르면 로딩됩니다</div></div>
+  </div>
+</div>
+
+<script>
+  // ── 보안: Supabase 키를 Vercel 환경변수에서 런타임에 가져옴 ──
+  // Vercel 환경변수에 SUPABASE_URL, SUPABASE_ANON_KEY를 설정하세요.
+  // api/config.js 파일이 이 값들을 안전하게 제공합니다.
+  let SUPABASE_URL = '';
+  let SUPABASE_KEY = '';
+
+  const statusText = document.getElementById('engine-status-text');
+  let currentTab = 'translate';
+  let currentNovel = null;
+  let allNovels = [];
+  let selectedEmoji = '📖';
+  let lastTranslated = '';
+  let lastOriginal = '';
+
+  function sbH() {
+    return {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY
+    };
+  }
+
+  // ── 초기화: 환경변수 로드 후 앱 시작 ──
+  async function init() {
+    try {
+      var res = await fetch('/api/config');
+      if (!res.ok) throw new Error('config API 오류');
+      var cfg = await res.json();
+      SUPABASE_URL = cfg.supabaseUrl;
+      SUPABASE_KEY = cfg.supabaseKey;
+      if (!SUPABASE_URL || !SUPABASE_KEY) throw new Error('키 누락');
+    } catch(e) {
+      document.querySelector('.init-text').textContent = 'CONFIG ERROR: ' + e.message;
+      document.querySelector('.init-loader').style.display = 'none';
+      return; // 키 없으면 앱 시작 안 함
+    }
+
+    // 키 로드 성공 → 초기화 스크린 숨기고 앱 표시
+    document.getElementById('init-screen').style.display = 'none';
+
+    try {
+      var r = await fetch(SUPABASE_URL + '/rest/v1/novels?status=eq.progress&order=created_at.desc', { headers: sbH() });
+      if (r.ok) {
+        allNovels = await r.json();
+        updateQuickSelects(allNovels);
+      }
+    } catch(e) {
+      console.error('init novels error:', e);
+    }
+  }
+
+  // ── 탭 전환 ──
+  function switchTab(tab) {
+    currentTab = tab;
+    ['translate', 'progress', 'done'].forEach(function(t) {
+      document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+      document.getElementById('panel-' + t).style.display = t === tab ? 'block' : 'none';
+    });
+    if (tab === 'progress') loadNovels('progress');
+    if (tab === 'done') loadNovels('done');
+  }
+
+  // ── 소설 로드 ──
+  async function loadNovels(status) {
+    var listEl = document.getElementById('novel-list-' + status);
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="empty-state">LOADING...</div>';
+    try {
+      var res = await fetch(
+        SUPABASE_URL + '/rest/v1/novels?status=eq.' + status + '&order=created_at.desc',
+        { headers: sbH() }
+      );
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var novels = await res.json();
+
+      if (status === 'progress') {
+        allNovels = novels;
+        updateQuickSelects(novels);
+      }
+
+      if (!Array.isArray(novels) || novels.length === 0) {
+        listEl.innerHTML = '<div class="empty-state">' +
+          (status === 'progress' ? '진행 중인 소설 없음' : '서재가 비어있어요') + '</div>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      novels.forEach(function(n) { listEl.appendChild(makeNovelCard(n)); });
+
+    } catch(e) {
+      listEl.innerHTML = '<div class="empty-state">불러오기 실패<br><span style="font-size:10px;opacity:0.5;">' + e.message + '</span></div>';
+    }
+  }
+
+  function updateQuickSelects(novels) {
+    ['quick-novel-select', 'save-novel-select'].forEach(function(id) {
+      var sel = document.getElementById(id);
+      if (!sel) return;
+      var prev = sel.value;
+      sel.innerHTML = id === 'quick-novel-select'
+        ? '<option value="">저장할 소설 선택 (선택사항)...</option>'
+        : '<option value="">소설 선택...</option>';
+      if (Array.isArray(novels)) {
+        novels.forEach(function(n) {
+          var opt = document.createElement('option');
+          opt.value = n.id;
+          opt.textContent = (n.cover_emoji || '📖') + ' ' + n.title;
+          sel.appendChild(opt);
+        });
+      }
+      if (prev) sel.value = prev;
+    });
+  }
+
+  function makeNovelCard(novel) {
+    var card = document.createElement('div');
+    card.className = 'novel-card';
+    card.innerHTML =
+      '<div class="novel-emoji">' + (novel.cover_emoji || '📖') + '</div>' +
+      '<div class="novel-info">' +
+        '<div class="novel-title-text">' + escHtml(novel.title) + '</div>' +
+        (novel.author ? '<div class="novel-author-text">' + escHtml(novel.author) + '</div>' : '') +
+        '<div class="novel-meta-row">' +
+          '<span class="novel-chap-count" id="cc-' + novel.id + '">... 챕터</span>' +
+          '<span class="status-badge ' + (novel.status === 'done' ? 'status-done' : 'status-progress') + '">' +
+            (novel.status === 'done' ? '✅ 완료' : '✍️ 진행중') +
+          '</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="novel-btns">' +
+        '<div class="n-icon-btn lib" title="' + (novel.status === 'done' ? '진행 중으로 이동' : '서재로 이동') + '">' + (novel.status === 'done' ? '✍️' : '📚') + '</div>' +
+        '<div class="n-icon-btn del" title="삭제">🗑️</div>' +
+      '</div>';
+
+    fetchChapCount(novel.id);
+    card.querySelector('.novel-info').addEventListener('click', function() { openChapterView(novel); });
+    card.querySelector('.novel-emoji').addEventListener('click', function() { openChapterView(novel); });
+    card.querySelector('.lib').addEventListener('click', function(e) { e.stopPropagation(); toggleStatus(novel); });
+    card.querySelector('.del').addEventListener('click', function(e) { e.stopPropagation(); deleteNovel(novel.id); });
+    return card;
+  }
+
+  function escHtml(str) {
+    return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  async function fetchChapCount(id) {
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + id + '&select=id', { headers: sbH() });
+      var data = await res.json();
+      var el = document.getElementById('cc-' + id);
+      if (el) el.textContent = (Array.isArray(data) ? data.length : '?') + ' 챕터';
+    } catch(e) {}
+  }
+
+  async function toggleStatus(novel) {
+    var ns = novel.status === 'done' ? 'progress' : 'done';
+    if (!confirm(ns === 'done' ? '서재로 이동할까요?' : '진행 중으로 되돌릴까요?')) return;
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/novels?id=eq.' + novel.id, {
+        method: 'PATCH', headers: sbH(), body: JSON.stringify({ status: ns })
+      });
+      loadNovels(currentTab);
+    } catch(e) { alert('변경 실패: ' + e.message); }
+  }
+
+  async function deleteNovel(id) {
+    if (!confirm('소설과 모든 챕터가 삭제됩니다.')) return;
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + id, { method: 'DELETE', headers: sbH() });
+      await fetch(SUPABASE_URL + '/rest/v1/novels?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+      loadNovels(currentTab);
+    } catch(e) { alert('삭제 실패: ' + e.message); }
+  }
+
+  // ── 새 소설 모달 ──
+  function openNovelModal() {
+    selectedEmoji = '📖';
+    document.getElementById('novel-title-input').value = '';
+    document.getElementById('novel-author-input').value = '';
+    document.querySelectorAll('.emoji-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.emoji === '📖');
+    });
+    document.getElementById('novel-modal').style.display = 'flex';
+    setTimeout(function() { document.getElementById('novel-title-input').focus(); }, 200);
+  }
+  function closeNovelModal() { document.getElementById('novel-modal').style.display = 'none'; }
+
+  document.querySelectorAll('.emoji-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.emoji-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      selectedEmoji = btn.dataset.emoji;
+    });
+  });
+
+  async function saveNovel() {
+    var title = document.getElementById('novel-title-input').value.trim();
+    if (!title) { alert('소설 제목을 입력해주세요!'); return; }
+    var author = document.getElementById('novel-author-input').value.trim() || null;
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novels', {
+        method: 'POST',
+        headers: Object.assign({}, sbH(), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({ title: title, author: author, cover_emoji: selectedEmoji, status: 'progress' })
+      });
+      var data = await res.json();
+      closeNovelModal();
+      var freshRes = await fetch(SUPABASE_URL + '/rest/v1/novels?status=eq.progress&order=created_at.desc', { headers: sbH() });
+      var freshNovels = await freshRes.json();
+      allNovels = freshNovels;
+      updateQuickSelects(freshNovels);
+      if (data && data[0]) {
+        document.getElementById('quick-novel-select').value = data[0].id;
+      }
+      if (currentTab === 'progress') loadNovels('progress');
+    } catch(e) { alert('소설 생성 실패: ' + e.message); }
+  }
+
+  // ── 챕터 목록 뷰 ──
+  function openChapterView(novel) {
+    currentNovel = novel;
+    document.getElementById('ch-novel-title').textContent = novel.title;
+    document.getElementById('ch-novel-author').textContent = novel.author || '';
+    document.getElementById('chapter-view').style.display = 'block';
+    loadChapters();
+  }
+
+  function closeChapterView() {
+    document.getElementById('chapter-view').style.display = 'none';
+    currentNovel = null;
+  }
+
+  async function loadChapters() {
+    var listEl = document.getElementById('chapter-list');
+    listEl.innerHTML = '<div class="empty-state" style="padding:30px 0">LOADING...</div>';
+    try {
+      var res = await fetch(
+        SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + currentNovel.id + '&order=chapter_num.asc',
+        { headers: sbH() }
+      );
+      var chapters = await res.json();
+      if (!Array.isArray(chapters) || chapters.length === 0) {
+        listEl.innerHTML = '<div class="empty-state" style="padding:30px 0">아직 저장된 챕터가 없어요</div>';
+        return;
+      }
+      listEl.innerHTML = '';
+      var isCompiled = currentNovel && currentNovel.cover_emoji === '📕';
+      chapters.forEach(function(ch) {
+        var card = document.createElement('div');
+        card.className = 'chapter-card';
+        card.innerHTML =
+          '<div class="chapter-num-label">CHAPTER ' + ch.chapter_num + '</div>' +
+          '<div class="chapter-preview-text">' + escHtml((ch.translated || ch.original || '').substring(0, 200)) + '</div>' +
+          '<div class="chapter-action-row">' +
+            '<div class="ch-act-btn view">📖 보기</div>' +
+            '<div class="ch-act-btn del">🗑️ 삭제</div>' +
+          '</div>';
+        card.querySelector('.view').addEventListener('click', function() { showChapterDetail(ch, isCompiled); });
+        card.querySelector('.chapter-preview-text').addEventListener('click', function() { showChapterDetail(ch, isCompiled); });
+        card.querySelector('.del').addEventListener('click', function() { deleteChapter(ch.id); });
+        listEl.appendChild(card);
+      });
+    } catch(e) {
+      listEl.innerHTML = '<div class="empty-state">챕터 로딩 실패</div>';
+    }
+  }
+
+  function showChapterDetail(ch, isCompiled) {
+    var detailEl = document.getElementById('chapter-detail');
+    var numEl = document.getElementById('detail-num');
+    var wrap = document.getElementById('detail-text');
+    var text = ch.translated || ch.original || '';
+
+    if (isCompiled) {
+      numEl.textContent = '';
+      var html = '';
+      var titleMatch = text.match(/═+\n\s+(.+?)\n/);
+      var authorMatch = text.match(/저자:\s*(.+?)\n/);
+      if (titleMatch) {
+        html += '<div class="compiled-title-block">';
+        html += '<div class="compiled-title-text">📕 ' + escHtml(titleMatch[1].trim()) + '</div>';
+        if (authorMatch) html += '<div class="compiled-author-text">' + escHtml(authorMatch[1].trim()) + '</div>';
+        html += '</div>';
+      }
+      var chapSplit = text.split(/─+\n\s+第\s*(\d+)\s+章\s*\n─+/);
+      if (chapSplit.length > 1) {
+        for (var i = 1; i < chapSplit.length; i += 2) {
+          html += '<div class="compiled-chapter-divider">第 ' + chapSplit[i] + ' 章</div>';
+          html += renderParagraphs((chapSplit[i+1] || '').trim());
+        }
+      } else {
+        html += renderParagraphs(text);
+      }
+      wrap.innerHTML = html;
+    } else {
+      numEl.textContent = 'CHAPTER ' + ch.chapter_num;
+      wrap.innerHTML = renderParagraphs(text);
+    }
+
+    detailEl.style.display = 'block';
+    detailEl.scrollTop = 0;
+  }
+
+  async function deleteChapter(id) {
+    if (!confirm('이 챕터를 삭제할까요?')) return;
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?id=eq.' + id, { method: 'DELETE', headers: sbH() });
+      loadChapters();
+    } catch(e) { alert('삭제 실패: ' + e.message); }
+  }
+
+  async function compileToDone() {
+    if (!currentNovel) return;
+    if (!confirm('모든 챕터를 하나의 단권으로 합쳐서 서재에 저장할까요?\n(기존 챕터는 그대로 유지됩니다)')) return;
+    try {
+      document.getElementById('loading-overlay').style.display = 'flex';
+      document.getElementById('engine-status-text').textContent = '합본 편집 중...';
+      document.getElementById('strategy-log').innerHTML = '';
+
+      var res = await fetch(
+        SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + currentNovel.id + '&order=chapter_num.asc',
+        { headers: sbH() }
+      );
+      var chapters = await res.json();
+      if (!chapters.length) {
+        alert('저장된 챕터가 없어요!');
+        document.getElementById('loading-overlay').style.display = 'none';
+        return;
+      }
+
+      var compiled = '═══════════════════════════════════\n' +
+        '  ' + currentNovel.title + '\n' +
+        (currentNovel.author ? '  저자: ' + currentNovel.author + '\n' : '') +
+        '═══════════════════════════════════\n\n\n';
+
+      chapters.forEach(function(ch) {
+        var text = (ch.translated || ch.original || '').trim();
+        compiled += '────────────────────────────────\n';
+        compiled += '  第 ' + ch.chapter_num + ' 章\n';
+        compiled += '────────────────────────────────\n\n';
+        compiled += text + '\n\n\n';
+      });
+
+      var novelRes = await fetch(SUPABASE_URL + '/rest/v1/novels', {
+        method: 'POST',
+        headers: Object.assign({}, sbH(), { 'Prefer': 'return=representation' }),
+        body: JSON.stringify({
+          title: currentNovel.title + ' 【합본】',
+          author: currentNovel.author || null,
+          cover_emoji: '📕',
+          status: 'done'
+        })
+      });
+      var newNovel = await novelRes.json();
+      var newNovelId = newNovel[0].id;
+
+      await fetch(SUPABASE_URL + '/rest/v1/novel_chapters', {
+        method: 'POST',
+        headers: sbH(),
+        body: JSON.stringify({ novel_id: newNovelId, chapter_num: 1, original: '', translated: compiled })
+      });
+
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('📕 합본이 서재에 저장됐어요!');
+    } catch(e) {
+      document.getElementById('loading-overlay').style.display = 'none';
+      alert('오류: ' + e.message);
+    }
+  }
+
+  async function moveToLibrary() {
+    if (!currentNovel) return;
+    if (!confirm('서재로 이동할까요?')) return;
+    try {
+      await fetch(SUPABASE_URL + '/rest/v1/novels?id=eq.' + currentNovel.id, {
+        method: 'PATCH', headers: sbH(), body: JSON.stringify({ status: 'done' })
+      });
+      closeChapterView();
+      if (currentTab === 'progress') loadNovels('progress');
+    } catch(e) { alert('이동 실패: ' + e.message); }
+  }
+
+  // ── 번역 엔진 ──
+  function setStatus(txt) { statusText.innerText = txt; }
+  function logStep(msg, type) {
+    var log = document.getElementById('strategy-log');
+    var color = type === 'success' ? '#00ffcc' : type === 'fail' ? '#ff4444' : '#ccc';
+    log.innerHTML += '<span style="color:' + color + '">' + escHtml(msg) + '</span>\n';
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function renderParagraphs(text) {
+    var escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return escaped.split(/\n{2,}/).map(function(para) {
+      var clean = para.replace(/\n/g,'<br>').trim();
+      return clean ? '<p class="trans-paragraph">' + clean + '</p>' : '';
+    }).filter(function(p) { return p; }).join('');
+  }
+
+  function copyResult() {
+    var rb = document.getElementById('res-box');
+    var text = rb.innerText || rb.textContent;
+    navigator.clipboard.writeText(text).then(function() {
+      var btn = document.querySelector('.copy-icon-btn');
+      btn.innerText = '✅';
+      setTimeout(function() { btn.innerText = '📋'; }, 1500);
+    });
+  }
+
+  function closeResult() {
+    document.getElementById('res-box').style.display = 'none';
+    document.getElementById('result-bottom-bar').style.display = 'none';
+  }
+
+  function extractTextFromDoc(doc) {
+    doc.querySelectorAll('script, style, ins, iframe, noscript, svg, header, footer, nav, aside, .ads, .ad, .banner, .menu, .comment, #comment, .sidebar').forEach(function(e) { e.remove(); });
+    var contentSelectors = [
+      '#content', '.content', '#chaptercontent', '.chapter-content',
+      '#bookcontent', '.book-content', '#articlecontent', '.article-content',
+      '#novel-content', '.novel-content', '#text', '.text-content',
+      'article', 'main', '.main-content', '#main'
+    ];
+    var bodyEl = null;
+    for (var i = 0; i < contentSelectors.length; i++) {
+      var el = doc.querySelector(contentSelectors[i]);
+      if (el && el.innerText && el.innerText.trim().length > 200) { bodyEl = el; break; }
+    }
+    if (!bodyEl) bodyEl = doc.body;
+    bodyEl.querySelectorAll('p, div, br, li, h3, h4, h5, h6, tr, blockquote').forEach(function(el) {
+      el.insertAdjacentText('beforebegin', el.tagName === 'BR' ? '\n' : '\n\n');
+      if (el.tagName !== 'BR') el.insertAdjacentText('afterend', '\n\n');
+    });
+    return (bodyEl.innerText || bodyEl.textContent || '')
+      .replace(/\t/g,' ').replace(/\r\n/g,'\n').replace(/\r/g,'\n')
+      .replace(/[ \t]{2,}/g,' ').replace(/\n{4,}/g,'\n\n\n').trim();
+  }
+
+  var CRAWL_STRATEGIES = [
+    { name: 'CorsProxy.io', url: function(u) { return 'https://corsproxy.io/?' + encodeURIComponent(u); } },
+    { name: 'AllOrigins',   url: function(u) { return 'https://api.allorigins.win/get?url=' + encodeURIComponent(u); } },
+    { name: 'CodeTabs',     url: function(u) { return 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u); } }
+  ];
+
+  async function fireEngine() {
+    var input = document.getElementById('mainInput').value.trim();
+    if (!input) { alert('원문 또는 URL을 입력해주세요!'); return; }
+
+    document.getElementById('loading-overlay').style.display = 'flex';
+    document.getElementById('strategy-log').innerHTML = '';
+    var rawData = input;
+
+    try {
+      if (input.startsWith('http')) {
+        setStatus('데이터 추출 중...');
+        var success = false;
+        for (var i = 0; i < CRAWL_STRATEGIES.length; i++) {
+          var s = CRAWL_STRATEGIES[i];
+          logStep('PROXY: ' + s.name + ' 연결...');
+          try {
+            var res = await fetch(s.url(input));
+            var text = s.name === 'AllOrigins' ? (await res.json()).contents : await res.text();
+            if (text && text.length > 200) {
+              var doc = new DOMParser().parseFromString(text, 'text/html');
+              rawData = extractTextFromDoc(doc);
+              logStep('SUCCESS: ' + s.name + ' — ' + rawData.length + '자 획득', 'success');
+              success = true;
+              break;
+            }
+          } catch(e) { logStep('BLOCK: ' + s.name + ' 실패 — ' + e.message, 'fail'); }
+        }
+        if (!success) throw new Error('모든 프록시 크롤링 실패');
+      }
+
+      setStatus('제미나이 감독관 모드 가동...');
+      logStep('API: Vercel 백엔드 연결...');
+
+      var tres = await fetch('/api/translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: rawData })
+      });
+      if (!tres.ok) throw new Error('번역 API 오류 HTTP ' + tres.status);
+      var tdata = await tres.json();
+      var translated = tdata.result;
+      if (!translated) throw new Error('번역 결과가 비어 있습니다.');
+
+      logStep('SUCCESS: 감독관 검수 완료.', 'success');
+      lastTranslated = translated;
+      lastOriginal = rawData;
+
+      var rb = document.getElementById('res-box');
+      rb.innerHTML = renderParagraphs(translated);
+      rb.style.display = 'block';
+      rb.scrollTop = 0;
+      document.getElementById('result-bottom-bar').style.display = 'flex';
+      document.getElementById('loading-overlay').style.display = 'none';
+
+    } catch(e) {
+      setStatus('엔진 중단됨');
+      logStep('ERROR: ' + e.message, 'fail');
+      document.getElementById('loading-overlay').style.display = 'none';
+    }
+  }
+
+  // ── 챕터 저장 모달 ──
+  // [버그 수정] 소설 선택 시 실시간으로 챕터 번호 미리보기
+  async function updateChapterNumPreview() {
+    var novelId = document.getElementById('save-novel-select').value;
+    var label = document.getElementById('save-chapter-num-label');
+    if (!novelId) {
+      label.textContent = '소설을 선택하면 챕터 번호가 표시됩니다';
+      return;
+    }
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + novelId + '&select=id', { headers: sbH() });
+      var existing = await res.json();
+      var nextNum = (Array.isArray(existing) ? existing.length : 0) + 1;
+      label.textContent = 'CHAPTER ' + nextNum + '로 저장됩니다';
+    } catch(e) {
+      label.textContent = '챕터 번호 확인 실패';
+    }
+  }
+
+  async function openSaveModal() {
+    try {
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novels?status=eq.progress&order=created_at.desc', { headers: sbH() });
+      var novels = await res.json();
+      var sel = document.getElementById('save-novel-select');
+      sel.innerHTML = '<option value="">소설 선택...</option>';
+      if (Array.isArray(novels)) {
+        novels.forEach(function(n) {
+          var opt = document.createElement('option');
+          opt.value = n.id;
+          opt.textContent = (n.cover_emoji || '📖') + ' ' + n.title;
+          sel.appendChild(opt);
+        });
+      }
+      var qSel = document.getElementById('quick-novel-select').value;
+      if (qSel) {
+        sel.value = qSel;
+        await updateChapterNumPreview(); // 미리 선택된 소설 있으면 바로 번호 계산
+      } else {
+        document.getElementById('save-chapter-num-label').textContent = '소설을 선택하면 챕터 번호가 표시됩니다';
+      }
+      // 소설 선택 변경 시 실시간 업데이트
+      sel.onchange = updateChapterNumPreview;
+    } catch(e) {}
+    document.getElementById('save-modal').style.display = 'flex';
+  }
+
+  function closeSaveModal() { document.getElementById('save-modal').style.display = 'none'; }
+
+  async function confirmSaveChapter() {
+    var novelId = document.getElementById('save-novel-select').value;
+    if (!novelId) { alert('소설을 선택해주세요!'); return; }
+    try {
+      // [버그 수정] novel_id를 문자열 그대로 전달 (UUID 대응, parseInt 제거)
+      var res = await fetch(SUPABASE_URL + '/rest/v1/novel_chapters?novel_id=eq.' + novelId + '&select=id', { headers: sbH() });
+      var existing = await res.json();
+      var nextNum = (Array.isArray(existing) ? existing.length : 0) + 1;
+
+      var saveRes = await fetch(SUPABASE_URL + '/rest/v1/novel_chapters', {
+        method: 'POST',
+        headers: sbH(),
+        body: JSON.stringify({
+          novel_id: novelId,        // ← parseInt 제거: UUID/bigint 모두 안전
+          chapter_num: nextNum,
+          original: lastOriginal,
+          translated: lastTranslated
+        })
+      });
+
+      if (!saveRes.ok) throw new Error('HTTP ' + saveRes.status);
+      closeSaveModal();
+      alert('CHAPTER ' + nextNum + ' 저장 완료! ✅');
+    } catch(e) { alert('저장 실패: ' + e.message); }
+  }
+
+  init();
+</script>
+</body>
+</html>
