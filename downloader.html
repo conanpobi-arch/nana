@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>동영상다운로더 - NANA LAB</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #000 url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat fixed;
+      color: #e0f0ff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* 별빛 particle 효과 (간단 버전) */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: transparent;
+      animation: twinkle 80s linear infinite;
+    }
+
+    @keyframes twinkle {
+      0%,100% { opacity: 0.4; }
+      50% { opacity: 0.8; }
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+
+    .logo-circle {
+      width: 140px;
+      height: 140px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 
+        0 0 20px #0ff,
+        0 0 40px #0ff8,
+        inset 0 0 30px #0ff4;
+      border: 2px solid #0ff8;
+      background: #000;
+    }
+
+    .logo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    h1 {
+      font-size: 3.2rem;
+      font-weight: 900;
+      letter-spacing: 6px;
+      background: linear-gradient(90deg, #00ffff, #00bfff, #0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px #0ff, 0 0 40px #0ff8;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #88ccff;
+      opacity: 0.9;
+      letter-spacing: 1px;
+    }
+
+    .card {
+      background: rgba(10, 15, 30, 0.65);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 40px 30px;
+      width: 100%;
+      max-width: 620px;
+      box-shadow: 
+        0 0 30px rgba(0, 255, 255, 0.15),
+        inset 0 0 20px rgba(0, 255, 255, 0.08);
+      margin: 0 auto 40px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    input[type="text"] {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(0, 255, 255, 0.35);
+      border-radius: 12px;
+      padding: 18px 24px;
+      font-size: 1.1rem;
+      color: #e0ffff;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus {
+      border-color: #00ffff;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+    }
+
+    .buttons {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 24px;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.25s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #00d4ff, #0095ff);
+      color: white;
+      box-shadow: 0 0 20px rgba(0, 180, 255, 0.5);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(0, 200, 255, 0.7);
+    }
+
+    .btn-secondary {
+      background: rgba(0, 255, 255, 0.12);
+      color: #00ffff;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(0, 255, 255, 0.22);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+    }
+
+    .status {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 1.1rem;
+      min-height: 1.5em;
+    }
+
+    .status.loading {
+      color: #00ffff;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { opacity: 0.7; }
+      50% { opacity: 1; }
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 40px 0 20px;
+      text-align: center;
+      color: #66ccff;
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 2.4rem; }
+      .card { padding: 30px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars"></div>
+
+  <div class="container">
+
+    <header>
+      <div class="logo-circle">
+        <!-- 실제 로고 이미지 경로로 교체하세요 -->
+        <img src="https://via.placeholder.com/140x140/000/0ff?text=NANA" alt="NANA LAB">
+      </div>
+      <h1>동영상다운로더</h1>
+      <div class="subtitle">YouTube Shorts · Instagram Reels · Facebook 릴스</div>
+    </header>
+
+    <div class="card">
+      <div class="input-group">
+        <input type="text" placeholder="링크 붙여넣기 (Shorts / Reels URL)" id="videoUrl"/>
+        <div class="buttons">
+          <button class="btn btn-primary" id="analyzeBtn">
+            <i class="fas fa-search"></i> 분석 시작
+          </button>
+          <button class="btn btn-secondary" id="pasteBtn">
+            <i class="fas fa-paste"></i> 붙여넣기
+          </button>
+        </div>
+      </div>
+
+      <div class="status" id="status">링크를 입력 후 분석 시작을 눌러주세요</div>
+    </div>
+
+    <footer>
+      NANA LAB • SYSTEM VERSION v2.81.xx<br>
+      <span style="color:#00ffff; font-weight:600;">→ SYNC AUDIO SYSTEM</span>
+    </footer>
+
+  </div>
+
+  <script>
+    const urlInput = document.getElementById('videoUrl');
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    const pasteBtn = document.getElementById('pasteBtn');
+    const status = document.getElementById('status');
+
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        urlInput.value = text.trim();
+        status.textContent = "클립보드에서 링크를 붙여넣었습니다!";
+      } catch (err) {
+        status.textContent = "클립보드 읽기 실패";
+      }
+    });
+
+    analyzeBtn.addEventListener('click', () => {
+      const url = urlInput.value.trim();
+      if (!url) {
+        status.textContent = "링크를 입력해주세요.";
+        return;
+      }
+      status.className = "status loading";
+      status.textContent = "영상 정보 추출 중... (최초 로드 시 10~30초 소요될 수 있습니다)";
+      
+      // 여기서 실제 yt-dlp-wasm 또는 fetch 로직을 연결하면 됩니다.
+      // 지금은 시각적 데모용 더미
+      setTimeout(() => {
+        status.className = "status";
+        status.innerHTML = "분석 완료! (데모)<br>다운로드 버튼이 여기에 나타납니다 →";
+      }, 2800);
+    });
+  </script>
+
+</body>
+</html>
