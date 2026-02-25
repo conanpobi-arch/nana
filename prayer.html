@@ -22,7 +22,6 @@
     background: #111;
   }
 
-  /* 배경 이미지 레이어 */
   #bg-layer {
     position: fixed; inset: 0; z-index: 0;
     background-size: cover;
@@ -39,7 +38,6 @@
     transition: opacity 2.5s ease;
   }
 
-  /* 그라디언트 오버레이 */
   #overlay {
     position: fixed; inset: 0; z-index: 2;
     background: linear-gradient(
@@ -51,7 +49,6 @@
     );
   }
 
-  /* 빛 번짐 효과 */
   #light-ray {
     position: fixed; inset: 0; z-index: 3;
     background: radial-gradient(ellipse at 50% 20%, rgba(201,168,76,0.08) 0%, transparent 60%);
@@ -63,7 +60,6 @@
     50% { opacity: 1; }
   }
 
-  /* 메인 컨테이너 */
   #main {
     position: fixed; inset: 0; z-index: 10;
     display: flex; flex-direction: column;
@@ -71,7 +67,6 @@
     padding: 40px 20px;
   }
 
-  /* 십자가 장식 */
   .cross-deco {
     color: var(--gold);
     font-size: 22px;
@@ -82,7 +77,6 @@
     animation: fadeInDown 1.5s ease forwards;
   }
 
-  /* 날짜/제목 */
   #date-label {
     font-family: 'Cinzel', serif;
     font-size: clamp(11px, 2vw, 13px);
@@ -107,7 +101,6 @@
     letter-spacing: 3px;
   }
 
-  /* 구분선 */
   .divider {
     display: flex; align-items: center; gap: 14px;
     margin-bottom: 28px;
@@ -121,7 +114,6 @@
   }
   .divider-icon { color: var(--gold); font-size: 14px; opacity: 0.9; }
 
-  /* 기도문 박스 */
   #prayer-box {
     width: min(620px, 92vw);
     height: 45vh;
@@ -136,7 +128,6 @@
     animation: fadeInUp 1.5s ease 1s forwards;
     position: relative;
   }
-  /* 위아래 페이드 마스크 */
   #prayer-box::before {
     content: '';
     position: absolute; top: 0; left: 0; right: 0;
@@ -153,7 +144,6 @@
     z-index: 2;
     pointer-events: none;
   }
-  /* 스크롤 애니메이션 래퍼 */
   #prayer-scroll-wrap {
     display: flex;
     flex-direction: column;
@@ -171,7 +161,6 @@
     letter-spacing: 0.5px;
   }
 
-  /* 편집 모드 텍스트에어리어 */
   #prayer-edit {
     display: none;
     width: 100%; min-height: 200px;
@@ -188,7 +177,6 @@
     caret-color: var(--gold);
   }
 
-  /* 하단 컨트롤 바 */
   #bottom-bar {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
     padding: 18px 30px 24px;
@@ -199,7 +187,6 @@
     animation: fadeIn 2s ease 1.5s forwards;
   }
 
-  /* 유튜브 입력 */
   #yt-section {
     display: flex; align-items: center; gap: 10px;
     flex: 1;
@@ -236,10 +223,8 @@
   .ctrl-btn:hover { background: rgba(201,168,76,0.2); border-color: var(--gold); transform: scale(1.05); }
   .ctrl-btn.active { background: rgba(201,168,76,0.25); border-color: var(--gold); }
 
-  /* 오른쪽 버튼 그룹 */
   #right-btns { display: flex; gap: 10px; align-items: center; }
 
-  /* 이미지 출처 */
   #photo-credit {
     position: fixed; bottom: 80px; right: 18px; z-index: 20;
     font-size: 10px; color: rgba(255,255,255,0.3);
@@ -250,25 +235,18 @@
   }
   #photo-credit a { color: rgba(255,255,255,0.35); text-decoration: none; }
 
-  /* 유튜브 iframe (숨김) */
   #yt-frame { position: fixed; top: -9999px; left: -9999px; width: 1px; height: 1px; }
 
-  /* 홈 버튼 */
   .home-btn {
     position: fixed;
-    top: 20px;
-    left: 20px;
+    top: 20px; left: 20px;
     z-index: 9000;
     font-size: 26px;
     text-decoration: none;
     color: rgba(201,168,76,0.7);
     transition: 0.3s;
-    text-shadow: none;
-    width: 44px;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
     border-radius: 50%;
     background: rgba(0,0,0,0.3);
     border: 1px solid rgba(201,168,76,0.2);
@@ -282,7 +260,27 @@
     text-shadow: 0 0 15px rgba(201,168,76,0.8), 0 0 30px rgba(201,168,76,0.4);
   }
 
-  /* 로딩 */
+  /* 음악 재생 중 표시 */
+  #music-indicator {
+    position: fixed; top: 20px; right: 20px; z-index: 9000;
+    display: none;
+    align-items: center; gap: 8px;
+    background: rgba(0,0,0,0.5);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: var(--gold-light);
+    font-family: 'Noto Sans KR', sans-serif;
+    backdrop-filter: blur(8px);
+  }
+  .music-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--gold);
+    animation: musicPulse 1.2s ease-in-out infinite;
+  }
+  @keyframes musicPulse { 0%,100%{opacity:0.3;transform:scale(0.8)} 50%{opacity:1;transform:scale(1.2)} }
+
   #loading-screen {
     position: fixed; inset: 0; z-index: 9999;
     background: #0a0a0a;
@@ -301,7 +299,6 @@
     opacity: 0.7;
   }
 
-  /* 편집 힌트 */
   #edit-hint {
     position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
     z-index: 20;
@@ -329,7 +326,6 @@
     to { opacity: 1; }
   }
 
-  /* 배경 변경 효과 */
   @keyframes bgKenBurns {
     0% { transform: scale(1); }
     100% { transform: scale(1.06); }
@@ -343,6 +339,12 @@
 
 <a href="index.html" class="home-btn">🏠</a>
 
+<!-- 음악 재생 중 표시 -->
+<div id="music-indicator">
+  <div class="music-dot"></div>
+  <span id="music-indicator-text">음악 재생 중</span>
+</div>
+
 <div id="loading-screen">
   <div class="loading-cross">✝</div>
   <div class="loading-text">PREPARING YOUR PRAYER</div>
@@ -354,7 +356,6 @@
 <div id="light-ray"></div>
 
 <div id="photo-credit"></div>
-
 <div id="edit-hint">✏️ 기도문을 자유롭게 수정하세요 — 저장 버튼으로 완료</div>
 
 <div id="main">
@@ -392,7 +393,6 @@
 <iframe id="yt-frame" allow="autoplay"></iframe>
 
 <script>
-  // ── 기본 기도문 ──
   const DEFAULT_PRAYERS = [
     `주님,
 오늘 하루를 주심에 감사드립니다.
@@ -443,26 +443,67 @@
 아멘.`
   ];
 
+  // ── Supabase 설정 (config API에서 로드) ──
+  let SUPABASE_URL = '', SUPABASE_KEY = '';
   let currentPrayer = '';
   let isEditing = false;
   let isMuted = false;
-  let ytPlayer = null;
   let bgIndex = 0;
-  let currentBgUrl = '';
 
-  // ── Bing 월페이퍼 로드 ──
+  async function initSupabase() {
+    try {
+      const r = await fetch('/api/config');
+      if (!r.ok) throw new Error('config 오류');
+      const cfg = await r.json();
+      SUPABASE_URL = cfg.supabaseUrl;
+      SUPABASE_KEY = cfg.supabaseKey;
+    } catch(e) {
+      console.warn('Supabase 초기화 실패, localStorage만 사용:', e.message);
+    }
+  }
+
+  function sbH() {
+    return { 'Content-Type':'application/json', 'apikey': SUPABASE_KEY, 'Authorization':'Bearer '+SUPABASE_KEY };
+  }
+
+  // ── 설정 저장 (Supabase 우선, fallback localStorage) ──
+  async function saveSetting(key, value) {
+    localStorage.setItem(key, value); // 항상 로컬에도 저장
+    if (!SUPABASE_URL) return;
+    try {
+      // upsert: key가 있으면 update, 없으면 insert
+      await fetch(SUPABASE_URL + '/rest/v1/app_settings', {
+        method: 'POST',
+        headers: Object.assign({}, sbH(), { 'Prefer': 'resolution=merge-duplicates' }),
+        body: JSON.stringify({ key, value })
+      });
+    } catch(e) { console.warn('설정 저장 실패:', e.message); }
+  }
+
+  // ── 설정 불러오기 (Supabase 우선, fallback localStorage) ──
+  async function loadSetting(key) {
+    if (SUPABASE_URL) {
+      try {
+        const r = await fetch(SUPABASE_URL + '/rest/v1/app_settings?key=eq.' + key + '&select=value', { headers: sbH() });
+        if (r.ok) {
+          const data = await r.json();
+          if (data && data[0]) return data[0].value;
+        }
+      } catch(e) { console.warn('설정 로드 실패:', e.message); }
+    }
+    return localStorage.getItem(key); // fallback
+  }
+
+  // ── Bing 월페이퍼 ──
   async function getBingImageUrl() {
     try {
-      // CORS 우회 프록시 사용
       const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=8&mkt=ko-KR');
       const res = await fetch(proxyUrl);
       const json = await res.json();
       const data = JSON.parse(json.contents);
-      const images = data.images;
-      const img = images[bgIndex % images.length];
+      const img = data.images[bgIndex % data.images.length];
       return 'https://www.bing.com' + img.url;
     } catch(e) {
-      // fallback: Picsum
       const id = [15, 28, 37, 40, 42, 57, 62, 70][bgIndex % 8];
       const w = Math.min(Math.round(window.innerWidth * (window.devicePixelRatio || 1)), 2400);
       const h = Math.min(Math.round(window.innerHeight * (window.devicePixelRatio || 1)), 1600);
@@ -470,11 +511,9 @@
     }
   }
 
-  // ── 배경 로드 ──
   async function loadBg(first) {
     const url = await getBingImageUrl();
     bgIndex++;
-
     const img = new Image();
     img.onload = function() {
       if (first) {
@@ -491,22 +530,19 @@
           setTimeout(() => { next.style.transition = 'opacity 2.5s ease'; }, 50);
         }, 2600);
       }
-      // 사진 크레딧
       const credit = document.getElementById('photo-credit');
       credit.innerHTML = `📷 <a href="https://www.bing.com" target="_blank">Bing 오늘의 배경</a>`;
       credit.style.opacity = '1';
       setTimeout(() => { credit.style.opacity = '0'; }, 4000);
     };
     img.onerror = function() {
-      // fallback: 그라디언트
       const fallbacks = [
         'linear-gradient(135deg, #1a3a5c 0%, #0d1f35 50%, #2c1810 100%)',
         'linear-gradient(135deg, #1a2c1a 0%, #0d1f0d 50%, #1a2c35 100%)',
         'linear-gradient(135deg, #3a2c1a 0%, #1a1a2c 50%, #0d1f35 100%)',
       ];
-      const fb = fallbacks[bgIndex % fallbacks.length];
       if (first) {
-        document.getElementById('bg-layer').style.background = fb;
+        document.getElementById('bg-layer').style.background = fallbacks[bgIndex % fallbacks.length];
         hideLanding();
       }
     };
@@ -515,73 +551,50 @@
 
   function refreshBg() { loadBg(false); }
 
-  // ── 로딩 화면 숨기기 ──
   function hideLanding() {
     const ls = document.getElementById('loading-screen');
     ls.style.opacity = '0';
     setTimeout(() => { ls.style.display = 'none'; }, 1000);
   }
 
-  // ── 날짜 표시 ──
   function setDate() {
     const now = new Date();
     const days = ['주일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
-    const label = `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}`;
-    document.getElementById('date-label').textContent = label;
+    document.getElementById('date-label').textContent =
+      `${now.getFullYear()}년 ${now.getMonth()+1}월 ${now.getDate()}일 ${days[now.getDay()]}`;
   }
 
-  // ── 기도문 설정 ──
-  function loadPrayer() {
-    const saved = localStorage.getItem('daily_prayer_custom');
-    if (saved) {
-      currentPrayer = saved;
-    } else {
-      const dayIdx = new Date().getDay() % DEFAULT_PRAYERS.length;
-      currentPrayer = DEFAULT_PRAYERS[dayIdx];
-    }
+  async function loadPrayer() {
+    const saved = await loadSetting('daily_prayer_custom');
+    currentPrayer = saved || DEFAULT_PRAYERS[new Date().getDay() % DEFAULT_PRAYERS.length];
     document.getElementById('prayer-text').textContent = currentPrayer;
     document.getElementById('prayer-edit').value = currentPrayer;
   }
 
   // ── 자동 스크롤 ──
-  let scrollAnim = null;
-  let scrollPos = 0;
-  let scrollSpeed = 0.5; // px per frame (느릴수록 천천히)
-  let scrollPaused = false;
+  let scrollAnim = null, scrollPos = 0, scrollSpeed = 0.5, scrollPaused = false;
 
   function startAutoScroll() {
     const wrap = document.getElementById('prayer-scroll-wrap');
-    const box = document.getElementById('prayer-box');
+    const box  = document.getElementById('prayer-box');
     if (!wrap || !box) return;
-
-    const totalH = wrap.scrollHeight;
-    const boxH = box.clientHeight;
-
-    // 텍스트가 박스보다 짧으면 스크롤 안 함
+    const totalH = wrap.scrollHeight, boxH = box.clientHeight;
     if (totalH <= boxH) return;
-
     scrollPos = 0;
     wrap.style.transform = 'translateY(0px)';
-
     function step() {
       if (scrollPaused) { scrollAnim = requestAnimationFrame(step); return; }
       scrollPos += scrollSpeed;
-      // 끝에 도달하면 처음으로 부드럽게 리셋
       if (scrollPos >= totalH - boxH + 60) {
         scrollPos = 0;
         wrap.style.transition = 'none';
         wrap.style.transform = 'translateY(0px)';
-        // 잠깐 멈췄다가 다시 시작
-        setTimeout(() => {
-          wrap.style.transition = '';
-          scrollAnim = requestAnimationFrame(step);
-        }, 2000);
+        setTimeout(() => { wrap.style.transition = ''; scrollAnim = requestAnimationFrame(step); }, 2000);
         return;
       }
       wrap.style.transform = `translateY(-${scrollPos}px)`;
       scrollAnim = requestAnimationFrame(step);
     }
-    // 2초 뒤 시작 (기도문 읽을 시간)
     setTimeout(() => { scrollAnim = requestAnimationFrame(step); }, 2000);
   }
 
@@ -592,25 +605,23 @@
     if (wrap) wrap.style.transform = 'translateY(0px)';
   }
 
-  // 박스 터치/클릭하면 일시정지
   document.getElementById('prayer-box').addEventListener('mouseenter', () => { scrollPaused = true; });
   document.getElementById('prayer-box').addEventListener('mouseleave', () => { scrollPaused = false; });
 
-  // ── 편집 모드 토글 ──
+  // ── 편집 모드 ──
   function toggleEdit() {
     isEditing = !isEditing;
-    const btn = document.getElementById('edit-btn');
+    const btn  = document.getElementById('edit-btn');
     const hint = document.getElementById('edit-hint');
     const wrap = document.getElementById('prayer-scroll-wrap');
-    const pText = document.getElementById('prayer-text');
     const pEdit = document.getElementById('prayer-edit');
-    const box = document.getElementById('prayer-box');
+    const box  = document.getElementById('prayer-box');
 
     if (isEditing) {
       stopAutoScroll();
       wrap.style.display = 'none';
       box.style.overflow = 'auto';
-      box.style.padding = '30px 36px';
+      box.style.padding  = '30px 36px';
       pEdit.style.display = 'block';
       pEdit.value = currentPrayer;
       pEdit.focus();
@@ -618,18 +629,16 @@
       btn.classList.add('active');
       hint.style.display = 'block';
     } else {
-      // 저장
       currentPrayer = pEdit.value;
-      localStorage.setItem('daily_prayer_custom', currentPrayer);
-      pText.textContent = currentPrayer;
+      saveSetting('daily_prayer_custom', currentPrayer);
+      document.getElementById('prayer-text').textContent = currentPrayer;
       pEdit.style.display = 'none';
       box.style.overflow = 'hidden';
-      box.style.padding = '0 36px';
+      box.style.padding  = '0 36px';
       wrap.style.display = 'flex';
       btn.textContent = '✏️';
       btn.classList.remove('active');
       hint.style.display = 'none';
-      // 스크롤 재시작
       setTimeout(startAutoScroll, 500);
     }
   }
@@ -653,38 +662,63 @@
     const id = getYtId(input);
     if (!id) { alert('올바른 유튜브 링크 또는 영상 ID를 입력해주세요.'); return; }
 
-    // 링크 저장
-    localStorage.setItem('prayer_yt_link', input);
+    // 링크와 ID 모두 저장 (Supabase + localStorage)
+    saveSetting('prayer_yt_link', input);
+    saveSetting('prayer_yt_id', id);
 
     const frame = document.getElementById('yt-frame');
     frame.src = `https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&controls=0&mute=${isMuted ? 1 : 0}`;
+
+    // 재생 중 표시
+    showMusicIndicator();
+  }
+
+  function showMusicIndicator() {
+    const ind = document.getElementById('music-indicator');
+    ind.style.display = 'flex';
   }
 
   function toggleMute() {
     isMuted = !isMuted;
+    saveSetting('prayer_muted', isMuted ? '1' : '0');
     document.getElementById('mute-btn').textContent = isMuted ? '🔇' : '🔊';
-    // iframe 재로드로 음소거 반영
     const frame = document.getElementById('yt-frame');
     if (frame.src && frame.src.includes('youtube')) {
       frame.src = frame.src.replace(/mute=\d/, `mute=${isMuted ? 1 : 0}`);
     }
   }
 
-  // ── 배경 자동 변경 (30분마다) ──
+  // ── 배경 자동 변경 (30분) ──
   setInterval(refreshBg, 30 * 60 * 1000);
 
-  // ── 초기화 ──
-  setDate();
-  loadPrayer();
-  loadBg(true);
-  // 페이지 로드 후 자동 스크롤 시작
-  setTimeout(startAutoScroll, 3000);
+  // ── 메인 초기화 (async) ──
+  async function startApp() {
+    // 1. Supabase 연결
+    await initSupabase();
 
-  // 저장된 유튜브 링크 복원
-  const savedYt = localStorage.getItem('prayer_yt_link');
-  if (savedYt) {
-    document.getElementById('yt-input').value = savedYt;
+    // 2. 날짜 + 기도문 + 배경
+    setDate();
+    await loadPrayer();
+    loadBg(true);
+    setTimeout(startAutoScroll, 3000);
+
+    // 3. 음소거 상태 복원
+    const savedMuted = await loadSetting('prayer_muted');
+    if (savedMuted === '1') {
+      isMuted = true;
+      document.getElementById('mute-btn').textContent = '🔇';
+    }
+
+    // 4. 유튜브 링크 복원 (Supabase or localStorage)
+    const savedYt = await loadSetting('prayer_yt_link');
+    if (savedYt) {
+      document.getElementById('yt-input').value = savedYt;
+      // PC: 자동 재생 / 모바일: 링크만 표시 (브라우저 정책상 자동재생 불가)
+      setTimeout(() => { playYoutube(); }, 2000);
+    }
   }
+
+  startApp();
 </script>
 </body>
 </html>
