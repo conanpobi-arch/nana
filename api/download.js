@@ -6,14 +6,19 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   res.setHeader('Content-Type', 'application/json');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
   const { url } = req.body;
-  if (!url) return res.status(400).json({ error: 'URL 없음' });
+  if (!url) {
+    return res.status(400).json({ error: 'URL 없음' });
+  }
 
+  // 인스턴스 (현재 당신의 Railway만 사용 – 성공 확인됨)
   const COBALT_INSTANCES = ['https://cobalt-production-aa95.up.railway.app'];
 
-  // Vercel Env Vars에 COBALT_API_KEY 설정했다면 사용 (Railway Variables에서 확인)
+  // 인증 필요 시 Vercel 환경 변수에 COBALT_API_KEY 추가
   const API_KEY = process.env.COBALT_API_KEY || '';
 
   const agent = new Agent({ keepAlive: true, timeout: 30000 });
@@ -36,14 +41,15 @@ export default async function handler(req, res) {
 
         if (API_KEY) {
           headers['Authorization'] = `Api-Key ${API_KEY}`;
-          console.log(`[${instance}] Authorization 헤더 추가됨`);
+          console.log(`[${instance}] Authorization 추가됨`);
         }
 
         const response = await fetch(instance, {
           method: 'POST',
           headers,
           body: JSON.stringify({
-            url: url  // 최소 body만! 옵션 키 제거 → 기본 최고 화질 / basic 파일명
+            url: url  // 최소 body만 → 기본 최고 화질 / 기본 파일명으로 성공 확인됨
+            // 필요 시 추가: videoQuality: 'max', filenameStyle: 'classic', isAudioOnly: false
           }),
           signal: controller.signal,
           agent
@@ -63,7 +69,8 @@ export default async function handler(req, res) {
 
         console.log(`[${instance}] 성공 응답 데이터: ${JSON.stringify(data)}`);
 
-        if (data.status === 'stream' || data.status === 'redirect') {
+        // tunnel / stream / redirect 모두 단일 다운로드 링크로 처리
+        if (data.status === 'tunnel' || data.status === 'stream' || data.status === 'redirect') {
           return res.status(200).json({
             success: true,
             type: data.status,
@@ -72,6 +79,7 @@ export default async function handler(req, res) {
           });
         }
 
+        // 여러 화질 선택 (picker)
         if (data.status === 'picker') {
           return res.status(200).json({
             success: true,
@@ -81,6 +89,7 @@ export default async function handler(req, res) {
           });
         }
 
+        // 에러 응답
         if (data.status === 'error' || data.error) {
           return res.status(200).json({
             success: false,
@@ -88,11 +97,17 @@ export default async function handler(req, res) {
           });
         }
 
-        return res.status(200).json({ success: false, error: '알 수 없는 응답 형식' });
+        // 예상치 못한 응답
+        return res.status(200).json({
+          success: false,
+          error: '알 수 없는 응답 형식: ' + (data.status || 'no status')
+        });
 
       } catch (e) {
         console.error(`[${instance}] Attempt ${attempt} 예외: ${e.message} (code: ${e.code || 'unknown'})`);
-        if (attempt < 3) await new Promise(r => setTimeout(r, 4000));
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, 4000));
+        }
       }
     }
   }
