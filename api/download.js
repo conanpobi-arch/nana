@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   if (!url) return res.status(400).json({ error: 'URL 없음' });
 
   const COBALT_INSTANCES = [
-    'https://cobalt-production-aa95.up.railway.app',
+    'https://cobalt-production-aa95.up.railway.app',  // 당신 인스턴스 메인
     'https://co.wuk.sh',
     'https://kityune.imput.net'
   ];
@@ -22,7 +22,7 @@ export default async function handler(req, res) {
   for (const instance of COBALT_INSTANCES) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`[${instance}] Attempt ${attempt}: 시작`);
+        console.log(`[${instance}] Attempt ${attempt}: POST 시작 - url=${url}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 40000);
@@ -32,12 +32,13 @@ export default async function handler(req, res) {
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'  // Cloudflare 우회용 브라우저 흉내
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+            'Referer': 'https://cobalt.tools/'  // Cloudflare 우회 강화
           },
           body: JSON.stringify({
-            url: url,                     // 필수
-            videoQuality: 'max',          // 최신 키: vQuality → videoQuality
-            filenameStyle: 'classic',     // filenamePattern → filenameStyle
+            url: url,                  // 필수
+            videoQuality: 'max',       // 최신 키 (vQuality 아님!)
+            filenameStyle: 'classic',  // 최신 키
             isAudioOnly: false
           }),
           signal: controller.signal,
@@ -50,7 +51,7 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
           const errorBody = await response.text().catch(() => 'No body');
-          console.error(`[${instance}] 실패 - Status: ${response.status}, Body: ${errorBody.substring(0, 200)}...`);  // 로그 길이 제한
+          console.error(`[${instance}] 실패 - Status: ${response.status}, Body: ${errorBody.substring(0, 300)}...`);
           continue;
         }
 
@@ -85,7 +86,7 @@ export default async function handler(req, res) {
 
       } catch (e) {
         console.error(`[${instance}] Attempt ${attempt} 예외: ${e.message} (code: ${e.code || 'unknown'})`);
-        if (attempt < 3) await new Promise(r => setTimeout(r, 3000));  // 지연 늘림
+        if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
       }
     }
   }
