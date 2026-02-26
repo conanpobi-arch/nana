@@ -14,13 +14,12 @@ export default async function handler(req, res) {
   }
 
   // 당신의 Railway Cobalt 인스턴스 (메인으로 사용)
-  const COBALT_INSTANCES = [
-    'https://cobalt-production-aa95.up.railway.app',
-    // 필요시 fallback 추가 (현재는 이 하나만으로 충분할 가능성 높음)
-    // 'https://co.wuk.sh',
-    // 'https://kityune.imput.net'
-  ];
-
+ const COBALT_INSTANCES = [
+  'https://co.wuk.sh',  // 가장 안정적인 공용 중 하나
+  'https://kityune.imput.net',
+  'https://cobalt-production-aa95.up.railway.app'  // fallback으로 유지
+];
+  
   for (const instance of COBALT_INSTANCES) {
     try {
       // 타임아웃 설정 (20초)
