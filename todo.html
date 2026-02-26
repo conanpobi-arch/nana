@@ -45,7 +45,7 @@
     .todo-check { width: 24px; height: 24px; border: 2px solid var(--border); border-radius: 6px; cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: 0.2s; margin-top: 2px; }
     .todo-check.checked { background: var(--neon); border-color: var(--neon); color: #000; }
     .todo-body { flex: 1; cursor: pointer; }
-    .todo-title { font-size: 15px; color: #eee; line-height: 1.5; word-break: keep-all; }
+    .todo-title { font-size: 15px; color: #eee; line-height: 1.5; word-break: break-all; overflow-wrap: break-word; }
     .todo-item.done .todo-title { text-decoration: line-through; color: #666; }
     .todo-meta { display: flex; align-items: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
     .todo-date { font-size: 11px; color: rgba(0,255,204,0.6); font-family: 'Orbitron'; letter-spacing: 1px; }
@@ -62,7 +62,7 @@
     .dday-future { background: rgba(0,255,204,0.07);   color: rgba(0,255,204,0.7); border: 1px solid rgba(0,255,204,0.2); }
     .dday-over   { background: rgba(255,255,255,0.04); color: #555;                 border: 1px solid rgba(255,255,255,0.08); }
 
-    .todo-memo { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.6; }
+    .todo-memo { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.6; word-break: break-all; overflow-wrap: break-word; }
     .todo-actions { display: flex; gap: 6px; flex-shrink: 0; }
     .todo-icon-btn { font-size: 16px; cursor: pointer; color: rgba(255,255,255,0.25); padding: 4px; transition: 0.2s; }
     .todo-icon-btn:hover { color: var(--neon); }
