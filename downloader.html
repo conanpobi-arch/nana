@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>동영상다운로더 - NANA LAB</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: #000 url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&q=80&w=2000') center/cover no-repeat fixed;
+      color: #e0f0ff;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      overflow-x: hidden;
+    }
+
+    .stars { position: fixed; inset: 0; pointer-events: none; animation: twinkle 80s linear infinite; }
+    @keyframes twinkle { 0%,100%{opacity:0.4} 50%{opacity:0.8} }
+
+    .home-btn {
+      position: fixed; top: 20px; left: 20px; z-index: 999;
+      font-size: 24px; text-decoration: none; color: #00ffff;
+      width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; background: rgba(0,0,0,0.4); border: 1px solid rgba(0,255,255,0.3);
+      backdrop-filter: blur(8px); transition: 0.3s;
+    }
+    .home-btn:hover { background: rgba(0,255,255,0.15); border-color: #00ffff; transform: scale(1.1); box-shadow: 0 0 15px rgba(0,255,255,0.5); }
+
+    .container {
+      position: relative; z-index: 10; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 80px 20px 40px;
+    }
+
+    header { text-align: center; margin-bottom: 40px; }
+
+    h1 {
+      font-size: 3rem; font-weight: 900; letter-spacing: 6px;
+      background: linear-gradient(90deg, #00ffff, #00bfff, #0ff);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      filter: drop-shadow(0 0 20px #0ff8); margin-bottom: 8px;
+    }
+
+    .subtitle { font-size: 1rem; color: #88ccff; letter-spacing: 1px; }
+
+    .card {
+      background: rgba(10,15,30,0.65); backdrop-filter: blur(10px);
+      border: 1px solid rgba(0,255,255,0.18); border-radius: 18px;
+      padding: 36px 30px; width: 100%; max-width: 620px;
+      box-shadow: 0 0 30px rgba(0,255,255,0.15), inset 0 0 20px rgba(0,255,255,0.08);
+      margin: 0 auto 16px;
+    }
+
+    .input-wrap { position: relative; display: flex; align-items: center; }
+
+    input[type="text"] {
+      width: 100%; background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(0,255,255,0.35); border-radius: 12px;
+      padding: 18px 56px 18px 24px; font-size: 1rem; color: #e0ffff; outline: none; transition: 0.3s;
+    }
+    input[type="text"]:focus { border-color: #00ffff; box-shadow: 0 0 25px rgba(0,255,255,0.4); }
+    input[type="text"]::placeholder { color: rgba(255,255,255,0.3); }
+
+    .clear-btn {
+      position: absolute; right: 14px; background: transparent; border: none;
+      color: rgba(0,255,255,0.4); font-size: 18px; cursor: pointer; transition: 0.2s; padding: 4px;
+    }
+    .clear-btn:hover { color: #ff4444; transform: scale(1.1); }
+
+    .platform-badges { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+    .badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: 1px; }
+    .badge-yt { background: rgba(255,0,0,0.15); color: #ff6666; border: 1px solid rgba(255,0,0,0.3); }
+    .badge-fb { background: rgba(24,119,242,0.15); color: #60a0ff; border: 1px solid rgba(24,119,242,0.3); }
+
+    .buttons { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 20px; }
+
+    .btn {
+      padding: 13px 28px; font-size: 1rem; font-weight: 600;
+      border-radius: 12px; cursor: pointer; transition: 0.25s; border: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-primary { background: linear-gradient(135deg, #00d4ff, #0095ff); color: #fff; box-shadow: 0 0 20px rgba(0,180,255,0.5); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 35px rgba(0,200,255,0.7); }
+    .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+    .btn-secondary { background: rgba(0,255,255,0.12); color: #00ffff; border: 1px solid rgba(0,255,255,0.4); }
+    .btn-secondary:hover { background: rgba(0,255,255,0.22); }
+
+    .status-box {
+      margin-top: 24px; padding: 16px 20px;
+      background: rgba(0,0,0,0.3); border-radius: 12px;
+      border: 1px solid rgba(0,255,255,0.1);
+      min-height: 56px; display: flex; align-items: center; justify-content: center;
+    }
+    .status-text { font-size: 0.95rem; color: #88ccff; text-align: center; line-height: 1.6; }
+    .status-text.loading { color: #00ffff; animation: pulse 1.5s infinite; }
+    .status-text.error { color: #ff6666; }
+    .status-text.success { color: #00ffcc; }
+    @keyframes pulse { 0%,100%{opacity:0.6} 50%{opacity:1} }
+
+    .result-card {
+      display: none;
+      background: rgba(0,20,40,0.7); border: 1px solid rgba(0,255,255,0.25);
+      border-radius: 14px; padding: 24px;
+      width: 100%; max-width: 620px; margin: 0 auto;
+    }
+    .result-title { font-size: 11px; color: rgba(0,255,255,0.6); font-weight: 700; letter-spacing: 2px; margin-bottom: 14px; }
+
+    .dl-btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 12px; text-decoration: none;
+      background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(0,149,255,0.1));
+      border: 1px solid rgba(0,200,255,0.4); color: #00ffff;
+      font-size: 1rem; font-weight: 600; transition: 0.2s;
+      margin-bottom: 10px;
+    }
+    .dl-btn:hover { background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,149,255,0.2)); transform: translateX(4px); }
+    .dl-btn:last-child { margin-bottom: 0; }
+    .dl-icon { font-size: 22px; flex-shrink: 0; }
+    .dl-info { flex: 1; }
+    .dl-label { font-size: 13px; color: #fff; margin-bottom: 2px; }
+    .dl-sub { font-size: 11px; color: rgba(0,255,255,0.5); }
+    .dl-arrow { font-size: 18px; }
+
+    footer { margin-top: auto; padding: 30px 0 20px; text-align: center; color: #66ccff; font-size: 0.85rem; opacity: 0.7; }
+
+    @media (max-width: 500px) {
+      h1 { font-size: 2.2rem; }
+      .card { padding: 24px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="stars"></div>
+<a href="index.html" class="home-btn">🏠</a>
+
+<div class="container">
+  <header>
+    <h1>동영상다운로더</h1>
+    <div class="subtitle">무료 · 고화질 · 빠른 다운로드</div>
+  </header>
+
+  <div class="card">
+    <div class="platform-badges">
+      <span class="badge badge-yt">▶ YouTube</span>
+      <span class="badge badge-yt">⚡ Shorts</span>
+      <span class="badge badge-fb">f Facebook</span>
+      <span class="badge badge-fb">▶ Reels</span>
+    </div>
+
+    <div class="input-wrap">
+      <input type="text" placeholder="유튜브 / Shorts / 페이스북 링크 붙여넣기" id="videoUrl"/>
+      <button class="clear-btn" onclick="clearInput()" title="지우기">🗑️</button>
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn-primary" id="analyzeBtn" onclick="startDownload()">
+        <i class="fas fa-download"></i> 다운로드
+      </button>
+      <button class="btn btn-secondary" onclick="pasteUrl()">
+        <i class="fas fa-paste"></i> 붙여넣기
+      </button>
+    </div>
+
+    <div class="status-box">
+      <div class="status-text" id="status">링크를 입력 후 다운로드 버튼을 눌러주세요</div>
+    </div>
+  </div>
+
+  <div class="result-card" id="result-card">
+    <div class="result-title">⬇ 다운로드 준비 완료</div>
+    <div id="result-links"></div>
+  </div>
+
+  <footer>NANA LAB · 동영상다운로더</footer>
+</div>
+
+<script>
+  const urlInput = document.getElementById('videoUrl');
+  const statusEl = document.getElementById('status');
+  const resultCard = document.getElementById('result-card');
+  const resultLinks = document.getElementById('result-links');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+
+  function setStatus(msg, type) {
+    statusEl.className = 'status-text' + (type ? ' ' + type : '');
+    statusEl.innerHTML = msg;
+  }
+
+  function clearInput() {
+    urlInput.value = '';
+    setStatus('링크를 입력 후 다운로드 버튼을 눌러주세요', '');
+    resultCard.style.display = 'none';
+    resultLinks.innerHTML = '';
+    urlInput.focus();
+  }
+
+  async function pasteUrl() {
+    try {
+      const text = await navigator.clipboard.readText();
+      urlInput.value = text.trim();
+      setStatus('클립보드에서 붙여넣었습니다!', 'success');
+    } catch(e) {
+      urlInput.focus();
+      setStatus('Ctrl+V 로 직접 붙여넣어 주세요', '');
+    }
+  }
+
+  function isValidUrl(url) {
+    return [
+      /youtube\.com\/watch/,
+      /youtu\.be\//,
+      /youtube\.com\/shorts/,
+      /facebook\.com\/.*\/videos/,
+      /facebook\.com\/reel/,
+      /fb\.watch/,
+      /facebook\.com\/share/
+    ].some(p => p.test(url));
+  }
+
+  function getPlatform(url) {
+    if (/youtube|youtu\.be/i.test(url)) return url.includes('shorts') ? '⚡ YouTube Shorts' : '▶ YouTube';
+    if (/facebook|fb\.watch/i.test(url)) return 'f Facebook / Reels';
+    return '🎬 영상';
+  }
+
+  async function startDownload() {
+    const url = urlInput.value.trim();
+    if (!url) { setStatus('링크를 입력해주세요!', 'error'); return; }
+    if (!isValidUrl(url)) {
+      setStatus('지원하지 않는 링크예요.<br>YouTube · Shorts · Facebook · Reels 링크를 입력해주세요.', 'error');
+      return;
+    }
+
+    analyzeBtn.disabled = true;
+    resultCard.style.display = 'none';
+    resultLinks.innerHTML = '';
+    setStatus('<i class="fas fa-spinner fa-spin"></i> &nbsp;' + getPlatform(url) + ' 영상 분석 중...', 'loading');
+
+    try {
+      const res = await fetch('/api/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setStatus('❌ ' + (data.error || '다운로드 실패. 링크를 확인해주세요.'), 'error');
+        analyzeBtn.disabled = false;
+        return;
+      }
+
+      setStatus('✅ 분석 완료! 아래 버튼으로 다운로드하세요.', 'success');
+      resultCard.style.display = 'block';
+
+      if (data.type === 'picker') {
+        data.picks.forEach((pick, i) => {
+          resultLinks.innerHTML += makeDlBtn(pick.url, pick.type === 'photo' ? '🖼️' : '🎬', '화질 옵션 ' + (i+1), pick.type || 'video');
+        });
+      } else {
+        resultLinks.innerHTML = makeDlBtn(data.url, '🎬', data.filename || '영상 다운로드', 'MP4 최고화질');
+      }
+
+    } catch(e) {
+      setStatus('❌ 서버 오류: ' + e.message, 'error');
+    }
+
+    analyzeBtn.disabled = false;
+  }
+
+  function makeDlBtn(url, icon, label, sub) {
+    return `<a href="${url}" download target="_blank" class="dl-btn">
+      <span class="dl-icon">${icon}</span>
+      <div class="dl-info"><div class="dl-label">${label}</div><div class="dl-sub">${sub}</div></div>
+      <span class="dl-arrow">⬇</span>
+    </a>`;
+  }
+
+  urlInput.addEventListener('keydown', e => { if (e.key === 'Enter') startDownload(); });
+</script>
+</body>
+</html>
