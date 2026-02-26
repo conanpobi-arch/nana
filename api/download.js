@@ -16,12 +16,11 @@ export default async function handler(req, res) {
   }
 
   // 인스턴스 목록: 당신의 Railway 메인 + 안정 공용 fallback
-  const COBALT_INSTANCES = [
-    'https://cobalt-production-aa95.up.railway.app',
-    'https://co.wuk.sh',           // 커뮤니티에서 가장 안정적
-    'https://kityune.imput.net'    // imputnet 공식 계열
+ const COBALT_INSTANCES = ['https://co.wuk.sh'];
   ];
 
+
+  
   const agent = new Agent({ keepAlive: true, timeout: 30000 });  // 연결 재사용 + 30초 연결 타임아웃
 
   for (const instance of COBALT_INSTANCES) {
