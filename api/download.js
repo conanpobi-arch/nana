@@ -13,15 +13,15 @@ export default async function handler(req, res) {
 
   const COBALT_INSTANCES = ['https://cobalt-production-aa95.up.railway.app'];
 
-  // Railway Variables에서 API_KEY 설정했다면 여기 넣기 (Vercel Env Vars에도 복사)
-  const API_KEY = process.env.COBALT_API_KEY || '';  // Vercel Env Vars에 COBALT_API_KEY 추가
+  // Vercel Env Vars에 COBALT_API_KEY 설정했다면 사용 (Railway Variables에서 확인)
+  const API_KEY = process.env.COBALT_API_KEY || '';
 
   const agent = new Agent({ keepAlive: true, timeout: 30000 });
 
   for (const instance of COBALT_INSTANCES) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`[${instance}] Attempt ${attempt}: POST 시작`);
+        console.log(`[${instance}] Attempt ${attempt}: POST 시작 - url=${url}`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 50000);
@@ -36,15 +36,14 @@ export default async function handler(req, res) {
 
         if (API_KEY) {
           headers['Authorization'] = `Api-Key ${API_KEY}`;
-          console.log(`[${instance}] Authorization 추가됨`);
+          console.log(`[${instance}] Authorization 헤더 추가됨`);
         }
 
         const response = await fetch(instance, {
           method: 'POST',
           headers,
           body: JSON.stringify({
-            url: url  // 최소 body: 옵션 제거 → 기본 max 화질, basic filename
-            // 필요시만 추가: videoQuality: 'max', filenameStyle: 'classic', isAudioOnly: false
+            url: url  // 최소 body만! 옵션 키 제거 → 기본 최고 화질 / basic 파일명
           }),
           signal: controller.signal,
           agent
@@ -61,6 +60,8 @@ export default async function handler(req, res) {
         }
 
         const data = await response.json();
+
+        console.log(`[${instance}] 성공 응답 데이터: ${JSON.stringify(data)}`);
 
         if (data.status === 'stream' || data.status === 'redirect') {
           return res.status(200).json({
@@ -83,11 +84,11 @@ export default async function handler(req, res) {
         if (data.status === 'error' || data.error) {
           return res.status(200).json({
             success: false,
-            error: data.error?.message || data.error?.code || data.text || '다운로드 실패'
+            error: data.error?.message || data.error?.code || data.text || JSON.stringify(data.error) || '다운로드 실패'
           });
         }
 
-        return res.status(200).json({ success: false, error: '알 수 없는 응답' });
+        return res.status(200).json({ success: false, error: '알 수 없는 응답 형식' });
 
       } catch (e) {
         console.error(`[${instance}] Attempt ${attempt} 예외: ${e.message} (code: ${e.code || 'unknown'})`);
