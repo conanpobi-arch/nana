@@ -11,33 +11,40 @@ export default async function handler(req, res) {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL 없음' });
 
-  // 당신의 Railway 인스턴스만 사용 (공용은 Cloudflare 차단 + 연결 실패)
   const COBALT_INSTANCES = ['https://cobalt-production-aa95.up.railway.app'];
+
+  // Railway Variables에서 API_KEY 설정했다면 여기 넣기 (Vercel Env Vars에도 복사)
+  const API_KEY = process.env.COBALT_API_KEY || '';  // Vercel Env Vars에 COBALT_API_KEY 추가
 
   const agent = new Agent({ keepAlive: true, timeout: 30000 });
 
   for (const instance of COBALT_INSTANCES) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`[${instance}] Attempt ${attempt}: POST 시작 - url=${url}`);
+        console.log(`[${instance}] Attempt ${attempt}: POST 시작`);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 50000);
 
+        const headers = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+          'Referer': 'https://cobalt.tools/',
+          'Origin': 'https://cobalt.tools'
+        };
+
+        if (API_KEY) {
+          headers['Authorization'] = `Api-Key ${API_KEY}`;
+          console.log(`[${instance}] Authorization 추가됨`);
+        }
+
         const response = await fetch(instance, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
-            'Referer': 'https://cobalt.tools/',
-            'Origin': 'https://cobalt.tools'
-          },
+          headers,
           body: JSON.stringify({
-            url: url,                  // 필수
-            videoQuality: 'max',       // 정확 키
-            filenameStyle: 'classic',  // 정확 키
-            isAudioOnly: false         // 오디오만 아니면 false
+            url: url  // 최소 body: 옵션 제거 → 기본 max 화질, basic filename
+            // 필요시만 추가: videoQuality: 'max', filenameStyle: 'classic', isAudioOnly: false
           }),
           signal: controller.signal,
           agent
@@ -76,7 +83,7 @@ export default async function handler(req, res) {
         if (data.status === 'error' || data.error) {
           return res.status(200).json({
             success: false,
-            error: data.error || data.text || data.code || '다운로드 실패'
+            error: data.error?.message || data.error?.code || data.text || '다운로드 실패'
           });
         }
 
