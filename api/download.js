@@ -11,22 +11,18 @@ export default async function handler(req, res) {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: 'URL 없음' });
 
-  // Railway 당신 인스턴스 우선 (Cloudflare 차단 덜 먹힘) + fallback
-  const COBALT_INSTANCES = [
-    'https://cobalt-production-aa95.up.railway.app',
-    // 필요시 fallback만 추가 (공용은 지금 차단 심함)
-    // 'https://co.wuk.sh'
-  ];
+  // 당신의 Railway 인스턴스만 사용 (공용은 Cloudflare 차단 + 연결 실패)
+  const COBALT_INSTANCES = ['https://cobalt-production-aa95.up.railway.app'];
 
   const agent = new Agent({ keepAlive: true, timeout: 30000 });
 
   for (const instance of COBALT_INSTANCES) {
     for (let attempt = 1; attempt <= 3; attempt++) {
       try {
-        console.log(`[${instance}] Attempt ${attempt}: POST - url=${url}`);
+        console.log(`[${instance}] Attempt ${attempt}: POST 시작 - url=${url}`);
 
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 50000); // 50초로 늘림 (vercel.json 60초와 맞춤)
+        const timeoutId = setTimeout(() => controller.abort(), 50000);
 
         const response = await fetch(instance, {
           method: 'POST',
@@ -35,13 +31,13 @@ export default async function handler(req, res) {
             'Accept': 'application/json',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
             'Referer': 'https://cobalt.tools/',
-            'Origin': 'https://cobalt.tools'  // Cloudflare 우회 강화
+            'Origin': 'https://cobalt.tools'
           },
           body: JSON.stringify({
-            url: url,                    // 필수
-            videoQuality: 'max',         // 문서 정확 키
-            filenameStyle: 'classic',    // 문서 정확 키
-            isAudioOnly: false
+            url: url,                  // 필수
+            videoQuality: 'max',       // 정확 키
+            filenameStyle: 'classic',  // 정확 키
+            isAudioOnly: false         // 오디오만 아니면 false
           }),
           signal: controller.signal,
           agent
@@ -53,7 +49,7 @@ export default async function handler(req, res) {
 
         if (!response.ok) {
           const errorBody = await response.text().catch(() => 'No body');
-          console.error(`[${instance}] 실패 - Status: ${response.status}, Body: ${errorBody.substring(0, 500)}...`); // 더 길게 로그
+          console.error(`[${instance}] 실패 - Status: ${response.status}, Full Body: ${errorBody}`);
           continue;
         }
 
@@ -80,7 +76,7 @@ export default async function handler(req, res) {
         if (data.status === 'error' || data.error) {
           return res.status(200).json({
             success: false,
-            error: data.error || data.text || '다운로드 실패'
+            error: data.error || data.text || data.code || '다운로드 실패'
           });
         }
 
@@ -88,7 +84,7 @@ export default async function handler(req, res) {
 
       } catch (e) {
         console.error(`[${instance}] Attempt ${attempt} 예외: ${e.message} (code: ${e.code || 'unknown'})`);
-        if (attempt < 3) await new Promise(r => setTimeout(r, 4000)); // 지연 4초
+        if (attempt < 3) await new Promise(r => setTimeout(r, 4000));
       }
     }
   }
