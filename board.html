@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NANA LAB - 게시판</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a28;
+    --border: #2a2a45;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --accent3: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield BG */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(124,58,237,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(6,182,212,0.06) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .logo {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+
+  .header-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  .back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.8rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .back-btn:hover { border-color: var(--accent); color: var(--text); }
+
+  /* ─── MAIN LAYOUT ─── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ─── WRITE BUTTON ─── */
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .board-count {
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .board-count span { color: var(--accent2); font-weight: 700; }
+
+  .write-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #9d4edd);
+    color: #fff;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+    box-shadow: 0 0 20px rgba(124,58,237,0.3);
+  }
+  .write-btn:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(124,58,237,0.5); }
+
+  /* ─── FILTER TABS ─── */
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 7px 18px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .tab-btn[data-type="video"].active { background: #ef4444; border-color: #ef4444; }
+  .tab-btn[data-type="image"].active { background: #06b6d4; border-color: #06b6d4; }
+  .tab-btn[data-type="text"].active  { background: #10b981; border-color: #10b981; }
+
+  /* ─── POST LIST ─── */
+  #post-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .post-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.25s;
+    animation: fadeUp 0.4s ease both;
+    cursor: pointer;
+  }
+  .post-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(124,58,237,0.15);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .post-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px 10px;
+  }
+
+  .type-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .type-badge.video  { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .type-badge.image  { background: rgba(6,182,212,0.15);  color: #22d3ee; border: 1px solid rgba(6,182,212,0.3); }
+  .type-badge.text   { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+
+  .post-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .post-meta {
+    padding: 0 16px 14px;
+    font-size: 0.77rem;
+    color: var(--muted);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .post-preview {
+    padding: 0 16px 14px;
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .post-thumb {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    display: block;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .video-thumb {
+    position: relative;
+    background: #000;
+    cursor: pointer;
+  }
+  .video-thumb video {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    display: block;
+  }
+  .video-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.35);
+    font-size: 3rem;
+    pointer-events: none;
+  }
+
+  /* ─── EMPTY STATE ─── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty-state .icon { font-size: 3rem; margin-bottom: 16px; }
+  .empty-state p { font-size: 0.9rem; }
+
+  /* ─── MODAL OVERLAY ─── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 24px; }
+
+  /* ─── FORM STYLES ─── */
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.15);
+  }
+  .form-group select option { background: var(--card); }
+
+  /* Type selector */
+  .type-selector {
+    display: flex;
+    gap: 10px;
+  }
+  .type-opt {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.85rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s;
+  }
+  .type-opt .type-icon { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+  .type-opt.active[data-val="video"] { background: rgba(239,68,68,0.1); border-color: #ef4444; color: #f87171; }
+  .type-opt.active[data-val="image"] { background: rgba(6,182,212,0.1); border-color: #06b6d4; color: #22d3ee; }
+  .type-opt.active[data-val="text"]  { background: rgba(16,185,129,0.1); border-color: #10b981; color: #34d399; }
+  .type-opt:not(.active):hover { border-color: var(--accent); color: var(--text); }
+
+  /* File drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--muted);
+    font-size: 0.85rem;
+    display: none;
+  }
+  .drop-zone.visible { display: block; }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(124,58,237,0.05);
+    color: var(--text);
+  }
+  .drop-zone .dz-icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+  .drop-zone input[type=file] { display: none; }
+  .file-preview {
+    margin-top: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+    display: none;
+  }
+  .file-preview img, .file-preview video {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+  }
+  .file-name {
+    font-size: 0.8rem;
+    color: var(--accent2);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), #9d4edd);
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Noto Sans KR', sans-serif;
+    box-shadow: 0 0 20px rgba(124,58,237,0.3);
+    margin-top: 6px;
+  }
+  .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(124,58,237,0.5); }
+
+  /* ─── DETAIL MODAL ─── */
+  .detail-content { padding: 20px 24px; }
+  .detail-content h2 { font-size: 1.15rem; margin-bottom: 10px; }
+  .detail-meta { font-size: 0.78rem; color: var(--muted); margin-bottom: 18px; display: flex; gap: 14px; }
+  .detail-body { font-size: 0.9rem; line-height: 1.8; color: #94a3b8; white-space: pre-wrap; }
+  .detail-media { margin-bottom: 16px; border-radius: 10px; overflow: hidden; }
+  .detail-media img, .detail-media video { width: 100%; border-radius: 10px; display: block; }
+
+  .delete-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(239,68,68,0.4);
+    background: rgba(239,68,68,0.08);
+    color: #f87171;
+    font-size: 0.82rem;
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    transition: all 0.2s;
+  }
+  .delete-btn:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; }
+
+  .detail-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 480px) {
+    .type-selector { flex-direction: column; }
+    .header-title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <a href="index.html" class="logo">NANA LAB</a>
+  <span class="header-title">📋 BOARD</span>
+  <a href="index.html" class="back-btn">← 홈으로</a>
+</header>
+
+<!-- MAIN -->
+<div class="container">
+  <div class="top-bar">
+    <div class="board-count">게시물 <span id="total-count">0</span>개</div>
+    <button class="write-btn" onclick="openWriteModal()">✏️ 글쓰기</button>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="tab-btn active" data-type="all" onclick="filterPosts('all',this)">📋 전체</button>
+    <button class="tab-btn" data-type="text"  onclick="filterPosts('text',this)">📝 글</button>
+    <button class="tab-btn" data-type="image" onclick="filterPosts('image',this)">🖼️ 이미지</button>
+    <button class="tab-btn" data-type="video" onclick="filterPosts('video',this)">🎬 동영상</button>
+  </div>
+
+  <div id="post-list"></div>
+</div>
+
+<!-- ─── WRITE MODAL ─── -->
+<div class="modal-overlay" id="write-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>✏️ NEW POST</h2>
+      <button class="modal-close" onclick="closeWriteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Type selector -->
+      <div class="form-group">
+        <label>게시물 유형</label>
+        <div class="type-selector">
+          <button class="type-opt active" data-val="text"  onclick="selectType('text',this)">
+            <span class="type-icon">📝</span>글
+          </button>
+          <button class="type-opt" data-val="image" onclick="selectType('image',this)">
+            <span class="type-icon">🖼️</span>이미지
+          </button>
+          <button class="type-opt" data-val="video" onclick="selectType('video',this)">
+            <span class="type-icon">🎬</span>동영상
+          </button>
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="form-group">
+        <label>제목</label>
+        <input type="text" id="input-title" placeholder="제목을 입력하세요" maxlength="80" />
+      </div>
+
+      <!-- Content -->
+      <div class="form-group">
+        <label>내용</label>
+        <textarea id="input-content" rows="5" placeholder="내용을 입력하세요..."></textarea>
+      </div>
+
+      <!-- Image upload -->
+      <div class="form-group" id="img-zone-wrap">
+        <label>이미지 파일</label>
+        <div class="drop-zone visible" id="img-drop" onclick="document.getElementById('img-file').click()"
+             ondragover="dzOver(event,'img-drop')" ondragleave="dzLeave('img-drop')" ondrop="dzDrop(event,'image')">
+          <span class="dz-icon">🖼️</span>
+          클릭하거나 파일을 드래그해서 올려주세요<br>
+          <small style="color:#475569">JPG, PNG, GIF, WEBP 지원</small>
+          <input type="file" id="img-file" accept="image/*" onchange="previewFile(this,'image')">
+        </div>
+        <div class="file-preview" id="img-preview">
+          <img id="img-preview-img" src="" alt="">
+          <div class="file-name" id="img-file-name"></div>
+        </div>
+      </div>
+
+      <!-- Video upload -->
+      <div class="form-group" id="vid-zone-wrap" style="display:none">
+        <label>동영상 파일</label>
+        <div class="drop-zone visible" id="vid-drop" onclick="document.getElementById('vid-file').click()"
+             ondragover="dzOver(event,'vid-drop')" ondragleave="dzLeave('vid-drop')" ondrop="dzDrop(event,'video')">
+          <span class="dz-icon">🎬</span>
+          클릭하거나 파일을 드래그해서 올려주세요<br>
+          <small style="color:#475569">MP4, WebM, MOV 지원</small>
+          <input type="file" id="vid-file" accept="video/*" onchange="previewFile(this,'video')">
+        </div>
+        <div class="file-preview" id="vid-preview">
+          <video id="vid-preview-vid" src="" controls></video>
+          <div class="file-name" id="vid-file-name"></div>
+        </div>
+      </div>
+
+      <button class="submit-btn" onclick="submitPost()">🚀 게시하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── DETAIL MODAL ─── -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="detail-title-badge">POST</h2>
+      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+    </div>
+    <div class="detail-content" id="detail-content"></div>
+    <div class="detail-footer" id="detail-footer"></div>
+  </div>
+</div>
+
+<script>
+// ───────────────────────────────────────────
+// STATE
+// ───────────────────────────────────────────
+let posts = JSON.parse(localStorage.getItem('nana_board_posts') || '[]');
+let currentType = 'text';
+let currentFilter = 'all';
+let currentDetailId = null;
+
+// ───────────────────────────────────────────
+// RENDER
+// ───────────────────────────────────────────
+function renderPosts() {
+  const list = document.getElementById('post-list');
+  const filtered = currentFilter === 'all' ? posts : posts.filter(p => p.type === currentFilter);
+
+  document.getElementById('total-count').textContent = posts.length;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <p>아직 게시물이 없습니다.<br>첫 번째 게시물을 작성해보세요!</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map((p, i) => {
+    const labelMap = { text: '📝 글', image: '🖼️ 이미지', video: '🎬 동영상' };
+    const delay = i * 0.05;
+    let mediaHTML = '';
+    if (p.type === 'image' && p.mediaDataUrl) {
+      mediaHTML = `<img class="post-thumb" src="${p.mediaDataUrl}" alt="" loading="lazy">`;
+    } else if (p.type === 'video' && p.mediaDataUrl) {
+      mediaHTML = `<div class="video-thumb">
+        <video src="${p.mediaDataUrl}" muted playsinline preload="metadata" class="post-thumb"></video>
+        <div class="video-play-overlay">▶</div>
+      </div>`;
+    }
+    return `
+    <div class="post-card" style="animation-delay:${delay}s" onclick="openDetail('${p.id}')">
+      ${mediaHTML}
+      <div class="post-header">
+        <span class="type-badge ${p.type}">${labelMap[p.type]}</span>
+        <span class="post-title">${escHtml(p.title)}</span>
+      </div>
+      <div class="post-meta">
+        <span>🕐 ${p.date}</span>
+        ${p.fileName ? `<span>📎 ${escHtml(p.fileName)}</span>` : ''}
+      </div>
+      ${p.content ? `<div class="post-preview">${escHtml(p.content)}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+// ───────────────────────────────────────────
+// FILTER
+// ───────────────────────────────────────────
+function filterPosts(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosts();
+}
+
+// ───────────────────────────────────────────
+// WRITE MODAL
+// ───────────────────────────────────────────
+function openWriteModal() {
+  document.getElementById('write-modal').classList.add('open');
+  selectType('text', document.querySelector('.type-opt[data-val="text"]'));
+}
+function closeWriteModal() {
+  document.getElementById('write-modal').classList.remove('open');
+  resetForm();
+}
+
+function selectType(val, btn) {
+  currentType = val;
+  document.querySelectorAll('.type-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('img-zone-wrap').style.display = val === 'image' ? '' : 'none';
+  document.getElementById('vid-zone-wrap').style.display = val === 'video' ? '' : 'none';
+}
+
+function resetForm() {
+  document.getElementById('input-title').value = '';
+  document.getElementById('input-content').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('vid-preview').style.display = 'none';
+  document.getElementById('img-file').value = '';
+  document.getElementById('vid-file').value = '';
+  window._pendingMedia = null;
+}
+
+// ───────────────────────────────────────────
+// FILE UPLOAD & PREVIEW
+// ───────────────────────────────────────────
+window._pendingMedia = null;
+
+function previewFile(input, kind) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    window._pendingMedia = { dataUrl: e.target.result, name: file.name };
+    if (kind === 'image') {
+      document.getElementById('img-preview-img').src = e.target.result;
+      document.getElementById('img-file-name').textContent = file.name;
+      document.getElementById('img-preview').style.display = 'block';
+    } else {
+      document.getElementById('vid-preview-vid').src = e.target.result;
+      document.getElementById('vid-file-name').textContent = file.name;
+      document.getElementById('vid-preview').style.display = 'block';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function dzOver(e, id) { e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dzLeave(id) { document.getElementById(id).classList.remove('dragover'); }
+function dzDrop(e, kind) {
+  e.preventDefault();
+  const id = kind === 'image' ? 'img-drop' : 'vid-drop';
+  document.getElementById(id).classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const fakeInput = { files: [file] };
+  previewFile(fakeInput, kind);
+}
+
+// ───────────────────────────────────────────
+// SUBMIT
+// ───────────────────────────────────────────
+function submitPost() {
+  const title = document.getElementById('input-title').value.trim();
+  const content = document.getElementById('input-content').value.trim();
+  if (!title) { alert('제목을 입력해주세요!'); return; }
+
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}.${pad(now.getMonth()+1)}.${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+
+  const post = {
+    id: Date.now().toString(),
+    type: currentType,
+    title,
+    content,
+    date: dateStr,
+    mediaDataUrl: window._pendingMedia?.dataUrl || null,
+    fileName: window._pendingMedia?.name || null,
+  };
+
+  posts.unshift(post);
+  saveAndRender();
+  closeWriteModal();
+}
+
+function pad(n) { return String(n).padStart(2,'0'); }
+
+function saveAndRender() {
+  try { localStorage.setItem('nana_board_posts', JSON.stringify(posts)); } catch(e) {}
+  renderPosts();
+}
+
+// ───────────────────────────────────────────
+// DETAIL MODAL
+// ───────────────────────────────────────────
+function openDetail(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+  currentDetailId = id;
+
+  const labelMap = { text: '📝 글', image: '🖼️ 이미지', video: '🎬 동영상' };
+  document.getElementById('detail-title-badge').textContent = labelMap[p.type];
+
+  let mediaHTML = '';
+  if (p.type === 'image' && p.mediaDataUrl) {
+    mediaHTML = `<div class="detail-media"><img src="${p.mediaDataUrl}" alt=""></div>`;
+  } else if (p.type === 'video' && p.mediaDataUrl) {
+    mediaHTML = `<div class="detail-media"><video src="${p.mediaDataUrl}" controls style="width:100%;border-radius:10px"></video></div>`;
+  }
+
+  document.getElementById('detail-content').innerHTML = `
+    ${mediaHTML}
+    <h2>${escHtml(p.title)}</h2>
+    <div class="detail-meta">
+      <span>🕐 ${p.date}</span>
+      ${p.fileName ? `<span>📎 ${escHtml(p.fileName)}</span>` : ''}
+    </div>
+    ${p.content ? `<div class="detail-body">${escHtml(p.content)}</div>` : ''}
+  `;
+
+  document.getElementById('detail-footer').innerHTML = `
+    <button class="delete-btn" onclick="deletePost('${id}')">🗑️ 삭제</button>
+  `;
+
+  document.getElementById('detail-modal').classList.add('open');
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+}
+
+function deletePost(id) {
+  if (!confirm('정말 삭제하시겠어요?')) return;
+  posts = posts.filter(p => p.id !== id);
+  saveAndRender();
+  closeDetailModal();
+}
+
+// ───────────────────────────────────────────
+// UTILS
+// ───────────────────────────────────────────
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// Close modals on overlay click
+document.getElementById('write-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeWriteModal();
+});
+document.getElementById('detail-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDetailModal();
+});
+
+// Init
+renderPosts();
+</script>
+</body>
+</html>
