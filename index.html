@@ -1,62 +1,285 @@
-<!-- 
-===========================================================
-  NANA LAB index.html 에 추가할 코드
-  </body> 바로 앞에 아래 코드를 붙여넣으세요
-===========================================================
--->
-
-<!-- 게시판 플로팅 버튼 (오른쪽 아래) -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NANA LAB v2.81.0</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
-.board-float-btn {
-  position: fixed;
-  bottom: 28px;
-  right: 28px;
-  z-index: 999;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #06b6d4);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: 0 0 0 0 rgba(124,58,237,0.4), 0 4px 20px rgba(0,0,0,0.4);
-  animation: boardPulse 2.5s infinite;
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-decoration: none;
-}
-.board-float-btn:hover {
-  transform: scale(1.12) translateY(-2px);
-  box-shadow: 0 0 30px rgba(124,58,237,0.7), 0 8px 30px rgba(0,0,0,0.4);
-  animation: none;
-}
-.board-float-btn .board-tooltip {
-  position: absolute;
-  right: 68px;
-  white-space: nowrap;
-  background: rgba(18,18,26,0.95);
-  border: 1px solid rgba(124,58,237,0.5);
-  color: #e2e8f0;
-  font-family: 'Noto Sans KR', sans-serif;
-  font-size: 0.78rem;
-  padding: 6px 12px;
-  border-radius: 8px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s;
-  backdrop-filter: blur(8px);
-}
-.board-float-btn:hover .board-tooltip { opacity: 1; }
-@keyframes boardPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(124,58,237,0.5), 0 4px 20px rgba(0,0,0,0.4); }
-  70%  { box-shadow: 0 0 0 12px rgba(124,58,237,0), 0 4px 20px rgba(0,0,0,0.4); }
-  100% { box-shadow: 0 0 0 0 rgba(124,58,237,0), 0 4px 20px rgba(0,0,0,0.4); }
-}
-</style>
+  :root { --neon: #00ffcc; --bg: #000b1a; --border: rgba(0, 255, 204, 0.2); }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
+  body, html {
+    width: 100%;
+    min-height: 100%;
+    background: #000;
+    color: #fff;
+    font-family: 'Noto Sans KR', sans-serif;
+    overflow-x: hidden;
+    overflow-y: auto;
+    cursor: default;
+  }
+
+  #galaxy-bg { position: fixed; inset: 0; z-index: 0; background: radial-gradient(circle at center, #001220 0%, #000 100%); pointer-events: none; }
+  .star { position: absolute; background: white; border-radius: 50%; opacity: 0.5; animation: twinkle var(--duration) infinite; pointer-events: none; }
+  @keyframes twinkle { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  #meteor-canvas { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+  .main-container {
+    position: relative;
+    z-index: 10;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px 40px;
+  }
+
+  .couple-img { width: 110px; height: 110px; border-radius: 50%; border: 3px solid var(--neon); box-shadow: 0 0 25px var(--neon); margin-bottom: 12px; object-fit: cover; }
+  .main-title { font-family: 'Orbitron'; font-size: 1.7rem; letter-spacing: 5px; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 18px; text-align: center; }
+
+  .menu-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 330px;
+  }
+
+  .menu-btn {
+    background: rgba(0, 255, 204, 0.05);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 5px;
+    text-align: center;
+    cursor: pointer;
+    backdrop-filter: blur(8px);
+    transition: 0.2s;
+    text-decoration: none;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 20;
+  }
+  .menu-btn:hover, .menu-btn:active {
+    background: rgba(0, 255, 204, 0.12);
+    border-color: var(--neon);
+  }
+  .menu-btn div { font-size: 11px; color: var(--neon); margin-top: 7px; font-weight: bold; }
+  .menu-btn span { font-size: 22px; }
+
+  .bgm-force-btn {
+    margin-top: 15px; padding: 10px 25px;
+    background: rgba(0, 255, 204, 0.1); border: 1px solid var(--neon);
+    border-radius: 30px; color: var(--neon); font-family: 'Orbitron';
+    font-size: 10px; cursor: pointer; z-index: 999; position: relative;
+    box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+  }
+
+  @media (min-height: 750px) {
+    .couple-img { width: 140px; height: 140px; }
+    .main-title { font-size: 2.2rem; }
+    .menu-btn { padding: 20px 10px; }
+    .menu-btn span { font-size: 28px; }
+  }
+
+  @media (max-height: 640px) {
+    .couple-img { width: 75px; height: 75px; margin-bottom: 8px; }
+    .main-title { font-size: 1.2rem; margin-bottom: 10px; }
+    .menu-btn { padding: 10px 5px; }
+    .menu-btn span { font-size: 18px; }
+    .menu-btn div { font-size: 10px; margin-top: 4px; }
+  }
+
+  #history-modal { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); align-items: center; justify-content: center; padding: 20px; }
+  .history-content { width: 100%; max-width: 500px; background: rgba(0,20,40,0.9); border: 1px solid var(--neon); border-radius: 20px; padding: 25px; max-height: 80vh; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; color: #ccc; }
+  th, td { padding: 10px 5px; text-align: left; border-bottom: 1px solid rgba(0,255,204,0.1); }
+  th { color: var(--neon); font-family: 'Orbitron'; }
+
+  /* ─── 게시판 플로팅 버튼 ─── */
+  .board-float-btn {
+    position: fixed;
+    bottom: 28px;
+    right: 28px;
+    z-index: 9999;
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(0,255,204,0.15), rgba(0,255,204,0.05));
+    border: 1.5px solid var(--neon);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 18px rgba(0,255,204,0.35), 0 4px 20px rgba(0,0,0,0.5);
+    animation: boardPulse 2.8s ease-in-out infinite;
+    transition: transform 0.2s, box-shadow 0.2s;
+    text-decoration: none;
+    backdrop-filter: blur(10px);
+  }
+  .board-float-btn:hover {
+    transform: scale(1.12) translateY(-3px);
+    box-shadow: 0 0 35px rgba(0,255,204,0.7), 0 8px 30px rgba(0,0,0,0.5);
+    animation: none;
+    background: rgba(0,255,204,0.18);
+  }
+  .board-float-btn .board-tooltip {
+    position: absolute;
+    right: 68px;
+    white-space: nowrap;
+    background: rgba(0,11,26,0.95);
+    border: 1px solid rgba(0,255,204,0.4);
+    color: var(--neon);
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    box-shadow: 0 0 12px rgba(0,255,204,0.2);
+  }
+  .board-float-btn:hover .board-tooltip { opacity: 1; }
+  @keyframes boardPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(0,255,204,0.5), 0 4px 20px rgba(0,0,0,0.5); }
+    70%  { box-shadow: 0 0 0 14px rgba(0,255,204,0), 0 4px 20px rgba(0,0,0,0.5); }
+    100% { box-shadow: 0 0 0 0 rgba(0,255,204,0), 0 4px 20px rgba(0,0,0,0.5); }
+  }
+</style>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+</head>
+<body>
+
+<div id="galaxy-bg"></div>
+<canvas id="meteor-canvas" style="pointer-events:none; touch-action:none;"></canvas>
+
+<audio id="bgm" loop preload="auto">
+  <source src="pocosmall.mp3" type="audio/mpeg">
+</audio>
+
+<div class="main-container">
+  <img src="profile.png" class="couple-img" alt="Couple">
+  <h1 class="main-title">NANA LAB</h1>
+
+  <div class="menu-grid">
+    <a href="novel.html" class="menu-btn"><span>📖</span><div>소설번역기</div></a>
+    <a href="downloader.html" class="menu-btn"><span>📥</span><div>동영상다운로더</div></a>
+    <a href="todo.html" class="menu-btn"><span>✅</span><div>할일</div></a>
+    <a href="https://nana-lab.vercel.app/news.html" class="menu-btn"><span>📰</span><div>뉴스섬머리</div></a>
+    <a href="movie.html" class="menu-btn"><span>🎬</span><div>영화보기</div></a>
+    <a href="idea.html" class="menu-btn"><span>💡</span><div>아이디어체크</div></a>
+    <a href="prayer.html?v=2" class="menu-btn"><span>🙏</span><div>오늘의 기도</div></a>    
+    <a href="#" class="menu-btn"><span>📈</span><div>자동매매</div></a>
+  </div>
+
+  <button id="bgm-indicator" class="bgm-force-btn" onclick="startBgmEngine(this)">▶ SYNC AUDIO SYSTEM</button>
+
+  <div style="margin-top:20px; font-family:'Orbitron'; font-size:10px; color:rgba(0,255,204,0.4); cursor:pointer; position:relative; z-index:20;" onclick="openModal(event)">SYSTEM VERSION v2.81.0</div>
+</div>
+
+<!-- 히스토리 모달 -->
+<div id="history-modal" onclick="closeModal()">
+  <div class="history-content" onclick="event.stopPropagation()">
+    <div style="font-family:'Orbitron'; color:var(--neon); margin-bottom:15px; text-align:center;">NANA LAB HISTORY</div>
+    <table>
+      <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
+      <tbody>
+        <tr style="color:#fff;"><td>v2.81.0</td><td>26-02-24</td><td>메뉴 버튼 클릭 오류 수정 (overflow 레이아웃 개선)</td></tr>
+        <tr><td>v2.80.0</td><td>26-02-20</td><td>뉴스섬머리 링크 연결 및 모바일 최적화 레이아웃</td></tr>
+        <tr><td>v2.79.5</td><td>26-02-20</td><td>pocosmall.mp3 음원 교체 및 오디오 엔진 고도화</td></tr>
+        <tr><td>v2.79.0</td><td>26-02-20</td><td>오디오 강제 돌파 엔진 및 디버깅 로그 통합</td></tr>
+        <tr><td>v2.78.9</td><td>26-02-18</td><td>번역 엔진 문단 간격 복구 및 줄바꿈 최적화</td></tr>
+        <tr><td>v2.78.5</td><td>26-02-17</td><td>메모리 지침 강화 및 실시간 팩트체크 시스템</td></tr>
+        <tr><td>v2.70.0</td><td>26-02-15</td><td>8대 메인 메뉴 UI 확정 (자동매매/기도 포함)</td></tr>
+        <tr><td>v2.65.0</td><td>26-02-14</td><td>BGM 기능 임시 삭제 및 성능 최적화 버전</td></tr>
+        <tr><td>v2.63.0</td><td>26-02-13</td><td>뭉툭하고 환한 별똥별 비주얼 엔진 업그레이드</td></tr>
+        <tr><td>v2.42.0</td><td>26-02-10</td><td>커플 이미지 profile.png 고정 및 테마 정립</td></tr>
+        <tr><td>v2.01.0</td><td>26-02-01</td><td>NANA LAB 프로젝트 공식 런칭 및 소설 엔진</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ✅ 게시판 플로팅 버튼 -->
 <a href="board.html" class="board-float-btn" title="게시판">
   📋
-  <span class="board-tooltip">게시판</span>
+  <span class="board-tooltip">BOARD</span>
 </a>
+
+<script>
+  function startBgmEngine(btn) {
+    const audio = document.getElementById('bgm');
+    btn.innerText = "CONNECTING...";
+    audio.volume = 0.4;
+    audio.play().then(() => {
+      btn.innerText = "AUDIO ONLINE";
+      btn.style.boxShadow = "0 0 20px #00ffcc";
+    }).catch(e => {
+      audio.load();
+      audio.play().then(() => { btn.innerText = "AUDIO ONLINE"; })
+      .catch(() => { btn.innerText = "ERR: " + e.name; });
+    });
+  }
+
+  const bg = document.getElementById('galaxy-bg');
+  for (let i = 0; i < 120; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    star.style.width = star.style.height = Math.random() * 2 + 'px';
+    star.style.top = Math.random() * 100 + '%';
+    star.style.left = Math.random() * 100 + '%';
+    star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
+    bg.appendChild(star);
+  }
+
+  const canvas = document.getElementById('meteor-canvas');
+  const ctx = canvas.getContext('2d');
+  let meteors = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  class Meteor {
+    constructor() { this.reset(); }
+    reset() {
+      this.x = Math.random() * canvas.width * 0.5 - 200;
+      this.y = Math.random() * canvas.height * 0.6;
+      this.length = Math.random() * 200 + 200;
+      this.speed = Math.random() * 1 + 0.5;
+      this.size = Math.random() * 3 + 2;
+      this.alpha = 0; this.maxAlpha = Math.random() * 0.7;
+      this.angle = Math.PI / 8;
+    }
+    update() {
+      this.x += this.speed * 4; this.y += this.speed * 0.5;
+      if (this.alpha < this.maxAlpha) this.alpha += 0.01;
+      if (this.x > canvas.width + 300) this.reset();
+    }
+    draw() {
+      const grad = ctx.createLinearGradient(this.x, this.y, this.x - Math.cos(this.angle) * this.length, this.y - Math.sin(this.angle) * this.length);
+      grad.addColorStop(0, `rgba(0, 255, 204, ${this.alpha})`);
+      grad.addColorStop(1, 'rgba(0, 255, 204, 0)');
+      ctx.strokeStyle = grad; ctx.lineWidth = this.size; ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - Math.cos(this.angle) * this.length, this.y - Math.sin(this.angle) * this.length); ctx.stroke();
+    }
+  }
+  for (let i = 0; i < 2; i++) { setTimeout(() => meteors.push(new Meteor()), i * 5000); }
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    meteors.forEach(m => { m.update(); m.draw(); });
+    requestAnimationFrame(animate);
+  }
+  animate();
+
+  function openModal(e) { e.stopPropagation(); document.getElementById('history-modal').style.display = 'flex'; }
+  function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
+</script>
+</body>
+</html>
