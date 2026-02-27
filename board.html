@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NANA LAB - BOARD</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --neon: #00ffcc;
+    --neon2: #00bfff;
+    --bg: #000b1a;
+    --surface: #00101f;
+    --card: #001628;
+    --border: rgba(0,255,204,0.18);
+    --border-hover: rgba(0,255,204,0.5);
+    --text: #e2f0ff;
+    --muted: rgba(0,255,204,0.45);
+  }
+
+  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+  body, html { width:100%; min-height:100%; background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; overflow-x:hidden; }
+
+  #galaxy-bg { position:fixed; inset:0; z-index:0; background:radial-gradient(circle at 30% 20%,#001830 0%,#000b1a 50%,#000 100%); pointer-events:none; }
+  .star { position:absolute; background:white; border-radius:50%; opacity:0.4; animation:twinkle var(--dur) infinite; }
+  @keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:0.8} }
+
+  /* ── HEADER ── */
+  header {
+    position:sticky; top:0; z-index:100;
+    background:rgba(0,11,26,0.88); backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+    padding:0 20px; height:58px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo { font-family:'Orbitron'; font-size:1rem; font-weight:900; color:var(--neon); text-shadow:0 0 12px var(--neon); text-decoration:none; letter-spacing:3px; }
+  .rt-status { font-family:'Orbitron'; font-size:0.68rem; color:var(--muted); letter-spacing:3px; display:flex; align-items:center; gap:6px; }
+  .rt-dot { width:7px; height:7px; border-radius:50%; background:var(--neon); box-shadow:0 0 6px var(--neon); animation:rtPulse 1.5s infinite; flex-shrink:0; }
+  .rt-dot.offline { background:#ff4466; box-shadow:0 0 6px #ff4466; animation:none; }
+  @keyframes rtPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+
+  /* 홈 아이콘 버튼 */
+  .home-btn {
+    display:flex; align-items:center; justify-content:center;
+    width:38px; height:38px; border-radius:50%;
+    border:1px solid var(--border); background:transparent;
+    color:var(--muted); font-size:1.1rem; cursor:pointer;
+    text-decoration:none; transition:all 0.2s;
+  }
+  .home-btn:hover { border-color:var(--neon); color:var(--neon); box-shadow:0 0 12px rgba(0,255,204,0.25); }
+
+  /* ── LAYOUT ── */
+  .container { max-width:820px; margin:0 auto; padding:28px 16px 80px; position:relative; z-index:1; }
+
+  /* ── TOP BAR ── */
+  .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .board-count { font-size:0.82rem; color:var(--muted); }
+  .board-count span { color:var(--neon); font-weight:700; }
+  .write-btn {
+    display:flex; align-items:center; gap:7px;
+    padding:10px 22px; border-radius:25px;
+    border:1px solid var(--neon); background:rgba(0,255,204,0.08);
+    color:var(--neon); font-size:0.85rem; font-weight:700;
+    cursor:pointer; transition:all 0.2s; font-family:'Noto Sans KR';
+    box-shadow:0 0 15px rgba(0,255,204,0.15);
+  }
+  .write-btn:hover { background:rgba(0,255,204,0.15); box-shadow:0 0 25px rgba(0,255,204,0.35); transform:translateY(-1px); }
+
+  /* ── FILTER TABS ── */
+  .filter-tabs { display:flex; gap:8px; margin-bottom:18px; flex-wrap:wrap; }
+  .tab-btn { padding:6px 16px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--muted); font-size:0.78rem; cursor:pointer; transition:all 0.2s; font-family:'Noto Sans KR'; }
+  .tab-btn:hover { border-color:var(--neon); color:var(--neon); }
+  .tab-btn.active { background:rgba(0,255,204,0.1); border-color:var(--neon); color:var(--neon); box-shadow:0 0 10px rgba(0,255,204,0.2); }
+  .tab-btn[data-type="video"].active { background:rgba(255,68,102,0.1); border-color:#ff4466; color:#ff6688; box-shadow:0 0 10px rgba(255,68,102,0.2); }
+  .tab-btn[data-type="image"].active { background:rgba(0,191,255,0.1); border-color:#00bfff; color:#00bfff; box-shadow:0 0 10px rgba(0,191,255,0.2); }
+
+  /* ── POST CARDS ── */
+  #post-list { display:flex; flex-direction:column; gap:12px; }
+  .post-card { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; transition:all 0.25s; cursor:pointer; animation:fadeUp 0.35s ease both; }
+  .post-card:hover { border-color:var(--border-hover); transform:translateY(-2px); box-shadow:0 6px 30px rgba(0,255,204,0.1); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+
+  .post-thumb { width:100%; max-height:200px; object-fit:cover; display:block; border-bottom:1px solid var(--border); }
+  .video-wrap { position:relative; }
+  .video-wrap video { width:100%; max-height:200px; object-fit:cover; display:block; }
+  .play-overlay { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.4); font-size:2.5rem; pointer-events:none; }
+
+  .post-inner { padding:13px 16px; }
+  .post-top { display:flex; align-items:center; gap:8px; margin-bottom:7px; }
+  .type-badge { padding:2px 9px; border-radius:5px; font-size:0.68rem; font-weight:700; letter-spacing:0.5px; white-space:nowrap; }
+  .type-badge.text  { background:rgba(0,255,204,0.1); color:var(--neon); border:1px solid rgba(0,255,204,0.3); }
+  .type-badge.image { background:rgba(0,191,255,0.1); color:#00bfff; border:1px solid rgba(0,191,255,0.3); }
+  .type-badge.video { background:rgba(255,68,102,0.1); color:#ff6688; border:1px solid rgba(255,68,102,0.3); }
+  .post-title { font-size:0.93rem; font-weight:700; flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* ★ 댓글 수 뱃지 */
+  .cmt-count {
+    display:flex; align-items:center; gap:4px;
+    font-size:0.72rem; color:var(--muted); white-space:nowrap;
+    padding:2px 8px; border-radius:10px;
+    border:1px solid rgba(0,255,204,0.12);
+    background:rgba(0,255,204,0.04);
+    transition:all 0.2s;
+  }
+  .post-card:hover .cmt-count { color:var(--neon); border-color:rgba(0,255,204,0.3); }
+
+  .post-meta  { font-size:0.73rem; color:var(--muted); display:flex; gap:12px; margin-bottom:5px; }
+  .post-preview { font-size:0.82rem; color:rgba(226,240,255,0.55); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* ── EMPTY / LOADING ── */
+  .empty-state { text-align:center; padding:70px 20px; color:var(--muted); }
+  .empty-state .ei { font-size:2.8rem; margin-bottom:14px; }
+  .empty-state p { font-size:0.85rem; line-height:1.8; }
+  .loading { text-align:center; padding:50px; color:var(--muted); font-family:'Orbitron'; font-size:0.75rem; letter-spacing:3px; animation:pulse 1.2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.4} 50%{opacity:1} }
+
+  /* ── MODAL ── */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); backdrop-filter:blur(12px); z-index:200; align-items:center; justify-content:center; padding:16px; }
+  .modal-overlay.open { display:flex; }
+  .modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; width:100%; max-width:580px; max-height:92vh; overflow-y:auto; animation:modalIn 0.28s cubic-bezier(0.34,1.4,0.64,1); }
+  @keyframes modalIn { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+
+  .modal-header { display:flex; align-items:center; justify-content:space-between; padding:18px 22px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); z-index:10; border-radius:18px 18px 0 0; }
+  .modal-header h2 { font-family:'Orbitron'; font-size:0.9rem; color:var(--neon); text-shadow:0 0 10px rgba(0,255,204,0.4); letter-spacing:2px; }
+
+  /* 게시판 아이콘 닫기 버튼 */
+  .modal-close-board {
+    display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px; border-radius:8px;
+    border:1px solid var(--border); background:transparent;
+    color:var(--muted); font-size:1rem; cursor:pointer;
+    transition:all 0.2s; line-height:1;
+  }
+  .modal-close-board:hover { border-color:var(--neon); color:var(--neon); box-shadow:0 0 10px rgba(0,255,204,0.2); }
+
+  .modal-body { padding:22px; }
+
+  /* ── FORM ── */
+  .form-group { margin-bottom:16px; }
+  .form-group label { display:block; font-size:0.72rem; color:var(--muted); margin-bottom:7px; letter-spacing:1px; text-transform:uppercase; font-family:'Orbitron'; }
+  .form-group input, .form-group textarea { width:100%; background:var(--card); border:1px solid var(--border); border-radius:10px; padding:11px 14px; color:var(--text); font-size:0.88rem; font-family:'Noto Sans KR'; transition:border-color 0.2s; resize:vertical; }
+  .form-group input:focus, .form-group textarea:focus { outline:none; border-color:var(--neon); box-shadow:0 0 0 3px rgba(0,255,204,0.1); }
+
+  .type-selector { display:flex; gap:8px; }
+  .type-opt { flex:1; padding:11px 6px; border-radius:10px; border:1px solid var(--border); background:transparent; color:var(--muted); cursor:pointer; text-align:center; font-size:0.8rem; font-family:'Noto Sans KR'; transition:all 0.2s; }
+  .type-opt .ti { display:block; font-size:1.3rem; margin-bottom:3px; }
+  .type-opt.active[data-val="text"]  { background:rgba(0,255,204,0.08); border-color:var(--neon); color:var(--neon); }
+  .type-opt.active[data-val="image"] { background:rgba(0,191,255,0.08); border-color:#00bfff; color:#00bfff; }
+  .type-opt.active[data-val="video"] { background:rgba(255,68,102,0.08); border-color:#ff4466; color:#ff6688; }
+  .type-opt:not(.active):hover { border-color:var(--neon); color:var(--neon); }
+
+  .drop-zone { border:2px dashed var(--border); border-radius:12px; padding:28px; text-align:center; cursor:pointer; transition:all 0.2s; color:var(--muted); font-size:0.82rem; }
+  .drop-zone:hover, .drop-zone.dragover { border-color:var(--neon); background:rgba(0,255,204,0.04); color:var(--neon); }
+  .drop-zone .dz-icon { font-size:2.2rem; display:block; margin-bottom:8px; }
+  .drop-zone input[type=file] { display:none; }
+  .file-preview { margin-top:10px; display:none; }
+  .file-preview img, .file-preview video { width:100%; max-height:180px; object-fit:cover; border-radius:8px; }
+  .file-name { font-size:0.75rem; color:var(--neon2); margin-top:6px; text-align:center; }
+
+  .submit-btn { width:100%; padding:13px; border-radius:25px; border:1px solid var(--neon); background:rgba(0,255,204,0.08); color:var(--neon); font-size:0.95rem; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:'Noto Sans KR'; box-shadow:0 0 15px rgba(0,255,204,0.15); margin-top:4px; letter-spacing:1px; }
+  .submit-btn:hover { background:rgba(0,255,204,0.16); box-shadow:0 0 25px rgba(0,255,204,0.35); }
+  .submit-btn:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ── DETAIL (단일 컬럼) ── */
+  .detail-body-wrap { padding:22px; }
+  .detail-media { margin-bottom:16px; border-radius:12px; overflow:hidden; }
+  .detail-media img, .detail-media video { width:100%; border-radius:12px; display:block; }
+  .detail-title { font-size:1.08rem; font-weight:700; margin-bottom:8px; line-height:1.4; }
+  .detail-meta { font-size:0.75rem; color:var(--muted); margin-bottom:14px; display:flex; gap:14px; flex-wrap:wrap; }
+  .detail-content { font-size:0.87rem; line-height:1.85; color:rgba(226,240,255,0.7); white-space:pre-wrap; margin-bottom:22px; }
+
+  /* ── COMMENTS SECTION ── */
+  .comments-section { border-top:1px solid var(--border); padding-top:18px; }
+  .comments-title { font-family:'Orbitron'; font-size:0.72rem; color:var(--muted); letter-spacing:2px; margin-bottom:14px; }
+  .comment-item { background:rgba(0,255,204,0.03); border:1px solid rgba(0,255,204,0.08); border-radius:10px; padding:11px 14px; margin-bottom:9px; animation:fadeUp 0.25s ease both; }
+  .comment-text { font-size:0.84rem; color:rgba(226,240,255,0.82); line-height:1.6; margin-bottom:5px; word-break:break-all; }
+  .comment-footer { display:flex; justify-content:space-between; align-items:center; }
+  .comment-date { font-size:0.7rem; color:var(--muted); }
+  .comment-del { background:none; border:none; color:rgba(255,68,102,0.45); font-size:0.7rem; cursor:pointer; transition:color 0.2s; font-family:'Noto Sans KR'; }
+  .comment-del:hover { color:#ff4466; }
+  .no-comments { font-size:0.8rem; color:var(--muted); padding:12px 0; }
+
+  .comment-form { display:flex; gap:8px; margin-top:14px; }
+  .comment-form input { flex:1; background:var(--card); border:1px solid var(--border); border-radius:25px; padding:10px 16px; color:var(--text); font-size:0.84rem; font-family:'Noto Sans KR'; transition:border-color 0.2s; }
+  .comment-form input:focus { outline:none; border-color:var(--neon); }
+  .comment-send { padding:10px 18px; border-radius:25px; border:1px solid var(--neon); background:rgba(0,255,204,0.08); color:var(--neon); font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s; font-family:'Noto Sans KR'; white-space:nowrap; }
+  .comment-send:hover { background:rgba(0,255,204,0.16); }
+  .comment-send:disabled { opacity:0.4; cursor:not-allowed; }
+
+  /* ── DETAIL FOOTER ── */
+  .detail-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; }
+  .delete-btn { display:flex; align-items:center; gap:5px; padding:8px 16px; border-radius:20px; border:1px solid rgba(255,68,102,0.35); background:rgba(255,68,102,0.06); color:#ff6688; font-size:0.78rem; cursor:pointer; font-family:'Noto Sans KR'; transition:all 0.2s; }
+  .delete-btn:hover { background:rgba(255,68,102,0.15); border-color:#ff4466; }
+
+  /* ── REALTIME / TOAST / BANNER ── */
+  .toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(20px); background:rgba(0,11,26,0.95); border:1px solid var(--neon); color:var(--neon); padding:10px 24px; border-radius:25px; font-size:0.82rem; font-family:'Orbitron'; letter-spacing:1px; z-index:9999; opacity:0; transition:all 0.3s; box-shadow:0 0 20px rgba(0,255,204,0.3); pointer-events:none; }
+  .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .new-banner { display:none; position:fixed; top:68px; left:50%; transform:translateX(-50%); background:rgba(0,11,26,0.95); border:1px solid var(--neon); color:var(--neon); padding:9px 22px; border-radius:25px; font-size:0.8rem; font-family:'Orbitron'; letter-spacing:1px; z-index:500; cursor:pointer; box-shadow:0 0 20px rgba(0,255,204,0.35); white-space:nowrap; animation:bannerIn 0.3s ease; }
+  .new-banner.show { display:block; }
+  @keyframes bannerIn { from{opacity:0;transform:translateX(-50%) translateY(-10px)} to{opacity:1;transform:translateX(-50%) translateY(0)} }
+
+  ::-webkit-scrollbar { width:5px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+  ::-webkit-scrollbar-thumb:hover { background:rgba(0,255,204,0.4); }
+
+  @media(max-width:480px) { .rt-status span:last-child { display:none; } }
+</style>
+</head>
+<body>
+
+<div id="galaxy-bg"></div>
+
+<header>
+  <a href="index.html" class="logo">NANA LAB</a>
+  <div class="rt-status"><span class="rt-dot" id="rt-dot"></span>LIVE</div>
+  <!-- 홈 아이콘 -->
+  <a href="index.html" class="home-btn" title="홈으로">🏠</a>
+</header>
+
+<div class="container">
+  <div class="top-bar">
+    <div class="board-count">게시물 <span id="total-count">0</span>개</div>
+    <button class="write-btn" onclick="openWriteModal()">✏️ 글쓰기</button>
+  </div>
+  <div class="filter-tabs">
+    <button class="tab-btn active" data-type="all"   onclick="filterPosts('all',this)">📋 전체</button>
+    <button class="tab-btn" data-type="text"  onclick="filterPosts('text',this)">📝 글</button>
+    <button class="tab-btn" data-type="image" onclick="filterPosts('image',this)">🖼️ 이미지</button>
+    <button class="tab-btn" data-type="video" onclick="filterPosts('video',this)">🎬 동영상</button>
+  </div>
+  <div id="post-list"><div class="loading">LOADING</div></div>
+</div>
+
+<!-- WRITE MODAL -->
+<div class="modal-overlay" id="write-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>✏️ NEW POST</h2>
+      <button class="modal-close-board" onclick="closeWriteModal()" title="게시판으로">📋</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>유형</label>
+        <div class="type-selector">
+          <button class="type-opt active" data-val="text"  onclick="selectType('text',this)"><span class="ti">📝</span>글</button>
+          <button class="type-opt"        data-val="image" onclick="selectType('image',this)"><span class="ti">🖼️</span>이미지</button>
+          <button class="type-opt"        data-val="video" onclick="selectType('video',this)"><span class="ti">🎬</span>동영상</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>제목</label>
+        <input type="text" id="inp-title" placeholder="제목을 입력하세요" maxlength="80">
+      </div>
+      <div class="form-group">
+        <label>내용</label>
+        <textarea id="inp-content" rows="4" placeholder="내용을 입력하세요..."></textarea>
+      </div>
+      <div class="form-group" id="img-wrap" style="display:none">
+        <label>이미지</label>
+        <div class="drop-zone" id="img-dz" onclick="document.getElementById('img-file').click()"
+             ondragover="dzOver(event,'img-dz')" ondragleave="dzLeave('img-dz')" ondrop="dzDrop(event,'image')">
+          <span class="dz-icon">🖼️</span>클릭하거나 드래그해서 올려주세요<br>
+          <small style="color:rgba(0,255,204,0.35)">JPG PNG GIF WEBP</small>
+          <input type="file" id="img-file" accept="image/*" onchange="previewFile(this,'image')">
+        </div>
+        <div class="file-preview" id="img-preview"><img id="img-prev-img" src="" alt=""><div class="file-name" id="img-fname"></div></div>
+      </div>
+      <div class="form-group" id="vid-wrap" style="display:none">
+        <label>동영상</label>
+        <div class="drop-zone" id="vid-dz" onclick="document.getElementById('vid-file').click()"
+             ondragover="dzOver(event,'vid-dz')" ondragleave="dzLeave('vid-dz')" ondrop="dzDrop(event,'video')">
+          <span class="dz-icon">🎬</span>클릭하거나 드래그해서 올려주세요<br>
+          <small style="color:rgba(0,255,204,0.35)">MP4 WebM MOV</small>
+          <input type="file" id="vid-file" accept="video/*" onchange="previewFile(this,'video')">
+        </div>
+        <div class="file-preview" id="vid-preview"><video id="vid-prev-vid" src="" controls></video><div class="file-name" id="vid-fname"></div></div>
+      </div>
+      <button class="submit-btn" id="submit-btn" onclick="submitPost()">🚀 게시하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="detail-badge">POST</h2>
+      <!-- 📋 게시판 아이콘으로 닫기 -->
+      <button class="modal-close-board" onclick="closeDetailModal()" title="게시판으로">📋</button>
+    </div>
+    <div class="detail-body-wrap" id="detail-body"></div>
+    <div class="detail-footer" id="detail-footer"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="new-banner" id="new-banner" onclick="dismissBanner()">⚡ 새 게시물이 있어요</div>
+
+<script>
+// ── SUPABASE ──────────────────────────────
+const { createClient } = supabase;
+const sb = createClient(
+  'https://hbfvyhlrnccccerzbami.supabase.co',
+  'sb_publishable_Y-FiJqx-T8KKS_Gqb21siw_rP2Wmf3p'
+);
+const BUCKET = 'board-media';
+
+// ── STATE ─────────────────────────────────
+let posts = [];
+let commentCounts = {}; // postId → count
+let currentType = 'text', currentFilter = 'all';
+let pendingFile = null, currentPostId = null, pendingNewPosts = 0;
+
+// ── STARS ─────────────────────────────────
+const gb = document.getElementById('galaxy-bg');
+for (let i = 0; i < 80; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  s.style.cssText = `width:${Math.random()*2}px;height:${Math.random()*2}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${Math.random()*3+2}s`;
+  gb.appendChild(s);
+}
+
+// ── REALTIME ──────────────────────────────
+function initRealtime() {
+  sb.channel('posts-ch')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'posts' }, payload => {
+      if (!posts.find(p => p.id === payload.new.id)) {
+        pendingNewPosts++;
+        const b = document.getElementById('new-banner');
+        b.textContent = `⚡ 새 게시물 ${pendingNewPosts}개 — 클릭해서 새로고침`;
+        b.classList.add('show');
+      }
+    })
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'posts' }, payload => {
+      posts = posts.filter(p => p.id !== payload.old.id);
+      delete commentCounts[payload.old.id];
+      renderPosts();
+    })
+    .subscribe(s => {
+      const dot = document.getElementById('rt-dot');
+      dot.classList.toggle('offline', s === 'CLOSED' || s === 'CHANNEL_ERROR');
+    });
+
+  sb.channel('comments-ch')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'comments' }, payload => {
+      const pid = payload.new.post_id;
+      commentCounts[pid] = (commentCounts[pid] || 0) + 1;
+      updateCommentBadge(pid);
+      if (currentPostId === pid) appendComment(payload.new);
+    })
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'comments' }, payload => {
+      const pid = payload.old.post_id;
+      if (commentCounts[pid] > 0) commentCounts[pid]--;
+      updateCommentBadge(pid);
+      document.getElementById('cmt-' + payload.old.id)?.remove();
+    })
+    .subscribe();
+}
+
+function dismissBanner() {
+  document.getElementById('new-banner').classList.remove('show');
+  pendingNewPosts = 0;
+  loadPosts();
+}
+
+// ── LOAD POSTS + COMMENT COUNTS ───────────
+async function loadPosts() {
+  document.getElementById('post-list').innerHTML = '<div class="loading">LOADING</div>';
+  try {
+    // 게시물 로드
+    const { data: pData, error: pErr } = await sb.from('posts').select('*').order('created_at', { ascending:false });
+    if (pErr) throw pErr;
+    posts = pData || [];
+
+    // 댓글 수 한 번에 로드
+    const { data: cData } = await sb.from('comments').select('post_id');
+    commentCounts = {};
+    (cData || []).forEach(c => { commentCounts[c.post_id] = (commentCounts[c.post_id] || 0) + 1; });
+
+    renderPosts();
+  } catch(e) {
+    document.getElementById('post-list').innerHTML =
+      `<div class="empty-state"><div class="ei">⚠️</div><p>연결 오류<br>${e.message}</p></div>`;
+  }
+}
+
+// ── RENDER ────────────────────────────────
+function renderPosts() {
+  const list = document.getElementById('post-list');
+  const filtered = currentFilter === 'all' ? posts : posts.filter(p => p.type === currentFilter);
+  document.getElementById('total-count').textContent = posts.length;
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state"><div class="ei">📋</div><p>아직 게시물이 없어요.<br>첫 게시물을 작성해보세요!</p></div>`;
+    return;
+  }
+  list.innerHTML = filtered.map((p, i) => {
+    const labels = { text:'📝 글', image:'🖼️ 이미지', video:'🎬 동영상' };
+    let media = '';
+    if (p.type === 'image' && p.media_url)
+      media = `<img class="post-thumb" src="${p.media_url}" alt="" loading="lazy">`;
+    else if (p.type === 'video' && p.media_url)
+      media = `<div class="video-wrap"><video src="${p.media_url}" muted playsinline preload="metadata" class="post-thumb"></video><div class="play-overlay">▶</div></div>`;
+    const date = new Date(p.created_at).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const cnt = commentCounts[p.id] || 0;
+    return `<div class="post-card" id="card-${p.id}" style="animation-delay:${i*0.04}s" onclick="openDetail('${p.id}')">
+      ${media}
+      <div class="post-inner">
+        <div class="post-top">
+          <span class="type-badge ${p.type}">${labels[p.type]}</span>
+          <span class="post-title">${esc(p.title)}</span>
+          <span class="cmt-count" id="badge-${p.id}">💬 ${cnt}</span>
+        </div>
+        <div class="post-meta"><span>🕐 ${date}</span></div>
+        ${p.content ? `<div class="post-preview">${esc(p.content)}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// 댓글 뱃지만 업데이트 (리렌더 없이)
+function updateCommentBadge(postId) {
+  const el = document.getElementById('badge-' + postId);
+  if (el) el.textContent = `💬 ${commentCounts[postId] || 0}`;
+}
+
+function filterPosts(type, btn) {
+  currentFilter = type;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosts();
+}
+
+// ── WRITE MODAL ───────────────────────────
+function openWriteModal() {
+  document.getElementById('write-modal').classList.add('open');
+  selectType('text', document.querySelector('.type-opt[data-val="text"]'));
+}
+function closeWriteModal() { document.getElementById('write-modal').classList.remove('open'); resetForm(); }
+function selectType(val, btn) {
+  currentType = val;
+  document.querySelectorAll('.type-opt').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('img-wrap').style.display = val === 'image' ? '' : 'none';
+  document.getElementById('vid-wrap').style.display = val === 'video' ? '' : 'none';
+}
+function resetForm() {
+  document.getElementById('inp-title').value = '';
+  document.getElementById('inp-content').value = '';
+  document.getElementById('img-preview').style.display = 'none';
+  document.getElementById('vid-preview').style.display = 'none';
+  document.getElementById('img-file').value = '';
+  document.getElementById('vid-file').value = '';
+  pendingFile = null;
+}
+
+// ── FILE PREVIEW ──────────────────────────
+function previewFile(input, kind) {
+  const file = input.files[0]; if (!file) return;
+  pendingFile = file;
+  const url = URL.createObjectURL(file);
+  if (kind === 'image') {
+    document.getElementById('img-prev-img').src = url;
+    document.getElementById('img-fname').textContent = file.name;
+    document.getElementById('img-preview').style.display = 'block';
+  } else {
+    document.getElementById('vid-prev-vid').src = url;
+    document.getElementById('vid-fname').textContent = file.name;
+    document.getElementById('vid-preview').style.display = 'block';
+  }
+}
+function dzOver(e,id){ e.preventDefault(); document.getElementById(id).classList.add('dragover'); }
+function dzLeave(id){ document.getElementById(id).classList.remove('dragover'); }
+function dzDrop(e,kind){
+  e.preventDefault();
+  document.getElementById(kind==='image'?'img-dz':'vid-dz').classList.remove('dragover');
+  const file = e.dataTransfer.files[0]; if(!file) return;
+  previewFile({files:[file]}, kind);
+}
+
+// ── SUBMIT POST ───────────────────────────
+async function submitPost() {
+  const title   = document.getElementById('inp-title').value.trim();
+  const content = document.getElementById('inp-content').value.trim();
+  if (!title) { showToast('⚠️ 제목을 입력해주세요'); return; }
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true; btn.textContent = '업로드 중...';
+  try {
+    let media_url = null, file_name = null;
+    if (pendingFile && (currentType === 'image' || currentType === 'video')) {
+      showToast('📤 파일 업로드 중...');
+      const ext  = pendingFile.name.split('.').pop();
+      const name = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error: upErr } = await sb.storage.from(BUCKET).upload(name, pendingFile);
+      if (upErr) throw upErr;
+      const { data:{ publicUrl } } = sb.storage.from(BUCKET).getPublicUrl(name);
+      media_url = publicUrl; file_name = pendingFile.name;
+    }
+    const { data, error } = await sb.from('posts').insert({ type:currentType, title, content, media_url, file_name }).select().single();
+    if (error) throw error;
+    posts.unshift(data);
+    commentCounts[data.id] = 0;
+    renderPosts();
+    closeWriteModal();
+    showToast('✅ 게시물이 등록되었습니다');
+  } catch(e) {
+    showToast('❌ ' + e.message);
+  } finally { btn.disabled = false; btn.textContent = '🚀 게시하기'; }
+}
+
+// ── DETAIL MODAL ──────────────────────────
+async function openDetail(id) {
+  currentPostId = id;
+  const p = posts.find(x => x.id === id); if (!p) return;
+  const labels = { text:'📝 글', image:'🖼️ 이미지', video:'🎬 동영상' };
+  document.getElementById('detail-badge').textContent = labels[p.type];
+
+  let media = '';
+  if (p.type === 'image' && p.media_url) media = `<div class="detail-media"><img src="${p.media_url}" alt=""></div>`;
+  else if (p.type === 'video' && p.media_url) media = `<div class="detail-media"><video src="${p.media_url}" controls></video></div>`;
+
+  const date = new Date(p.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+
+  document.getElementById('detail-body').innerHTML = `
+    ${media}
+    <div class="detail-title">${esc(p.title)}</div>
+    <div class="detail-meta">
+      <span>🕐 ${date}</span>
+      ${p.file_name ? `<span>📎 ${esc(p.file_name)}</span>` : ''}
+    </div>
+    ${p.content ? `<div class="detail-content">${esc(p.content)}</div>` : ''}
+    <div class="comments-section">
+      <div class="comments-title">💬 COMMENTS</div>
+      <div id="comment-list"><div class="loading" style="padding:20px 0">LOADING</div></div>
+      <div class="comment-form">
+        <input type="text" id="comment-input" placeholder="댓글을 입력하세요..." maxlength="200"
+               onkeydown="if(event.key==='Enter')sendComment()">
+        <button class="comment-send" id="cmt-send-btn" onclick="sendComment()">전송</button>
+      </div>
+    </div>`;
+
+  document.getElementById('detail-footer').innerHTML =
+    `<button class="delete-btn" onclick="deletePost('${id}')">🗑️ 게시물 삭제</button>`;
+
+  document.getElementById('detail-modal').classList.add('open');
+  loadComments(id);
+}
+
+function closeDetailModal() {
+  document.getElementById('detail-modal').classList.remove('open');
+  currentPostId = null;
+}
+
+// ── COMMENTS ──────────────────────────────
+async function loadComments(postId) {
+  const el = document.getElementById('comment-list'); if (!el) return;
+  try {
+    const { data, error } = await sb.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending:true });
+    if (error) throw error;
+    if (!data || data.length === 0) { el.innerHTML = '<div class="no-comments">아직 댓글이 없어요. 첫 댓글을 남겨보세요!</div>'; return; }
+    el.innerHTML = data.map(c => buildCommentHTML(c)).join('');
+  } catch(e) { el.innerHTML = '<div class="no-comments">댓글을 불러오지 못했습니다.</div>'; }
+}
+
+function buildCommentHTML(c) {
+  const d = new Date(c.created_at).toLocaleDateString('ko-KR',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  return `<div class="comment-item" id="cmt-${c.id}">
+    <div class="comment-text">${esc(c.content)}</div>
+    <div class="comment-footer">
+      <span class="comment-date">${d}</span>
+      <button class="comment-del" onclick="deleteComment('${c.id}')">🗑️ 삭제</button>
+    </div>
+  </div>`;
+}
+
+function appendComment(c) {
+  const el = document.getElementById('comment-list'); if (!el) return;
+  el.querySelector('.no-comments')?.remove();
+  const div = document.createElement('div');
+  div.innerHTML = buildCommentHTML(c);
+  el.appendChild(div.firstElementChild);
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendComment() {
+  const input = document.getElementById('comment-input');
+  const btn   = document.getElementById('cmt-send-btn');
+  const text  = input?.value?.trim();
+  if (!text || !currentPostId) return;
+  btn.disabled = true;
+  try {
+    const { error } = await sb.from('comments').insert({ post_id:currentPostId, content:text });
+    if (error) throw error;
+    input.value = '';
+  } catch(e) { showToast('❌ 댓글 등록 실패: ' + e.message); }
+  finally { btn.disabled = false; }
+}
+
+async function deleteComment(id) {
+  if (!confirm('댓글을 삭제할까요?')) return;
+  try {
+    const { error } = await sb.from('comments').delete().eq('id', id);
+    if (error) throw error;
+    showToast('🗑️ 댓글 삭제됨');
+  } catch(e) { showToast('❌ 삭제 실패'); }
+}
+
+async function deletePost(id) {
+  if (!confirm('게시물을 삭제할까요?')) return;
+  try {
+    const { error } = await sb.from('posts').delete().eq('id', id);
+    if (error) throw error;
+    posts = posts.filter(p => p.id !== id);
+    delete commentCounts[id];
+    renderPosts();
+    closeDetailModal();
+    showToast('🗑️ 게시물이 삭제되었습니다');
+  } catch(e) { showToast('❌ 삭제 실패: ' + e.message); }
+}
+
+// ── UTILS ─────────────────────────────────
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.getElementById('write-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeWriteModal(); });
+document.getElementById('detail-modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetailModal(); });
+
+loadPosts();
+initRealtime();
+</script>
+</body>
+</html>
