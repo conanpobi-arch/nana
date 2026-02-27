@@ -128,6 +128,14 @@
     max-height:92vh; overflow-y:auto;
     animation:modalIn 0.28s cubic-bezier(0.34,1.4,0.64,1);
   }
+  /* 상세 모달은 더 넓게 2단 */
+  #detail-modal .modal {
+    max-width:900px;
+    max-height:92vh;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
   @keyframes modalIn { from{opacity:0;transform:scale(0.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
 
   .modal-header {
@@ -135,11 +143,81 @@
     padding:18px 22px; border-bottom:1px solid var(--border);
     position:sticky; top:0; background:var(--surface); z-index:10;
     border-radius:18px 18px 0 0;
+    flex-shrink:0;
   }
   .modal-header h2 { font-family:'Orbitron'; font-size:0.9rem; color:var(--neon); text-shadow:0 0 10px rgba(0,255,204,0.4); letter-spacing:2px; }
   .modal-close { background:none; border:none; color:var(--muted); font-size:1.3rem; cursor:pointer; transition:color 0.2s; line-height:1; }
   .modal-close:hover { color:var(--neon); }
   .modal-body { padding:22px; }
+
+  /* ── 2단 레이아웃 (상세 모달) ── */
+  .detail-columns {
+    display:flex;
+    flex:1;
+    overflow:hidden;
+    min-height:0;
+  }
+  /* 왼쪽: 게시글 본문 */
+  .detail-left {
+    flex:1;
+    overflow-y:auto;
+    padding:22px;
+    border-right:1px solid var(--border);
+    min-width:0;
+  }
+  /* 오른쪽: 댓글 */
+  .detail-right {
+    width:300px;
+    flex-shrink:0;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .comments-header {
+    padding:16px 18px 10px;
+    font-family:'Orbitron'; font-size:0.72rem;
+    color:var(--muted); letter-spacing:2px;
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .comment-scroll {
+    flex:1; overflow-y:auto;
+    padding:12px 14px;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .comment-scroll::-webkit-scrollbar { width:4px; }
+  .comment-scroll::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .comment-input-wrap {
+    padding:12px 14px;
+    border-top:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .comment-input-wrap input {
+    width:100%; background:var(--card);
+    border:1px solid var(--border); border-radius:10px;
+    padding:9px 12px; color:var(--text);
+    font-size:0.82rem; font-family:'Noto Sans KR';
+    transition:border-color 0.2s; margin-bottom:8px;
+  }
+  .comment-input-wrap input:focus { outline:none; border-color:var(--neon); box-shadow:0 0 0 2px rgba(0,255,204,0.1); }
+  .comment-send-full {
+    width:100%; padding:9px;
+    border-radius:10px; border:1px solid var(--neon);
+    background:rgba(0,255,204,0.08); color:var(--neon);
+    font-size:0.82rem; font-weight:700; cursor:pointer;
+    font-family:'Noto Sans KR'; transition:all 0.2s;
+  }
+  .comment-send-full:hover { background:rgba(0,255,204,0.15); }
+  .comment-send-full:disabled { opacity:0.4; cursor:not-allowed; }
+  .no-comments { font-size:0.78rem; color:var(--muted); text-align:center; padding:20px 0; line-height:1.7; }
+
+  /* 모바일: 세로로 전환 */
+  @media(max-width:680px) {
+    #detail-modal .modal { max-width:100%; max-height:95vh; }
+    .detail-columns { flex-direction:column; overflow-y:auto; }
+    .detail-left { border-right:none; border-bottom:1px solid var(--border); overflow-y:visible; }
+    .detail-right { width:100%; min-height:320px; }
+  }
 
   /* FORM */
   .form-group { margin-bottom:16px; }
@@ -186,51 +264,32 @@
   .submit-btn:hover { background:rgba(0,255,204,0.16); box-shadow:0 0 25px rgba(0,255,204,0.35); }
   .submit-btn:disabled { opacity:0.4; cursor:not-allowed; }
 
-  /* DETAIL */
-  .detail-body-wrap { padding:20px 22px; }
+  /* DETAIL LEFT */
   .detail-media { margin-bottom:16px; border-radius:12px; overflow:hidden; }
   .detail-media img, .detail-media video { width:100%; border-radius:12px; display:block; }
-  .detail-title { font-size:1.1rem; font-weight:700; margin-bottom:8px; }
+  .detail-title { font-size:1.05rem; font-weight:700; margin-bottom:8px; line-height:1.4; }
   .detail-meta { font-size:0.75rem; color:var(--muted); margin-bottom:14px; display:flex; gap:14px; flex-wrap:wrap; }
-  .detail-content { font-size:0.87rem; line-height:1.85; color:rgba(226,240,255,0.7); white-space:pre-wrap; margin-bottom:20px; }
+  .detail-content { font-size:0.87rem; line-height:1.85; color:rgba(226,240,255,0.7); white-space:pre-wrap; }
 
-  /* COMMENTS */
-  .comments-section { border-top:1px solid var(--border); padding-top:18px; }
-  .comments-title { font-family:'Orbitron'; font-size:0.75rem; color:var(--muted); letter-spacing:2px; margin-bottom:14px; }
+  /* COMMENT ITEMS */
   .comment-item {
     background:rgba(0,255,204,0.03); border:1px solid rgba(0,255,204,0.08);
-    border-radius:10px; padding:11px 14px; margin-bottom:9px;
-    animation:fadeUp 0.3s ease both;
+    border-radius:10px; padding:10px 12px;
+    animation:fadeUp 0.25s ease both; flex-shrink:0;
   }
-  .comment-text { font-size:0.84rem; color:rgba(226,240,255,0.8); line-height:1.6; margin-bottom:5px; }
+  .comment-text { font-size:0.82rem; color:rgba(226,240,255,0.85); line-height:1.55; margin-bottom:5px; word-break:break-all; }
   .comment-footer { display:flex; justify-content:space-between; align-items:center; }
-  .comment-date { font-size:0.7rem; color:var(--muted); }
-  .comment-del { background:none; border:none; color:rgba(255,68,102,0.5); font-size:0.72rem; cursor:pointer; transition:color 0.2s; font-family:'Noto Sans KR'; }
+  .comment-date { font-size:0.68rem; color:var(--muted); }
+  .comment-del { background:none; border:none; color:rgba(255,68,102,0.45); font-size:0.68rem; cursor:pointer; transition:color 0.2s; font-family:'Noto Sans KR'; }
   .comment-del:hover { color:#ff4466; }
-  .no-comments { font-size:0.8rem; color:var(--muted); padding:10px 0; }
 
-  .comment-form { display:flex; gap:8px; margin-top:14px; }
-  .comment-form input {
-    flex:1; background:var(--card); border:1px solid var(--border);
-    border-radius:25px; padding:10px 16px; color:var(--text);
-    font-size:0.84rem; font-family:'Noto Sans KR'; transition:border-color 0.2s;
-  }
-  .comment-form input:focus { outline:none; border-color:var(--neon); }
-  .comment-send {
-    padding:10px 18px; border-radius:25px;
-    border:1px solid var(--neon); background:rgba(0,255,204,0.08);
-    color:var(--neon); font-size:0.82rem; font-weight:700;
-    cursor:pointer; transition:all 0.2s; font-family:'Noto Sans KR'; white-space:nowrap;
-  }
-  .comment-send:hover { background:rgba(0,255,204,0.16); }
-  .comment-send:disabled { opacity:0.4; cursor:not-allowed; }
-
+  /* DETAIL FOOTER (삭제버튼) */
   .detail-footer { padding:14px 22px; border-top:1px solid var(--border); display:flex; justify-content:flex-end; }
   .delete-btn {
     display:flex; align-items:center; gap:5px;
-    padding:8px 16px; border-radius:20px;
+    padding:7px 14px; border-radius:20px;
     border:1px solid rgba(255,68,102,0.35); background:rgba(255,68,102,0.06);
-    color:#ff6688; font-size:0.78rem; cursor:pointer;
+    color:#ff6688; font-size:0.76rem; cursor:pointer;
     font-family:'Noto Sans KR'; transition:all 0.2s;
   }
   .delete-btn:hover { background:rgba(255,68,102,0.15); border-color:#ff4466; }
@@ -375,10 +434,26 @@
   <div class="modal">
     <div class="modal-header">
       <h2 id="detail-badge">POST</h2>
-      <button class="modal-close" onclick="closeDetailModal()">✕</button>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="delete-btn" id="detail-del-btn">🗑️ 삭제</button>
+        <button class="modal-close" onclick="closeDetailModal()">✕</button>
+      </div>
     </div>
-    <div class="detail-body-wrap" id="detail-body"></div>
-    <div class="detail-footer" id="detail-footer"></div>
+    <!-- 2단 컬럼 -->
+    <div class="detail-columns">
+      <!-- 왼쪽: 게시글 -->
+      <div class="detail-left" id="detail-body"></div>
+      <!-- 오른쪽: 댓글 -->
+      <div class="detail-right">
+        <div class="comments-header">💬 COMMENTS</div>
+        <div class="comment-scroll" id="comment-list"></div>
+        <div class="comment-input-wrap">
+          <input type="text" id="comment-input" placeholder="댓글을 입력하세요..." maxlength="200"
+                 onkeydown="if(event.key==='Enter')sendComment()">
+          <button class="comment-send-full" id="cmt-send-btn" onclick="sendComment()">전송 ↵</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -604,6 +679,7 @@ async function openDetail(id) {
 
   const date = new Date(p.created_at).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
 
+  // 왼쪽: 게시글 본문만
   document.getElementById('detail-body').innerHTML = `
     ${media}
     <div class="detail-title">${esc(p.title)}</div>
@@ -611,19 +687,13 @@ async function openDetail(id) {
       <span>🕐 ${date}</span>
       ${p.file_name ? `<span>📎 ${esc(p.file_name)}</span>` : ''}
     </div>
-    ${p.content ? `<div class="detail-content">${esc(p.content)}</div>` : ''}
-    <div class="comments-section">
-      <div class="comments-title">💬 COMMENTS</div>
-      <div id="comment-list"><div class="loading">LOADING</div></div>
-      <div class="comment-form">
-        <input type="text" id="comment-input" placeholder="댓글을 입력하세요..." maxlength="200"
-               onkeydown="if(event.key==='Enter')sendComment()">
-        <button class="comment-send" id="cmt-send-btn" onclick="sendComment()">전송</button>
-      </div>
-    </div>`;
+    ${p.content ? `<div class="detail-content">${esc(p.content)}</div>` : ''}`;
 
-  document.getElementById('detail-footer').innerHTML =
-    `<button class="delete-btn" onclick="deletePost('${id}')">🗑️ 게시물 삭제</button>`;
+  // 삭제 버튼 연결
+  document.getElementById('detail-del-btn').onclick = () => deletePost(id);
+
+  // 오른쪽 댓글 영역 초기화
+  document.getElementById('comment-list').innerHTML = '<div class="loading" style="padding:20px">LOADING</div>';
 
   document.getElementById('detail-modal').classList.add('open');
   loadComments(id);
@@ -669,6 +739,7 @@ function appendComment(c) {
   const div = document.createElement('div');
   div.innerHTML = buildCommentHTML(c);
   el.appendChild(div.firstElementChild);
+  // 오른쪽 댓글 패널 스크롤 맨 아래로
   el.scrollTop = el.scrollHeight;
 }
 
