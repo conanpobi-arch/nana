@@ -2,451 +2,391 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>NANA LAB v2.82.0</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NANA LAB 자동매매 체크리스트</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --neon: #00ffcc;
-    --neon2: #00bfff;
-    --bg: #000b1a;
-    --border: rgba(0,255,204,0.2);
-    --card: rgba(0,255,204,0.05);
-  }
-  * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
-  body, html {
-    width:100%; min-height:100%;
-    background:#000; color:#fff;
-    font-family:'Noto Sans KR',sans-serif;
-    overflow-x:hidden; overflow-y:auto;
-  }
+:root {
+  --neon: #00ffcc; --neon2: #00bfff; --gold: #ffc83c;
+  --red: #ff4466; --bg: #000b1a; --card: #001628;
+  --border: rgba(0,255,204,0.18);
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:#e2f0ff; font-family:'Noto Sans KR',sans-serif; min-height:100vh; padding:70px 16px 60px; }
 
-  /* ── BG ── */
-  #galaxy-bg { position:fixed; inset:0; z-index:0; background:radial-gradient(circle at 30% 20%,#001830 0%,#000b1a 55%,#000 100%); pointer-events:none; }
-  .star { position:absolute; background:white; border-radius:50%; opacity:0.5; animation:twinkle var(--duration) infinite; pointer-events:none; }
-  @keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:1} }
-  #meteor-canvas { position:fixed; inset:0; z-index:1; pointer-events:none; touch-action:none; }
+.home-btn {
+  position:fixed; top:16px; left:16px; z-index:999;
+  width:42px; height:42px; border-radius:50%;
+  background:rgba(0,0,0,0.4); border:1px solid rgba(0,255,204,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; text-decoration:none;
+  backdrop-filter:blur(8px); transition:all 0.2s;
+}
+.home-btn:hover { border-color:var(--neon); box-shadow:0 0 15px rgba(0,255,204,0.4); transform:scale(1.1); }
 
-  /* ── GRID OVERLAY ── */
-  .grid-overlay {
-    position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.025;
-    background-image:linear-gradient(rgba(0,255,204,1) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,1) 1px,transparent 1px);
-    background-size:60px 60px;
-  }
+h1 { font-family:'Orbitron'; font-size:1.2rem; color:var(--neon); text-shadow:0 0 15px var(--neon); letter-spacing:4px; text-align:center; margin-bottom:6px; }
+.subtitle { text-align:center; font-family:'Share Tech Mono'; font-size:0.7rem; color:rgba(0,255,204,0.4); letter-spacing:2px; margin-bottom:24px; }
 
-  /* ── MAIN WRAP ── */
-  .main-container {
-    position:relative; z-index:10;
-    min-height:100vh;
-    display:flex; flex-direction:column; align-items:center;
-    padding:40px 20px 100px;
-  }
+/* 전체 진행률 */
+.total-progress { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:18px 20px; margin-bottom:20px; }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.progress-title { font-family:'Orbitron'; font-size:0.7rem; color:var(--muted); letter-spacing:2px; color:rgba(0,255,204,0.5); }
+.progress-pct { font-family:'Orbitron'; font-size:1.4rem; font-weight:900; color:var(--neon); }
+.progress-bar-wrap { background:rgba(0,255,204,0.08); border-radius:20px; height:10px; overflow:hidden; }
+.progress-bar { height:100%; border-radius:20px; background:linear-gradient(90deg,var(--neon),var(--neon2)); transition:width 0.4s ease; box-shadow:0 0 10px rgba(0,255,204,0.5); }
+.progress-sub { margin-top:8px; font-size:0.72rem; color:rgba(226,240,255,0.4); font-family:'Share Tech Mono'; }
 
-  /* ── HERO ── */
-  .hero { text-align:center; margin-bottom:36px; animation:fadeUp 0.7s ease both; }
+/* Phase 섹션 */
+.phase { background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:14px; overflow:hidden; }
+.phase-header { padding:14px 18px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:background 0.2s; }
+.phase-header:hover { background:rgba(0,255,204,0.04); }
+.phase-badge { font-family:'Orbitron'; font-size:0.6rem; font-weight:700; padding:3px 10px; border-radius:20px; letter-spacing:1px; white-space:nowrap; border:1px solid; }
+.phase-badge.todo  { color:rgba(226,240,255,0.4); border-color:rgba(226,240,255,0.15); background:transparent; }
+.phase-badge.doing { color:var(--gold); border-color:rgba(255,200,60,0.4); background:rgba(255,200,60,0.08); }
+.phase-badge.done  { color:var(--neon); border-color:rgba(0,255,204,0.4); background:rgba(0,255,204,0.08); }
+.phase-title { font-size:0.88rem; font-weight:700; flex:1; }
+.phase-progress-mini { font-family:'Share Tech Mono'; font-size:0.68rem; color:rgba(0,255,204,0.45); white-space:nowrap; }
+.phase-arrow { font-size:0.7rem; color:rgba(0,255,204,0.3); transition:transform 0.2s; }
+.phase-arrow.open { transform:rotate(90deg); }
 
-  .profile-wrap { position:relative; display:inline-block; margin-bottom:16px; }
-  .couple-img {
-    width:110px; height:110px; border-radius:50%;
-    border:2px solid var(--neon);
-    box-shadow:0 0 30px rgba(0,255,204,0.5), 0 0 60px rgba(0,255,204,0.15);
-    object-fit:cover; display:block;
-  }
-  .profile-ring {
-    position:absolute; inset:-8px; border-radius:50%;
-    border:1px solid rgba(0,255,204,0.2);
-    animation:spin 12s linear infinite;
-  }
-  .profile-ring::before {
-    content:''; position:absolute; top:-3px; left:50%; transform:translateX(-50%);
-    width:6px; height:6px; border-radius:50%;
-    background:var(--neon); box-shadow:0 0 8px var(--neon);
-  }
-  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.phase-body { padding:0 18px 14px; display:none; }
+.phase-body.open { display:block; }
 
-  .main-title {
-    font-family:'Orbitron'; font-size:2rem; letter-spacing:6px;
-    color:var(--neon); text-shadow:0 0 20px var(--neon), 0 0 40px rgba(0,255,204,0.3);
-    margin-bottom:6px;
-  }
-  .hero-tagline {
-    font-family:'Share Tech Mono'; font-size:0.72rem;
-    color:rgba(0,255,204,0.5); letter-spacing:3px; margin-bottom:16px;
-  }
-  .hero-desc {
-    font-size:0.82rem; color:rgba(226,240,255,0.5);
-    line-height:1.8; max-width:300px; margin:0 auto 20px;
-  }
+/* 카테고리 */
+.category { margin-bottom:12px; }
+.cat-label { font-family:'Share Tech Mono'; font-size:0.65rem; color:rgba(0,255,204,0.35); letter-spacing:2px; text-transform:uppercase; margin-bottom:6px; padding-left:4px; border-left:2px solid rgba(0,255,204,0.2); padding-left:8px; }
 
-  /* ── STATUS BAR ── */
-  .status-bar {
-    display:flex; gap:8px; justify-content:center; flex-wrap:wrap;
-    margin-bottom:32px; animation:fadeUp 0.7s 0.1s ease both; opacity:0;
-    animation-fill-mode:both;
-  }
-  .status-chip {
-    display:flex; align-items:center; gap:5px;
-    padding:4px 12px; border-radius:20px;
-    border:1px solid rgba(0,255,204,0.18);
-    background:rgba(0,255,204,0.04);
-    font-family:'Share Tech Mono'; font-size:0.65rem;
-    color:rgba(0,255,204,0.5); letter-spacing:1px;
-  }
-  .chip-dot { width:5px; height:5px; border-radius:50%; background:var(--neon); box-shadow:0 0 5px var(--neon); animation:pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+/* 체크 아이템 */
+.check-item { display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:8px; margin-bottom:4px; cursor:pointer; transition:background 0.15s; border:1px solid transparent; }
+.check-item:hover { background:rgba(0,255,204,0.04); border-color:rgba(0,255,204,0.1); }
+.check-item.checked { opacity:0.55; }
+.check-box { width:18px; height:18px; border-radius:4px; border:1.5px solid rgba(0,255,204,0.3); background:transparent; flex-shrink:0; margin-top:1px; display:flex; align-items:center; justify-content:center; transition:all 0.15s; font-size:11px; }
+.check-item.checked .check-box { background:var(--neon); border-color:var(--neon); box-shadow:0 0 8px rgba(0,255,204,0.4); }
+.check-item:hover .check-box { border-color:var(--neon); }
+.check-text { flex:1; font-size:0.82rem; line-height:1.5; color:rgba(226,240,255,0.8); }
+.check-item.checked .check-text { text-decoration:line-through; color:rgba(226,240,255,0.35); }
+.check-tag { font-size:0.62rem; font-family:'Share Tech Mono'; padding:2px 7px; border-radius:4px; white-space:nowrap; margin-top:2px; flex-shrink:0; }
+.tag-file   { color:var(--neon2); border:1px solid rgba(0,191,255,0.3); background:rgba(0,191,255,0.06); }
+.tag-setup  { color:var(--gold); border:1px solid rgba(255,200,60,0.3); background:rgba(255,200,60,0.06); }
+.tag-code   { color:#aa88ff; border:1px solid rgba(170,136,255,0.3); background:rgba(170,136,255,0.06); }
+.tag-test   { color:#ff8866; border:1px solid rgba(255,136,102,0.3); background:rgba(255,136,102,0.06); }
+.tag-server { color:var(--neon); border:1px solid rgba(0,255,204,0.3); background:rgba(0,255,204,0.06); }
 
-  /* ── MENU GRID ── */
-  .menu-grid {
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px; width:100%; max-width:340px;
-    animation:fadeUp 0.7s 0.15s ease both; opacity:0;
-    animation-fill-mode:both;
-  }
-
-  .menu-btn {
-    background:var(--card);
-    border:1px solid var(--border); border-radius:14px;
-    padding:16px 8px; text-align:center;
-    cursor:pointer; backdrop-filter:blur(8px);
-    transition:all 0.22s; text-decoration:none; color:#fff;
-    display:flex; flex-direction:column; align-items:center;
-    position:relative; z-index:20; overflow:hidden;
-  }
-  .menu-btn::before {
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg, rgba(0,255,204,0.06), transparent);
-    opacity:0; transition:opacity 0.2s;
-  }
-  .menu-btn:hover::before, .menu-btn:active::before { opacity:1; }
-  .menu-btn:hover, .menu-btn:active {
-    border-color:var(--neon);
-    transform:translateY(-3px);
-    box-shadow:0 8px 25px rgba(0,255,204,0.15);
-  }
-  .menu-btn span { font-size:24px; display:block; margin-bottom:7px; transition:transform 0.2s; }
-  .menu-btn:hover span { transform:scale(1.15); }
-  .menu-btn div { font-size:11px; color:var(--neon); font-weight:700; letter-spacing:0.5px; }
-  .menu-btn .btn-sub { font-size:9px; color:rgba(0,255,204,0.35); margin-top:2px; font-family:'Share Tech Mono'; letter-spacing:0.5px; }
-
-  /* NEW 뱃지 */
-  .menu-btn .new-tag {
-    position:absolute; top:7px; right:7px;
-    padding:1px 6px; border-radius:4px; font-size:8px; font-weight:700;
-    background:rgba(0,255,204,0.15); border:1px solid rgba(0,255,204,0.4);
-    color:var(--neon); font-family:'Share Tech Mono'; letter-spacing:1px;
-  }
-
-  /* ── BGM BTN ── */
-  .bgm-section {
-    margin-top:24px; text-align:center;
-    animation:fadeUp 0.7s 0.25s ease both; opacity:0; animation-fill-mode:both;
-  }
-  .bgm-force-btn {
-    padding:10px 28px;
-    background:rgba(0,255,204,0.08); border:1px solid rgba(0,255,204,0.4);
-    border-radius:30px; color:var(--neon); font-family:'Orbitron';
-    font-size:10px; letter-spacing:2px; cursor:pointer;
-    box-shadow:0 0 15px rgba(0,255,204,0.15);
-    transition:all 0.2s; position:relative; z-index:999;
-  }
-  .bgm-force-btn:hover { background:rgba(0,255,204,0.15); box-shadow:0 0 25px rgba(0,255,204,0.35); }
-
-  /* ── VERSION ── */
-  .version-label {
-    margin-top:16px; font-family:'Share Tech Mono'; font-size:10px;
-    color:rgba(0,255,204,0.35); cursor:pointer;
-    position:relative; z-index:20; letter-spacing:2px;
-    transition:color 0.2s;
-    animation:fadeUp 0.7s 0.3s ease both; opacity:0; animation-fill-mode:both;
-  }
-  .version-label:hover { color:var(--neon); }
-
-  /* ── DIVIDER ── */
-  .divider {
-    width:100%; max-width:340px; height:1px;
-    background:linear-gradient(90deg,transparent,var(--border),transparent);
-    margin:24px 0;
-    animation:fadeUp 0.7s 0.2s ease both; opacity:0; animation-fill-mode:both;
-  }
-
-  /* ── QUICK LINKS ── */
-  .quick-links {
-    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
-    width:100%; max-width:340px;
-    animation:fadeUp 0.7s 0.28s ease both; opacity:0; animation-fill-mode:both;
-  }
-  .quick-link {
-    padding:6px 14px; border-radius:20px;
-    border:1px solid rgba(0,255,204,0.15);
-    background:rgba(0,255,204,0.03);
-    color:rgba(0,255,204,0.45); font-size:0.72rem;
-    font-family:'Share Tech Mono'; letter-spacing:1px;
-    text-decoration:none; transition:all 0.2s;
-  }
-  .quick-link:hover { border-color:var(--neon); color:var(--neon); background:rgba(0,255,204,0.07); }
-
-  /* ── HISTORY MODAL ── */
-  #history-modal { display:none; position:fixed; inset:0; z-index:1000; background:rgba(0,0,0,0.85); backdrop-filter:blur(15px); align-items:center; justify-content:center; padding:20px; }
-  .history-content { width:100%; max-width:500px; background:rgba(0,20,40,0.95); border:1px solid var(--neon); border-radius:20px; padding:25px; max-height:80vh; overflow-y:auto; }
-  table { width:100%; border-collapse:collapse; font-size:11px; color:#ccc; }
-  th, td { padding:10px 5px; text-align:left; border-bottom:1px solid rgba(0,255,204,0.1); }
-  th { color:var(--neon); font-family:'Orbitron'; font-size:0.65rem; letter-spacing:2px; }
-
-  /* ── FLOAT BUTTONS ── */
-  .board-float-btn, .checklist-float-btn {
-    position:fixed; z-index:9999;
-    width:58px; height:58px; border-radius:50%;
-    cursor:pointer;
-    display:flex; align-items:center; justify-content:center;
-    font-size:1.5rem;
-    transition:transform 0.2s,box-shadow 0.2s;
-    text-decoration:none; backdrop-filter:blur(10px);
-  }
-  /* BOARD — 오른쪽 */
-  .board-float-btn {
-    bottom:28px; right:28px;
-    background:linear-gradient(135deg,rgba(0,255,204,0.15),rgba(0,255,204,0.05));
-    border:1.5px solid var(--neon);
-    box-shadow:0 0 18px rgba(0,255,204,0.35),0 4px 20px rgba(0,0,0,0.5);
-    animation:boardPulse 2.8s ease-in-out infinite;
-  }
-  .board-float-btn:hover {
-    transform:scale(1.12) translateY(-3px);
-    box-shadow:0 0 35px rgba(0,255,204,0.7),0 8px 30px rgba(0,0,0,0.5);
-    animation:none; background:rgba(0,255,204,0.18);
-  }
-  /* CHECKLIST — board 왼쪽 */
-  .checklist-float-btn {
-    bottom:28px; right:98px;
-    background:linear-gradient(135deg,rgba(255,200,60,0.15),rgba(255,200,60,0.05));
-    border:1.5px solid var(--gold);
-    box-shadow:0 0 18px rgba(255,200,60,0.3),0 4px 20px rgba(0,0,0,0.5);
-    animation:checkPulse 3.2s ease-in-out infinite;
-  }
-  .checklist-float-btn:hover {
-    transform:scale(1.12) translateY(-3px);
-    box-shadow:0 0 35px rgba(255,200,60,0.6),0 8px 30px rgba(0,0,0,0.5);
-    animation:none; background:rgba(255,200,60,0.18);
-  }
-  /* 툴팁 공통 */
-  .float-tooltip {
-    position:absolute; right:68px; white-space:nowrap;
-    background:rgba(0,11,26,0.95); border:1px solid rgba(0,255,204,0.4);
-    color:var(--neon); font-family:'Orbitron'; font-size:0.7rem;
-    letter-spacing:1px; padding:7px 14px; border-radius:8px;
-    opacity:0; pointer-events:none; transition:opacity 0.2s;
-    box-shadow:0 0 12px rgba(0,255,204,0.2);
-  }
-  .checklist-float-btn .float-tooltip { border-color:rgba(255,200,60,0.4); color:var(--gold); box-shadow:0 0 12px rgba(255,200,60,0.2); }
-  .board-float-btn:hover .float-tooltip,
-  .checklist-float-btn:hover .float-tooltip { opacity:1; }
-
-  @keyframes boardPulse {
-    0%   { box-shadow:0 0 0 0 rgba(0,255,204,0.5),0 4px 20px rgba(0,0,0,0.5); }
-    70%  { box-shadow:0 0 0 14px rgba(0,255,204,0),0 4px 20px rgba(0,0,0,0.5); }
-    100% { box-shadow:0 0 0 0 rgba(0,255,204,0),0 4px 20px rgba(0,0,0,0.5); }
-  }
-  @keyframes checkPulse {
-    0%   { box-shadow:0 0 0 0 rgba(255,200,60,0.5),0 4px 20px rgba(0,0,0,0.5); }
-    70%  { box-shadow:0 0 0 14px rgba(255,200,60,0),0 4px 20px rgba(0,0,0,0.5); }
-    100% { box-shadow:0 0 0 0 rgba(255,200,60,0),0 4px 20px rgba(0,0,0,0.5); }
-  }
-
-  /* ── ANIM ── */
-  @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-  .hero { animation:fadeUp 0.6s ease both; }
-
-  /* ── RESPONSIVE ── */
-  @media(min-height:750px) {
-    .couple-img { width:130px; height:130px; }
-    .main-title { font-size:2.4rem; }
-    .menu-btn { padding:20px 10px; }
-    .menu-btn span { font-size:28px; }
-  }
-  @media(max-height:640px) {
-    .couple-img { width:80px; height:80px; margin-bottom:8px; }
-    .main-title { font-size:1.4rem; margin-bottom:4px; }
-    .hero-desc { display:none; }
-    .menu-btn { padding:11px 6px; }
-    .menu-btn span { font-size:20px; }
-    .menu-btn div { font-size:10px; margin-top:4px; }
-    .status-bar { margin-bottom:20px; }
-  }
-  ::-webkit-scrollbar { width:4px; }
-  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+/* 리셋 버튼 */
+.reset-btn { display:block; margin:20px auto 0; padding:8px 24px; border-radius:20px; border:1px solid rgba(255,68,102,0.3); background:rgba(255,68,102,0.05); color:rgba(255,68,102,0.6); font-size:0.75rem; cursor:pointer; font-family:'Share Tech Mono'; letter-spacing:1px; transition:all 0.2s; }
+.reset-btn:hover { border-color:var(--red); color:var(--red); }
 </style>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 </head>
 <body>
 
-<div id="galaxy-bg"></div>
-<div class="grid-overlay"></div>
-<canvas id="meteor-canvas"></canvas>
+<a href="index.html" class="home-btn" title="홈으로">🏠</a>
 
-<audio id="bgm" loop preload="auto">
-  <source src="pocosmall.mp3" type="audio/mpeg">
-</audio>
+<h1>NANA LAB TRADING</h1>
+<div class="subtitle">자동매매 시스템 구축 체크리스트 v3.0</div>
 
-<div class="main-container">
-
-  <!-- HERO -->
-  <div class="hero">
-    <div class="profile-wrap">
-      <img src="profile.png" class="couple-img" alt="NANA LAB">
-      <div class="profile-ring"></div>
-    </div>
-    <h1 class="main-title">NANA LAB</h1>
-    <div class="hero-tagline">RESEARCH & ENGINEERING · 2026</div>
-    <p class="hero-desc">소설 번역부터 퀀트 자동매매까지<br>일상을 바꾸는 작은 실험들</p>
+<!-- 전체 진행률 -->
+<div class="total-progress">
+  <div class="progress-header">
+    <div class="progress-title">TOTAL PROGRESS</div>
+    <div class="progress-pct" id="total-pct">0%</div>
   </div>
-
-  <!-- STATUS -->
-  <div class="status-bar">
-    <div class="status-chip"><span class="chip-dot"></span>LIVE v2.82.0</div>
-    <div class="status-chip">8 TOOLS</div>
-    <div class="status-chip">NASDAQ SYS</div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="total-bar" style="width:0%"></div>
   </div>
-
-  <!-- MENU -->
-  <div class="menu-grid">
-    <a href="novel.html"       class="menu-btn"><span>📖</span><div>소설번역기</div><div class="btn-sub">AI TRANSLATE</div></a>
-    <a href="downloader.html"  class="menu-btn"><span>📥</span><div>동영상다운로더</div><div class="btn-sub">YT · FB · X</div><span class="new-tag">UPD</span></a>
-    <a href="todo.html"        class="menu-btn"><span>✅</span><div>할일</div><div class="btn-sub">TODO LIST</div></a>
-    <a href="https://nana-lab.vercel.app/news.html" class="menu-btn"><span>📰</span><div>뉴스섬머리</div><div class="btn-sub">AI SUMMARY</div></a>
-    <a href="movie.html"       class="menu-btn"><span>🎬</span><div>영화보기</div><div class="btn-sub">STREAMING</div></a>
-    <a href="idea.html"        class="menu-btn"><span>💡</span><div>아이디어체크</div><div class="btn-sub">BRAINSTORM</div></a>
-    <a href="prayer.html?v=2"  class="menu-btn"><span>🙏</span><div>오늘의 기도</div><div class="btn-sub">DAILY PRAYER</div></a>
-    <a href="trading.html"     class="menu-btn"><span>📈</span><div>자동매매</div><div class="btn-sub">NASDAQ BOT</div><span class="new-tag">NEW</span></a>
-  </div>
-
-  <div class="divider"></div>
-
-  <!-- QUICK LINKS -->
-  <div class="quick-links">
-    <a href="board.html"      class="quick-link">📋 BOARD</a>
-    <a href="trading.html"    class="quick-link">📈 TRADING</a>
-    <a href="downloader.html" class="quick-link">📥 DOWNLOADER</a>
-  </div>
-
-  <!-- BGM -->
-  <div class="bgm-section">
-    <button id="bgm-indicator" class="bgm-force-btn" onclick="startBgmEngine(this)">▶ SYNC AUDIO SYSTEM</button>
-  </div>
-
-  <!-- VERSION -->
-  <div class="version-label" onclick="openModal(event)">SYSTEM VERSION v2.82.0</div>
-
+  <div class="progress-sub" id="total-sub">0 / 0 완료</div>
 </div>
 
-<!-- HISTORY MODAL -->
-<div id="history-modal" onclick="closeModal()">
-  <div class="history-content" onclick="event.stopPropagation()">
-    <div style="font-family:'Orbitron';color:var(--neon);margin-bottom:15px;text-align:center;letter-spacing:3px;font-size:0.85rem;">NANA LAB HISTORY</div>
-    <table>
-      <thead><tr><th>VER</th><th>DATE</th><th>DESCRIPTION</th></tr></thead>
-      <tbody>
-        <tr style="color:#fff;"><td>v2.82.0</td><td>26-03-05</td><td>Hero 섹션 강화, Quick Links, 메뉴 서브태그, UPD/NEW 뱃지 추가</td></tr>
-        <tr><td>v2.81.0</td><td>26-02-24</td><td>메뉴 버튼 클릭 오류 수정 (overflow 레이아웃 개선)</td></tr>
-        <tr><td>v2.80.0</td><td>26-02-20</td><td>뉴스섬머리 링크 연결 및 모바일 최적화 레이아웃</td></tr>
-        <tr><td>v2.79.5</td><td>26-02-20</td><td>pocosmall.mp3 음원 교체 및 오디오 엔진 고도화</td></tr>
-        <tr><td>v2.79.0</td><td>26-02-20</td><td>오디오 강제 돌파 엔진 및 디버깅 로그 통합</td></tr>
-        <tr><td>v2.78.9</td><td>26-02-18</td><td>번역 엔진 문단 간격 복구 및 줄바꿈 최적화</td></tr>
-        <tr><td>v2.78.5</td><td>26-02-17</td><td>메모리 지침 강화 및 실시간 팩트체크 시스템</td></tr>
-        <tr><td>v2.70.0</td><td>26-02-15</td><td>8대 메인 메뉴 UI 확정 (자동매매/기도 포함)</td></tr>
-        <tr><td>v2.65.0</td><td>26-02-14</td><td>BGM 기능 임시 삭제 및 성능 최적화 버전</td></tr>
-        <tr><td>v2.63.0</td><td>26-02-13</td><td>뭉툭하고 환한 별똥별 비주얼 엔진 업그레이드</td></tr>
-        <tr><td>v2.42.0</td><td>26-02-10</td><td>커플 이미지 profile.png 고정 및 테마 정립</td></tr>
-        <tr><td>v2.01.0</td><td>26-02-01</td><td>NANA LAB 프로젝트 공식 런칭 및 소설 엔진</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<!-- CHECKLIST FLOAT -->
-<a href="checklist.html" class="checklist-float-btn" title="체크리스트">
-  ✅<span class="float-tooltip">CHECKLIST</span>
-</a>
-
-<!-- BOARD FLOAT -->
-<a href="board.html" class="board-float-btn" title="게시판">
-  📋<span class="float-tooltip">BOARD</span>
-</a>
+<div id="checklist"></div>
+<button class="reset-btn" onclick="resetAll()">🗑️ 전체 초기화</button>
 
 <script>
-  function startBgmEngine(btn) {
-    const audio = document.getElementById('bgm');
-    btn.innerText = "CONNECTING...";
-    audio.volume = 0.4;
-    audio.play().then(() => {
-      btn.innerText = "◼ AUDIO ONLINE";
-      btn.style.boxShadow = "0 0 20px rgba(0,255,204,0.6)";
-      btn.style.borderColor = "var(--neon)";
-    }).catch(e => {
-      audio.load();
-      audio.play().then(() => { btn.innerText = "◼ AUDIO ONLINE"; })
-      .catch(() => { btn.innerText = "ERR: " + e.name; });
-    });
-  }
+const DATA = [
+  {
+    id: "prep",
+    phase: "사전 준비",
+    badge: "PREP",
+    items: [
+      { cat: "계좌 & API", items: [
+        { id:"p1", text:"한국투자증권 앱 설치 & 계좌 개설", tag:"setup" },
+        { id:"p2", text:"계좌 개설 시 '해외주식 거래' 신청 체크", tag:"setup" },
+        { id:"p3", text:"KIS Developers 포털 가입 (apiportal.koreainvestment.com)", tag:"setup" },
+        { id:"p4", text:"앱키 & 앱시크릿 발급 → 메모장에 안전하게 저장", tag:"setup" },
+        { id:"p5", text:"모의투자 신청 (별도 클릭 필요!)", tag:"setup" },
+      ]},
+      { cat: "GitHub 레포", items: [
+        { id:"p6", text:"프라이빗 레포 생성 완료", tag:"setup" },
+        { id:"p7", text:".gitignore 파일 업로드", tag:"file" },
+        { id:"p8", text:".env.example 파일 업로드", tag:"file" },
+        { id:"p9", text:"requirements.txt 파일 업로드", tag:"file" },
+        { id:"p10", text:"README.md 파일 업로드", tag:"file" },
+      ]},
+      { cat: "개발 환경", items: [
+        { id:"p11", text:"GitHub Codespaces 실행 (레포 → Code → Codespaces)", tag:"setup" },
+        { id:"p12", text:"backend/ 폴더 구조 생성 (mkdir -p backend/strategies)", tag:"setup" },
+        { id:"p13", text:".env 파일 생성 후 실제 API 키 입력", tag:"setup" },
+        { id:"p14", text:"pip install -r requirements.txt 실행", tag:"setup" },
+      ]},
+    ]
+  },
+  {
+    id: "phase1",
+    phase: "Phase 1 — KIS API 연동",
+    badge: "P1",
+    period: "1~2주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph1f1", text:"backend/kis_auth.py — 토큰 발급 & 자동 갱신", tag:"file" },
+        { id:"ph1f2", text:"backend/kis_api.py — 현재가/주문/잔고 조회", tag:"file" },
+        { id:"ph1f3", text:"backend/currency_module.py — 환율 & KRW→USD", tag:"file" },
+        { id:"ph1f4", text:"backend/risk_manager.py — 켈리 기준 포지션 사이징", tag:"file" },
+        { id:"ph1f5", text:"backend/telegram_bot.py — 알림 & 긴급 중단", tag:"file" },
+      ]},
+      { cat: "코드 작성", items: [
+        { id:"ph1c1", text:"kis_auth.py: 토큰 발급 테스트 (모의투자)", tag:"code" },
+        { id:"ph1c2", text:"kis_api.py: AAPL 현재가 조회 성공 확인", tag:"code" },
+        { id:"ph1c3", text:"kis_api.py: 모의투자 매수 주문 1주 테스트", tag:"code" },
+        { id:"ph1c4", text:"kis_api.py: 모의투자 매도 주문 테스트", tag:"code" },
+        { id:"ph1c5", text:"kis_api.py: 잔고 조회 테스트", tag:"code" },
+        { id:"ph1c6", text:"currency_module.py: 오늘 환율 조회 테스트", tag:"code" },
+        { id:"ph1c7", text:"currency_module.py: 100만원 → 주식 수량 계산 테스트", tag:"code" },
+        { id:"ph1c8", text:"telegram_bot.py: 텔레그램 봇 생성 & 메시지 전송 테스트", tag:"code" },
+        { id:"ph1c9", text:"telegram_bot.py: /stop_all 긴급 중단 명령 테스트", tag:"code" },
+      ]},
+      { cat: "서버 세팅 (Railway)", items: [
+        { id:"ph1s1", text:"Railway 계정 생성 (railway.app)", tag:"server" },
+        { id:"ph1s2", text:"Railway에 GitHub 레포 연결", tag:"server" },
+        { id:"ph1s3", text:"Railway 환경변수에 .env 내용 입력", tag:"server" },
+        { id:"ph1s4", text:"서버에서 토큰 발급 정상 작동 확인", tag:"server" },
+      ]},
+    ]
+  },
+  {
+    id: "phase2",
+    phase: "Phase 2 — 기술지표 & 백테스팅",
+    badge: "P2",
+    period: "3~4주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph2f1", text:"backend/strategies/macd.py — MACD 크로스오버 전략", tag:"file" },
+        { id:"ph2f2", text:"backend/backtest_engine.py — VectorBT 백테스팅", tag:"file" },
+      ]},
+      { cat: "코드 & 테스트", items: [
+        { id:"ph2c1", text:"pandas-ta로 MACD, RSI, 볼린저밴드 계산 확인", tag:"code" },
+        { id:"ph2c2", text:"켈리 기준 포지션 사이징 수식 검증", tag:"code" },
+        { id:"ph2c3", text:"VectorBT: AAPL 5년 MACD 전략 백테스팅 실행", tag:"test" },
+        { id:"ph2c4", text:"백테스팅 결과: 샤프 비율, MDD, 승률 확인", tag:"test" },
+        { id:"ph2c5", text:"슬리피지 0.1% + 수수료 0.25% 반영 확인", tag:"test" },
+      ]},
+    ]
+  },
+  {
+    id: "phase3",
+    phase: "Phase 3 — FinBERT 감성 분석",
+    badge: "P3",
+    period: "5~6주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph3f1", text:"backend/strategies/sentiment.py — FinBERT 5소스 통합", tag:"file" },
+      ]},
+      { cat: "코드 & 테스트", items: [
+        { id:"ph3c1", text:"FinBERT 모델 로드 테스트 (ProsusAI/finbert)", tag:"code" },
+        { id:"ph3c2", text:"Reddit PRAW API 키 발급 & 크롤러 테스트", tag:"setup" },
+        { id:"ph3c3", text:"Yahoo 뉴스 feedparser 크롤러 테스트", tag:"code" },
+        { id:"ph3c4", text:"NVDA 종목 센티먼트 스코어 출력 확인", tag:"test" },
+        { id:"ph3c5", text:"5소스 가중 합산 스코어 0~1 정규화 확인", tag:"test" },
+        { id:"ph3c6", text:"Oracle Cloud 서버 이전 검토 (FinBERT 500MB 모델)", tag:"server" },
+      ]},
+    ]
+  },
+  {
+    id: "phase4",
+    phase: "Phase 4 — 통계적 차익거래",
+    badge: "P4",
+    period: "7주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph4f1", text:"backend/strategies/statarb.py — 공적분 검정 & Z-Score", tag:"file" },
+        { id:"ph4f2", text:"backend/strategies/momentum.py — 12-1 모멘텀 팩터", tag:"file" },
+        { id:"ph4f3", text:"backend/strategies/event_driven.py — 어닝 서프라이즈", tag:"file" },
+      ]},
+      { cat: "코드 & 테스트", items: [
+        { id:"ph4c1", text:"SPY↔QQQ 공적분 검정 (p<0.05 확인)", tag:"code" },
+        { id:"ph4c2", text:"AMD↔NVDA 페어 Z-Score 계산 & 신호 출력", tag:"test" },
+        { id:"ph4c3", text:"나스닥 100 종목 모멘텀 랭킹 계산 테스트", tag:"code" },
+        { id:"ph4c4", text:"Look-ahead bias 없는지 백테스트 로직 검증", tag:"test" },
+      ]},
+    ]
+  },
+  {
+    id: "phase5",
+    phase: "Phase 5 — LightGBM 앙상블",
+    badge: "P5",
+    period: "8~9주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph5f1", text:"backend/ensemble_model.py — LightGBM 앙상블", tag:"file" },
+        { id:"ph5f2", text:"backend/regime_detector.py — 시장 레짐 감지", tag:"file" },
+      ]},
+      { cat: "코드 & 테스트", items: [
+        { id:"ph5c1", text:"5개 전략 신호 → Feature 변환 파이프라인 구축", tag:"code" },
+        { id:"ph5c2", text:"LightGBM TimeSeriesSplit 교차검증 학습", tag:"code" },
+        { id:"ph5c3", text:"VIX + 200MA 기반 레짐 감지 (강세/약세/고변동/위기)", tag:"code" },
+        { id:"ph5c4", text:"워크포워드 백테스팅 최종 검증 (2019~2024)", tag:"test" },
+        { id:"ph5c5", text:"몬테카를로 시뮬레이션 1000회 실행", tag:"test" },
+        { id:"ph5c6", text:"models/ 폴더에 학습된 모델 .pkl 저장", tag:"code" },
+      ]},
+    ]
+  },
+  {
+    id: "phase6",
+    phase: "Phase 6 — 리스크 & 텔레그램 & React",
+    badge: "P6",
+    period: "10~11주차",
+    items: [
+      { cat: "파일 생성 & 업로드", items: [
+        { id:"ph6f1", text:"backend/trading_engine.py — 자동매매 스케줄러", tag:"file" },
+        { id:"ph6f2", text:"backend/main.py — FastAPI + WebSocket 앱", tag:"file" },
+        { id:"ph6f3", text:"backend/models.py — SQLAlchemy DB 모델", tag:"file" },
+        { id:"ph6f4", text:"docker-compose.yml — 전체 서비스 구성", tag:"file" },
+      ]},
+      { cat: "서버 & 테스트", items: [
+        { id:"ph6s1", text:"Oracle Cloud 계정 생성 & 무료 서버 발급", tag:"server" },
+        { id:"ph6s2", text:"Oracle Cloud에 Python 환경 & 코드 배포", tag:"server" },
+        { id:"ph6s3", text:"텔레그램 봇 /status, /stop_all, /balance 전체 테스트", tag:"test" },
+        { id:"ph6s4", text:"모의투자 2주 이상 페이퍼 트레이딩 실행", tag:"test" },
+        { id:"ph6s5", text:"일일 리포트 텔레그램 자동 전송 확인", tag:"test" },
+        { id:"ph6s6", text:"월 1회 LightGBM 자동 재학습 스케줄러 설정", tag:"code" },
+      ]},
+    ]
+  },
+  {
+    id: "phase7",
+    phase: "Phase 7 — 실거래",
+    badge: "P7",
+    period: "12주차~",
+    items: [
+      { cat: "실거래 전환", items: [
+        { id:"ph7s1", text:".env KIS_ENV=real 로 변경", tag:"setup" },
+        { id:"ph7s2", text:"최초 실거래: 계좌의 10% 이하 소액으로 시작", tag:"test" },
+        { id:"ph7s3", text:"2주 단위 성과 검토 후 점진적 증액", tag:"test" },
+        { id:"ph7s4", text:"손절/익절 자동 실행 실제 확인", tag:"test" },
+        { id:"ph7s5", text:"연간 양도소득세 계산 & 신고 준비", tag:"setup" },
+      ]},
+    ]
+  },
+];
 
-  // Stars
-  const bg = document.getElementById('galaxy-bg');
-  for (let i = 0; i < 130; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    const size = Math.random() * 2.5;
-    star.style.width = star.style.height = size + 'px';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.setProperty('--duration', Math.random() * 3 + 2 + 's');
-    bg.appendChild(star);
-  }
+// 저장된 체크 상태 로드
+function loadChecked() {
+  try { return JSON.parse(localStorage.getItem('nana_checklist') || '{}'); }
+  catch { return {}; }
+}
+function saveChecked(state) {
+  localStorage.setItem('nana_checklist', JSON.stringify(state));
+}
 
-  // Meteors
-  const canvas = document.getElementById('meteor-canvas');
-  const ctx = canvas.getContext('2d');
-  let meteors = [];
-  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-  window.addEventListener('resize', resize); resize();
+let checked = loadChecked();
 
-  class Meteor {
-    constructor() { this.reset(); }
-    reset() {
-      this.x = Math.random() * canvas.width * 0.5 - 200;
-      this.y = Math.random() * canvas.height * 0.6;
-      this.length = Math.random() * 200 + 200;
-      this.speed = Math.random() * 1 + 0.5;
-      this.size = Math.random() * 3 + 2;
-      this.alpha = 0; this.maxAlpha = Math.random() * 0.7;
-      this.angle = Math.PI / 8;
+function getAllItems() {
+  let all = [];
+  DATA.forEach(phase => phase.items.forEach(cat => cat.items.forEach(item => all.push(item.id))));
+  return all;
+}
+
+function updateProgress() {
+  const all = getAllItems();
+  const done = all.filter(id => checked[id]).length;
+  const pct = all.length ? Math.round(done / all.length * 100) : 0;
+  document.getElementById('total-pct').textContent = pct + '%';
+  document.getElementById('total-bar').style.width = pct + '%';
+  document.getElementById('total-sub').textContent = `${done} / ${all.length} 완료`;
+
+  // 각 phase 진행률 업데이트
+  DATA.forEach(phase => {
+    let phaseItems = [];
+    phase.items.forEach(cat => cat.items.forEach(item => phaseItems.push(item.id)));
+    const pDone = phaseItems.filter(id => checked[id]).length;
+    const pPct = phaseItems.length ? Math.round(pDone / phaseItems.length * 100) : 0;
+    const el = document.getElementById('mini-' + phase.id);
+    if (el) el.textContent = `${pDone}/${phaseItems.length}`;
+
+    // badge 상태
+    const badge = document.getElementById('badge-' + phase.id);
+    if (badge) {
+      if (pDone === 0) { badge.className = 'phase-badge todo'; badge.textContent = phase.badge; }
+      else if (pDone === phaseItems.length) { badge.className = 'phase-badge done'; badge.textContent = '✓ ' + phase.badge; }
+      else { badge.className = 'phase-badge doing'; badge.textContent = '▶ ' + phase.badge; }
     }
-    update() {
-      this.x += this.speed * 4; this.y += this.speed * 0.5;
-      if (this.alpha < this.maxAlpha) this.alpha += 0.01;
-      if (this.x > canvas.width + 300) this.reset();
-    }
-    draw() {
-      const grad = ctx.createLinearGradient(this.x, this.y, this.x - Math.cos(this.angle)*this.length, this.y - Math.sin(this.angle)*this.length);
-      grad.addColorStop(0, `rgba(0,255,204,${this.alpha})`);
-      grad.addColorStop(1, 'rgba(0,255,204,0)');
-      ctx.strokeStyle = grad; ctx.lineWidth = this.size; ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(this.x, this.y);
-      ctx.lineTo(this.x - Math.cos(this.angle)*this.length, this.y - Math.sin(this.angle)*this.length);
-      ctx.stroke();
-    }
-  }
-  for (let i = 0; i < 2; i++) setTimeout(() => meteors.push(new Meteor()), i * 5000);
-  function animate() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    meteors.forEach(m => { m.update(); m.draw(); });
-    requestAnimationFrame(animate);
-  }
-  animate();
+  });
+}
 
-  function openModal(e) { e.stopPropagation(); document.getElementById('history-modal').style.display = 'flex'; }
-  function closeModal() { document.getElementById('history-modal').style.display = 'none'; }
+function toggle(id) {
+  checked[id] = !checked[id];
+  saveChecked(checked);
+  const el = document.getElementById('ci-' + id);
+  if (el) {
+    el.classList.toggle('checked', checked[id]);
+    el.querySelector('.check-box').textContent = checked[id] ? '✓' : '';
+  }
+  updateProgress();
+}
+
+function togglePhase(id) {
+  const body = document.getElementById('body-' + id);
+  const arrow = document.getElementById('arrow-' + id);
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+}
+
+function resetAll() {
+  if (!confirm('전체 초기화할까요?')) return;
+  checked = {};
+  saveChecked(checked);
+  document.querySelectorAll('.check-item').forEach(el => {
+    el.classList.remove('checked');
+    el.querySelector('.check-box').textContent = '';
+  });
+  updateProgress();
+}
+
+const tagClass = { file:'tag-file', setup:'tag-setup', code:'tag-code', test:'tag-test', server:'tag-server' };
+const tagLabel = { file:'FILE', setup:'SETUP', code:'CODE', test:'TEST', server:'SERVER' };
+
+function render() {
+  const container = document.getElementById('checklist');
+  container.innerHTML = DATA.map(phase => {
+    const cats = phase.items.map(cat => `
+      <div class="category">
+        <div class="cat-label">${cat.cat}</div>
+        ${cat.items.map(item => `
+          <div class="check-item${checked[item.id] ? ' checked' : ''}" id="ci-${item.id}" onclick="toggle('${item.id}')">
+            <div class="check-box">${checked[item.id] ? '✓' : ''}</div>
+            <div class="check-text">${item.text}</div>
+            <span class="check-tag ${tagClass[item.tag]}">${tagLabel[item.tag]}</span>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+
+    return `
+      <div class="phase">
+        <div class="phase-header" onclick="togglePhase('${phase.id}')">
+          <span class="phase-badge todo" id="badge-${phase.id}">${phase.badge}</span>
+          <span class="phase-title">${phase.phase}${phase.period ? ` <span style="font-size:0.72rem;color:rgba(0,255,204,0.35);font-family:'Share Tech Mono'">${phase.period}</span>` : ''}</span>
+          <span class="phase-progress-mini" id="mini-${phase.id}">0/0</span>
+          <span class="phase-arrow" id="arrow-${phase.id}">▶</span>
+        </div>
+        <div class="phase-body" id="body-${phase.id}">
+          ${cats}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  updateProgress();
+}
+
+render();
 </script>
 </body>
 </html>
