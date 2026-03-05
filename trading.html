@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>자동매매 시스템 - NANA LAB</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+KR:wght@300;400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+:root {
+  --neon: #00ffcc;
+  --neon2: #00bfff;
+  --neon3: #ff4466;
+  --gold: #ffc83c;
+  --bg: #000b1a;
+  --surface: #00101f;
+  --card: #001628;
+  --border: rgba(0,255,204,0.18);
+  --border-hover: rgba(0,255,204,0.5);
+  --text: #e2f0ff;
+  --muted: rgba(0,255,204,0.45);
+}
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html { scroll-behavior: smooth; }
+body { width:100%; background:var(--bg); color:var(--text); font-family:'Noto Sans KR',sans-serif; overflow-x:hidden; }
+
+/* ── GALAXY BG ── */
+#galaxy-bg { position:fixed; inset:0; z-index:0; background:radial-gradient(circle at 30% 20%,#001830 0%,#000b1a 50%,#000 100%); pointer-events:none; }
+.star { position:absolute; background:white; border-radius:50%; opacity:0.4; animation:twinkle var(--dur) infinite; }
+@keyframes twinkle { 0%,100%{opacity:0.2} 50%{opacity:0.8} }
+
+/* ── GRID OVERLAY ── */
+.grid-overlay {
+  position:fixed; inset:0; z-index:0; pointer-events:none; opacity:0.03;
+  background-image: linear-gradient(rgba(0,255,204,1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,204,1) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
+/* ── HEADER ── */
+header {
+  position:sticky; top:0; z-index:100;
+  background:rgba(0,11,26,0.92); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);
+  padding:0 20px; height:58px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.logo { font-family:'Orbitron'; font-size:1rem; font-weight:900; color:var(--neon); text-shadow:0 0 12px var(--neon); text-decoration:none; letter-spacing:3px; }
+.header-right { display:flex; align-items:center; gap:12px; }
+.status-pill {
+  font-family:'Share Tech Mono'; font-size:0.68rem; color:var(--muted);
+  letter-spacing:2px; display:flex; align-items:center; gap:6px;
+  padding:4px 12px; border-radius:20px; border:1px solid var(--border);
+  background:rgba(0,255,204,0.04);
+}
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--neon); box-shadow:0 0 8px var(--neon); animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
+.home-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:38px; height:38px; border-radius:50%;
+  border:1px solid var(--border); background:transparent;
+  color:var(--muted); font-size:1.1rem; cursor:pointer;
+  text-decoration:none; transition:all 0.2s;
+}
+.home-btn:hover { border-color:var(--neon); color:var(--neon); box-shadow:0 0 12px rgba(0,255,204,0.25); }
+
+/* ── HERO ── */
+.hero {
+  position:relative; z-index:1;
+  text-align:center; padding:80px 20px 60px;
+  border-bottom:1px solid var(--border);
+}
+.hero-eyebrow {
+  font-family:'Share Tech Mono'; font-size:0.72rem; color:var(--muted);
+  letter-spacing:4px; margin-bottom:20px; text-transform:uppercase;
+}
+.hero h1 {
+  font-family:'Orbitron'; font-size:clamp(2rem,5vw,3.5rem); font-weight:900;
+  line-height:1.15; margin-bottom:16px;
+  background:linear-gradient(135deg, #00ffcc 0%, #00bfff 50%, #00ffcc 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  filter:drop-shadow(0 0 30px rgba(0,255,204,0.3));
+}
+.hero-sub {
+  font-size:1rem; color:rgba(226,240,255,0.6); max-width:600px;
+  margin:0 auto 32px; line-height:1.7;
+}
+.hero-quote {
+  display:inline-block; max-width:580px;
+  padding:16px 24px; border-radius:12px;
+  border-left:3px solid var(--neon);
+  background:rgba(0,255,204,0.04);
+  font-size:0.85rem; color:rgba(226,240,255,0.55);
+  font-style:italic; line-height:1.7; text-align:left;
+  margin-bottom:32px;
+}
+.hero-quote cite { display:block; margin-top:8px; font-size:0.72rem; color:var(--muted); font-style:normal; font-family:'Share Tech Mono'; }
+.phase-progress {
+  display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-top:8px;
+}
+.phase-pill {
+  padding:5px 14px; border-radius:20px; font-size:0.72rem;
+  font-family:'Share Tech Mono'; letter-spacing:1px;
+  border:1px solid var(--border); color:var(--muted); background:transparent;
+}
+.phase-pill.done { border-color:var(--neon); color:var(--neon); background:rgba(0,255,204,0.06); }
+.phase-pill.active { border-color:var(--gold); color:var(--gold); background:rgba(255,200,60,0.08); box-shadow:0 0 12px rgba(255,200,60,0.2); animation:glow-gold 2s infinite; }
+@keyframes glow-gold { 0%,100%{box-shadow:0 0 8px rgba(255,200,60,0.2)} 50%{box-shadow:0 0 20px rgba(255,200,60,0.5)} }
+
+/* ── CONTAINER ── */
+.container { max-width:960px; margin:0 auto; padding:48px 16px 100px; position:relative; z-index:1; }
+
+/* ── SECTION TITLE ── */
+.sec-title {
+  font-family:'Orbitron'; font-size:0.75rem; font-weight:700;
+  color:var(--muted); letter-spacing:4px; text-transform:uppercase;
+  margin-bottom:24px; display:flex; align-items:center; gap:12px;
+}
+.sec-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── STATS ROW ── */
+.stats-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-bottom:48px; }
+.stat-card {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:20px; text-align:center; transition:all 0.25s;
+  animation:fadeUp 0.4s ease both;
+}
+.stat-card:hover { border-color:var(--border-hover); transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,255,204,0.12); }
+.stat-val {
+  font-family:'Orbitron'; font-size:1.8rem; font-weight:900;
+  background:linear-gradient(135deg,var(--neon),var(--neon2));
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  margin-bottom:4px;
+}
+.stat-val.red { background:linear-gradient(135deg,#ff4466,#ff8866); -webkit-background-clip:text; background-clip:text; }
+.stat-val.gold { background:linear-gradient(135deg,var(--gold),#ffaa00); -webkit-background-clip:text; background-clip:text; }
+.stat-label { font-size:0.72rem; color:var(--muted); letter-spacing:1px; font-family:'Share Tech Mono'; }
+
+/* ── STRATEGY GRID ── */
+.strategy-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px; margin-bottom:48px; }
+.strategy-card {
+  background:var(--card); border:1px solid var(--border); border-radius:16px;
+  padding:24px; transition:all 0.25s; animation:fadeUp 0.4s ease both;
+  position:relative; overflow:hidden;
+}
+.strategy-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:var(--accent, var(--neon));
+  box-shadow:0 0 12px var(--accent, var(--neon));
+}
+.strategy-card:hover { border-color:var(--border-hover); transform:translateY(-3px); box-shadow:0 8px 30px rgba(0,255,204,0.1); }
+.strategy-icon { font-size:2rem; margin-bottom:12px; }
+.strategy-name { font-family:'Orbitron'; font-size:0.78rem; font-weight:700; color:var(--neon); letter-spacing:2px; margin-bottom:8px; }
+.strategy-title { font-size:0.95rem; font-weight:700; margin-bottom:8px; }
+.strategy-desc { font-size:0.8rem; color:rgba(226,240,255,0.55); line-height:1.7; margin-bottom:14px; }
+.strategy-badges { display:flex; gap:6px; flex-wrap:wrap; }
+.s-badge { padding:3px 10px; border-radius:20px; font-size:0.68rem; font-family:'Share Tech Mono'; border:1px solid; }
+.s-badge.green { color:var(--neon); border-color:rgba(0,255,204,0.3); background:rgba(0,255,204,0.06); }
+.s-badge.blue  { color:var(--neon2); border-color:rgba(0,191,255,0.3); background:rgba(0,191,255,0.06); }
+.s-badge.red   { color:#ff6688; border-color:rgba(255,68,102,0.3); background:rgba(255,68,102,0.06); }
+.s-badge.gold  { color:var(--gold); border-color:rgba(255,200,60,0.3); background:rgba(255,200,60,0.06); }
+
+/* ── TECH STACK TABLE ── */
+.tech-table { width:100%; border-collapse:collapse; margin-bottom:48px; }
+.tech-table th {
+  font-family:'Orbitron'; font-size:0.65rem; letter-spacing:2px; color:var(--muted);
+  padding:10px 16px; text-align:left; border-bottom:1px solid var(--border);
+  text-transform:uppercase;
+}
+.tech-table td {
+  padding:12px 16px; font-size:0.82rem; border-bottom:1px solid rgba(0,255,204,0.05);
+  color:rgba(226,240,255,0.75);
+}
+.tech-table tr:hover td { background:rgba(0,255,204,0.03); }
+.tech-table tr:last-child td { border-bottom:none; }
+.tech-tag {
+  display:inline-block; padding:2px 8px; border-radius:4px; font-size:0.68rem;
+  font-family:'Share Tech Mono'; background:rgba(0,255,204,0.08);
+  color:var(--neon); border:1px solid rgba(0,255,204,0.2); margin-right:4px;
+}
+
+/* ── RISK TABLE ── */
+.risk-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:12px; margin-bottom:48px; }
+.risk-card {
+  background:var(--card); border:1px solid var(--border); border-radius:12px; padding:18px;
+  display:flex; gap:14px; align-items:flex-start;
+  animation:fadeUp 0.4s ease both; transition:all 0.2s;
+}
+.risk-card:hover { border-color:rgba(255,68,102,0.4); }
+.risk-icon { font-size:1.5rem; flex-shrink:0; margin-top:2px; }
+.risk-val { font-family:'Orbitron'; font-size:1rem; font-weight:700; color:#ff6688; margin-bottom:3px; }
+.risk-key { font-size:0.72rem; color:var(--muted); font-family:'Share Tech Mono'; margin-bottom:4px; }
+.risk-desc { font-size:0.75rem; color:rgba(226,240,255,0.45); line-height:1.5; }
+
+/* ── ROADMAP ── */
+.roadmap { display:flex; flex-direction:column; gap:0; margin-bottom:48px; position:relative; }
+.roadmap::before {
+  content:''; position:absolute; left:20px; top:0; bottom:0; width:1px;
+  background:linear-gradient(to bottom, var(--neon), transparent);
+}
+.phase-item {
+  display:flex; gap:20px; padding:0 0 32px 0; animation:fadeUp 0.4s ease both;
+}
+.phase-dot-wrap { display:flex; flex-direction:column; align-items:center; flex-shrink:0; width:40px; }
+.phase-dot {
+  width:40px; height:40px; border-radius:50%; border:2px solid var(--border);
+  background:var(--card); display:flex; align-items:center; justify-content:center;
+  font-family:'Orbitron'; font-size:0.65rem; font-weight:700; color:var(--muted);
+  position:relative; z-index:1; transition:all 0.3s; flex-shrink:0;
+}
+.phase-dot.done { border-color:var(--neon); color:var(--neon); background:rgba(0,255,204,0.08); box-shadow:0 0 15px rgba(0,255,204,0.3); }
+.phase-dot.active { border-color:var(--gold); color:var(--gold); background:rgba(255,200,60,0.08); box-shadow:0 0 20px rgba(255,200,60,0.4); animation:glow-gold 2s infinite; }
+.phase-content {
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  padding:18px 20px; flex:1; transition:all 0.2s;
+}
+.phase-item:hover .phase-content { border-color:var(--border-hover); }
+.phase-content.active { border-color:rgba(255,200,60,0.3); background:rgba(255,200,60,0.02); }
+.phase-header { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap; }
+.phase-num { font-family:'Orbitron'; font-size:0.65rem; color:var(--muted); letter-spacing:2px; }
+.phase-period { font-size:0.7rem; color:var(--muted); font-family:'Share Tech Mono'; margin-left:auto; }
+.phase-title { font-size:0.92rem; font-weight:700; }
+.phase-tasks { margin-top:10px; display:flex; flex-direction:column; gap:5px; }
+.phase-task { font-size:0.78rem; color:rgba(226,240,255,0.55); display:flex; gap:8px; line-height:1.5; }
+.phase-task::before { content:'▸'; color:var(--neon); flex-shrink:0; }
+
+/* ── HEDGE FUND TABLE ── */
+.hf-table-wrap { overflow-x:auto; margin-bottom:48px; }
+.hf-table { width:100%; border-collapse:collapse; min-width:560px; }
+.hf-table th {
+  font-family:'Orbitron'; font-size:0.63rem; letter-spacing:2px; color:var(--muted);
+  padding:10px 16px; text-align:left; border-bottom:1px solid var(--border); white-space:nowrap;
+}
+.hf-table td { padding:14px 16px; font-size:0.82rem; border-bottom:1px solid rgba(0,255,204,0.05); }
+.hf-table tr:last-child td { border-bottom:none; }
+.hf-table tr:hover td { background:rgba(0,255,204,0.03); }
+.hf-name { font-weight:700; color:var(--text); }
+.hf-ret { font-family:'Orbitron'; font-size:0.85rem; font-weight:700; }
+.hf-ret.high { color:var(--neon); }
+.hf-ret.mid  { color:var(--neon2); }
+.hf-ret.nana { color:var(--gold); }
+
+/* ── WARNING BOX ── */
+.warning-box {
+  background:rgba(255,68,102,0.05); border:1px solid rgba(255,68,102,0.25);
+  border-radius:14px; padding:20px 24px; margin-bottom:48px;
+  display:flex; gap:16px; align-items:flex-start;
+}
+.warning-icon { font-size:1.5rem; flex-shrink:0; }
+.warning-text { font-size:0.82rem; color:rgba(255,150,150,0.75); line-height:1.8; }
+.warning-text strong { color:#ff6688; }
+
+/* ── ANIM ── */
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(0,255,204,0.4); }
+
+@media(max-width:600px) {
+  .roadmap::before { display:none; }
+  .phase-dot-wrap { display:none; }
+}
+</style>
+</head>
+<body>
+<div id="galaxy-bg"></div>
+<div class="grid-overlay"></div>
+
+<header>
+  <a href="index.html" class="logo">NANA LAB</a>
+  <div class="header-right">
+    <div class="status-pill"><span class="status-dot"></span>SYSTEM v3.0</div>
+    <a href="index.html" class="home-btn" title="홈으로">🏠</a>
+  </div>
+</header>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">NASDAQ AUTO TRADING SYSTEM</div>
+  <h1>나스닥 자동매매<br>시스템</h1>
+  <p class="hero-sub">Renaissance · DE Shaw · Two Sigma 전략을 개인 투자자 규모에 맞게 구현한<br>앙상블 ML 기반 퀀트 자동매매 시스템</p>
+  <div class="hero-quote">
+    "우리는 50.75%만 맞춥니다. 하지만 100% 항상 50.75%를 맞춥니다. 그것으로 수십억을 법니다."
+    <cite>— Robert Mercer, Renaissance Technologies</cite>
+  </div>
+  <div style="font-family:'Share Tech Mono';font-size:0.7rem;color:var(--muted);margin-bottom:12px;letter-spacing:2px;">개발 진행 현황</div>
+  <div class="phase-progress">
+    <span class="phase-pill">P1 KIS API</span>
+    <span class="phase-pill">P2 백테스팅</span>
+    <span class="phase-pill">P3 FinBERT</span>
+    <span class="phase-pill">P4 StatArb</span>
+    <span class="phase-pill">P5 LightGBM</span>
+    <span class="phase-pill">P6 텔레그램</span>
+    <span class="phase-pill">P7 실거래</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ── 핵심 지표 ── -->
+  <div class="sec-title">핵심 목표 지표</div>
+  <div class="stats-row">
+    <div class="stat-card" style="animation-delay:0.05s">
+      <div class="stat-val gold">20~40%</div>
+      <div class="stat-label">목표 연간 수익률</div>
+    </div>
+    <div class="stat-card" style="animation-delay:0.1s">
+      <div class="stat-val">50.75%</div>
+      <div class="stat-label">목표 최소 승률</div>
+    </div>
+    <div class="stat-card" style="animation-delay:0.15s">
+      <div class="stat-val red">-5%</div>
+      <div class="stat-label">일일 최대 손실 한도</div>
+    </div>
+    <div class="stat-card" style="animation-delay:0.2s">
+      <div class="stat-val">7</div>
+      <div class="stat-label">개발 Phase</div>
+    </div>
+    <div class="stat-card" style="animation-delay:0.25s">
+      <div class="stat-val">5년</div>
+      <div class="stat-label">워크포워드 백테스트</div>
+    </div>
+  </div>
+
+  <!-- ── 헤지펀드 비교 ── -->
+  <div class="sec-title">세계 TOP 3 퀀트 헤지펀드 전략 비교</div>
+  <div class="hf-table-wrap">
+    <table class="hf-table">
+      <thead>
+        <tr>
+          <th>펀드</th>
+          <th>핵심 전략</th>
+          <th>알파 원천</th>
+          <th>연평균 수익</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="hf-name">Renaissance / Medallion</span></td>
+          <td style="color:rgba(226,240,255,0.6)">통계적 차익거래 + 숨겨진 패턴</td>
+          <td style="color:rgba(226,240,255,0.6)">시장 미시구조 비효율성</td>
+          <td><span class="hf-ret high">66%</span><span style="font-size:0.65rem;color:var(--muted);margin-left:4px">(1988~2018)</span></td>
+        </tr>
+        <tr>
+          <td><span class="hf-name">DE Shaw / Oculus</span></td>
+          <td style="color:rgba(226,240,255,0.6)">ML + NLP + 대체 데이터</td>
+          <td style="color:rgba(226,240,255,0.6)">비정형 데이터 우위</td>
+          <td><span class="hf-ret mid">비공개</span></td>
+        </tr>
+        <tr>
+          <td><span class="hf-name">Two Sigma / Compass</span></td>
+          <td style="color:rgba(226,240,255,0.6)">ML 신호 지속 진화</td>
+          <td style="color:rgba(226,240,255,0.6)">데이터 파이프라인 우위</td>
+          <td><span class="hf-ret mid">비공개</span></td>
+        </tr>
+        <tr>
+          <td><span class="hf-name" style="color:var(--gold)">🎯 NANA LAB</span></td>
+          <td style="color:rgba(226,240,255,0.6)">앙상블 ML + 센티먼트 + 이벤트</td>
+          <td style="color:rgba(226,240,255,0.6)">소형주 + 한국인 관심주 특화</td>
+          <td><span class="hf-ret nana">20~40%</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── 핵심 전략 ── -->
+  <div class="sec-title">5대 핵심 매매 전략</div>
+  <div class="strategy-grid">
+    <div class="strategy-card" style="--accent:var(--neon);animation-delay:0.05s">
+      <div class="strategy-icon">📊</div>
+      <div class="strategy-name">STATARB</div>
+      <div class="strategy-title">통계적 차익거래</div>
+      <div class="strategy-desc">Renaissance의 핵심 전략. 상관관계 높은 두 종목의 가격 괴리가 일시 발생 시 진입, 균형 회복 시 청산. Z-Score 기반 진입/청산.</div>
+      <div class="strategy-badges">
+        <span class="s-badge green">공적분 검정</span>
+        <span class="s-badge green">Z-Score ±2.0</span>
+        <span class="s-badge blue">SPY↔QQQ</span>
+      </div>
+    </div>
+    <div class="strategy-card" style="--accent:var(--neon2);animation-delay:0.1s">
+      <div class="strategy-icon">🧠</div>
+      <div class="strategy-name">FINBERT NLP</div>
+      <div class="strategy-title">FinBERT 감성 분석</div>
+      <div class="strategy-desc">5개 소스(Stocktwits·Reddit·X·Yahoo·Seeking Alpha) 통합 센티먼트 엔진. 일반 VADER 대비 정확도 30% 향상.</div>
+      <div class="strategy-badges">
+        <span class="s-badge blue">실시간 크롤링</span>
+        <span class="s-badge blue">5소스 가중합산</span>
+        <span class="s-badge green">X 실시간 15%</span>
+      </div>
+    </div>
+    <div class="strategy-card" style="--accent:var(--gold);animation-delay:0.15s">
+      <div class="strategy-icon">🚀</div>
+      <div class="strategy-name">MOMENTUM</div>
+      <div class="strategy-title">12-1 모멘텀 팩터</div>
+      <div class="strategy-desc">AQR 학술 검증 전략. 12개월~1개월 전 수익률 상위 20% 종목 롱 포지션. 월 1회 리밸런싱. VIX>35 시 자동 50% 축소.</div>
+      <div class="strategy-badges">
+        <span class="s-badge gold">상위 20% 롱</span>
+        <span class="s-badge gold">월 리밸런싱</span>
+        <span class="s-badge red">VIX 방어</span>
+      </div>
+    </div>
+    <div class="strategy-card" style="--accent:#ff8866;animation-delay:0.2s">
+      <div class="strategy-icon">⚡</div>
+      <div class="strategy-name">EVENT DRIVEN</div>
+      <div class="strategy-title">이벤트 드리븐</div>
+      <div class="strategy-desc">어닝 서프라이즈(±5%), Fed 금리 발표, 대형 M&A 발표 등 이벤트 직후 즉각 진입. 발표 후 1~5분 이내 포지션 구축.</div>
+      <div class="strategy-badges">
+        <span class="s-badge red">어닝 서프라이즈</span>
+        <span class="s-badge red">M&A 즉각 대응</span>
+        <span class="s-badge blue">Fed 섹터 로테이션</span>
+      </div>
+    </div>
+    <div class="strategy-card" style="--accent:#aa88ff;animation-delay:0.25s">
+      <div class="strategy-icon">🤖</div>
+      <div class="strategy-name">LIGHTGBM</div>
+      <div class="strategy-title">앙상블 ML 통합</div>
+      <div class="strategy-desc">4개 전략의 신호(0~1)를 LightGBM이 통합해 최종 BUY/SELL/HOLD 결정. 매월 자동 재학습. TimeSeriesSplit 교차검증.</div>
+      <div class="strategy-badges">
+        <span class="s-badge green">신뢰도 스코어</span>
+        <span class="s-badge blue">월 자동 재학습</span>
+        <span class="s-badge gold">시장 레짐 연동</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 기술 스택 ── -->
+  <div class="sec-title">기술 스택</div>
+  <table class="tech-table" style="margin-bottom:48px">
+    <thead>
+      <tr><th>레이어</th><th>기술</th><th>역할</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">데이터 수집</td><td><span class="tech-tag">yfinance</span><span class="tech-tag">KIS API</span></td><td>실시간 시세·호가·체결</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">소셜/뉴스</td><td><span class="tech-tag">PRAW</span><span class="tech-tag">feedparser</span><span class="tech-tag">X API</span></td><td>Reddit·X·뉴스 크롤링</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">NLP 엔진</td><td><span class="tech-tag">FinBERT</span><span class="tech-tag">HuggingFace</span></td><td>금융 특화 감성 분석</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">기술 지표</td><td><span class="tech-tag">pandas-ta</span><span class="tech-tag">TA-Lib</span></td><td>100+ 기술지표 자동 계산</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">ML 앙상블</td><td><span class="tech-tag">LightGBM</span><span class="tech-tag">scikit-learn</span></td><td>다중 신호 통합 예측</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">백테스팅</td><td><span class="tech-tag">VectorBT</span><span class="tech-tag">Backtrader</span></td><td>5년 워크포워드 시뮬레이션</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">주문 실행</td><td><span class="tech-tag">KIS Open API</span></td><td>나스닥 실거래 주문</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">리스크 관리</td><td><span class="tech-tag">Python</span><span class="tech-tag">켈리 기준</span></td><td>포지션 사이징·손절·익절</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">모니터링</td><td><span class="tech-tag">Telegram Bot</span><span class="tech-tag">SQLite</span></td><td>알림 + 이력 저장</td></tr>
+      <tr><td style="color:var(--muted);font-family:'Share Tech Mono';font-size:0.75rem">대시보드</td><td><span class="tech-tag">React</span><span class="tech-tag">FastAPI</span></td><td>포트폴리오 실시간 시각화</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ── 리스크 관리 ── -->
+  <div class="sec-title">기관급 리스크 관리 규칙</div>
+  <div class="risk-grid">
+    <div class="risk-card" style="animation-delay:0.05s">
+      <div class="risk-icon">🎯</div>
+      <div>
+        <div class="risk-val">-2%</div>
+        <div class="risk-key">종목당 최대 손실</div>
+        <div class="risk-desc">1종목에서 계좌 2% 초과 손실 시 강제 청산</div>
+      </div>
+    </div>
+    <div class="risk-card" style="animation-delay:0.1s">
+      <div class="risk-icon">📅</div>
+      <div>
+        <div class="risk-val">-5%</div>
+        <div class="risk-key">일일 최대 손실</div>
+        <div class="risk-desc">당일 총 손실 5% 초과 시 당일 거래 즉시 중단</div>
+      </div>
+    </div>
+    <div class="risk-card" style="animation-delay:0.15s">
+      <div class="risk-icon">📊</div>
+      <div>
+        <div class="risk-val">-8%</div>
+        <div class="risk-key">주간 최대 손실</div>
+        <div class="risk-desc">주간 -8% 도달 시 해당 주 신규 거래 중단</div>
+      </div>
+    </div>
+    <div class="risk-card" style="animation-delay:0.2s">
+      <div class="risk-icon">🛑</div>
+      <div>
+        <div class="risk-val">-3%</div>
+        <div class="risk-key">자동 손절 (Stop Loss)</div>
+        <div class="risk-desc">진입가 대비 -3% 도달 시 자동 매도 실행</div>
+      </div>
+    </div>
+    <div class="risk-card" style="animation-delay:0.25s">
+      <div class="risk-icon">✅</div>
+      <div>
+        <div class="risk-val">+8%</div>
+        <div class="risk-key">자동 익절 (Take Profit)</div>
+        <div class="risk-desc">진입가 대비 +8% 도달 시 자동 매도 실행</div>
+      </div>
+    </div>
+    <div class="risk-card" style="animation-delay:0.3s">
+      <div class="risk-icon">⚡</div>
+      <div>
+        <div class="risk-val">50% ↓</div>
+        <div class="risk-key">연속 손실 시 축소</div>
+        <div class="risk-desc">3회 연속 손실 후 다음 거래 포지션 반감</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 시장 레짐 ── -->
+  <div class="sec-title">시장 레짐 자동 감지</div>
+  <table class="tech-table" style="margin-bottom:48px">
+    <thead>
+      <tr><th>레짐</th><th>감지 조건</th><th>활성 전략</th><th>포지션</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:var(--neon);font-weight:700">🟢 강세장</td>
+        <td style="color:rgba(226,240,255,0.6)">S&P500 > 200MA, VIX &lt; 15</td>
+        <td>모멘텀 + 이벤트 드리븐</td>
+        <td style="color:var(--neon);font-family:'Orbitron';font-size:0.8rem">100%</td>
+      </tr>
+      <tr>
+        <td style="color:var(--neon2);font-weight:700">🔵 약세장</td>
+        <td style="color:rgba(226,240,255,0.6)">S&P500 &lt; 200MA, VIX 15~25</td>
+        <td>평균회귀 + StatArb</td>
+        <td style="color:var(--neon2);font-family:'Orbitron';font-size:0.8rem">60%</td>
+      </tr>
+      <tr>
+        <td style="color:var(--gold);font-weight:700">🟡 고변동성</td>
+        <td style="color:rgba(226,240,255,0.6)">VIX 25~35</td>
+        <td>StatArb만 유지</td>
+        <td style="color:var(--gold);font-family:'Orbitron';font-size:0.8rem">30%</td>
+      </tr>
+      <tr>
+        <td style="color:#ff6688;font-weight:700">🔴 위기장</td>
+        <td style="color:rgba(226,240,255,0.6)">VIX > 35</td>
+        <td>모든 전략 중단</td>
+        <td style="color:#ff6688;font-family:'Orbitron';font-size:0.8rem">0% 현금</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ── 로드맵 ── -->
+  <div class="sec-title">7 Phase 개발 로드맵</div>
+  <div class="roadmap">
+    <div class="phase-item" style="animation-delay:0.05s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P1</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 1</span>
+          <span class="phase-title">KIS API 연동 + 기본 주문 테스트 + 환율/세금 모듈</span>
+          <span class="phase-period">1~2주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">KIS 모의투자 환경 셋업 및 토큰 발급 자동화</div>
+          <div class="phase-task">해외주식 현재가 조회, 매수/매도 주문 테스트 (소액)</div>
+          <div class="phase-task">환율 모듈: 한국은행 API 연동, KRW→USD 자동 계산</div>
+          <div class="phase-task">세금 계산 모듈: 양도소득세, 수수료 자동 차감</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.1s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P2</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 2</span>
+          <span class="phase-title">기술적 지표 엔진 + 켈리 포지션 사이징 + 백테스팅 엔진</span>
+          <span class="phase-period">3~4주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">pandas-ta로 100+ 기술지표 계산 파이프라인 구축</div>
+          <div class="phase-task">켈리 기준 포지션 사이징 모듈 구현 및 검증</div>
+          <div class="phase-task">VectorBT 백테스팅 엔진 구축 (슬리피지·수수료 반영)</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.15s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P3</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 3</span>
+          <span class="phase-title">FinBERT 감성 분석 엔진 (5소스 통합)</span>
+          <span class="phase-period">5~6주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">FinBERT 모델 로컬 설치 (GPU 환경 권장)</div>
+          <div class="phase-task">Reddit, Stocktwits, X, Yahoo 뉴스 크롤러 구현</div>
+          <div class="phase-task">5소스 가중 합산 센티먼트 스코어 계산 로직</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.2s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P4</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 4</span>
+          <span class="phase-title">통계적 차익거래 + 평균회귀 전략 구현</span>
+          <span class="phase-period">7주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">공적분 검정으로 페어 트레이딩 종목 쌍 자동 탐색</div>
+          <div class="phase-task">Z-Score 기반 진입/청산 로직 구현</div>
+          <div class="phase-task">볼린저밴드 + RSI 극단값 평균회귀 전략</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.25s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P5</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 5</span>
+          <span class="phase-title">LightGBM 앙상블 모델 + 시장 레짐 감지</span>
+          <span class="phase-period">8~9주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">각 전략 신호를 특성(Feature)으로 변환하는 파이프라인</div>
+          <div class="phase-task">LightGBM 모델 학습 (TimeSeriesSplit 교차검증)</div>
+          <div class="phase-task">VIX + 200MA 기반 시장 레짐 감지 모듈</div>
+          <div class="phase-task">워크포워드 백테스팅 최종 검증</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.3s">
+      <div class="phase-dot-wrap"><div class="phase-dot">P6</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 6</span>
+          <span class="phase-title">리스크 관리 + Telegram + NANA LAB React 연동</span>
+          <span class="phase-period">10~11주차</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">완전한 리스크 관리 시스템 통합 (켈리 + 레짐 + 손절)</div>
+          <div class="phase-task">텔레그램 봇: 매매 신호 알림, 포지션 현황, 원격 중단 (/stop_all)</div>
+          <div class="phase-task">React 대시보드와 FastAPI WebSocket 실시간 연동</div>
+          <div class="phase-task">페이퍼 트레이딩(모의투자) 2주 이상 실행</div>
+        </div>
+      </div>
+    </div>
+    <div class="phase-item" style="animation-delay:0.35s">
+      <div class="phase-dot-wrap"><div class="phase-dot" style="border-color:var(--gold);color:var(--gold)">P7</div></div>
+      <div class="phase-content">
+        <div class="phase-header">
+          <span class="phase-num">PHASE 7</span>
+          <span class="phase-title">소액 실거래 → 점진적 증액</span>
+          <span class="phase-period">12주차~</span>
+        </div>
+        <div class="phase-tasks">
+          <div class="phase-task">최초 실거래: 계좌의 10% 이하 소액으로 시작</div>
+          <div class="phase-task">2주 단위로 성과 검토 후 점진적 증액</div>
+          <div class="phase-task">월 1회 LightGBM 모델 재학습 자동화</div>
+          <div class="phase-task">지속적인 전략 성과 모니터링 및 파라미터 최적화</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 경고 ── -->
+  <div class="warning-box">
+    <div class="warning-icon">⚠️</div>
+    <div class="warning-text">
+      <strong>투자 위험 고지</strong><br>
+      자동매매 시스템은 수익을 보장하지 않습니다. 과거 백테스트 성과가 미래 수익을 보장하지 않습니다. 시스템 오류로 인한 손실은 투자자 본인이 책임집니다.<br>
+      반드시 <strong>모의투자 환경에서 2주 이상</strong> 충분히 테스트 후 실전 전환하세요. 최초 실거래는 전체 투자 자금의 <strong>10% 이하</strong> 소액으로 시작하세요.<br>
+      <span style="font-size:0.72rem;opacity:0.6;font-family:'Share Tech Mono'">본 페이지는 교육·개발 참고용입니다 · NANA LAB · v3.0 · 2026</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Stars
+const gb = document.getElementById('galaxy-bg');
+for (let i = 0; i < 100; i++) {
+  const s = document.createElement('div'); s.className = 'star';
+  s.style.cssText = `width:${Math.random()*2.5}px;height:${Math.random()*2.5}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--dur:${Math.random()*3+2}s`;
+  gb.appendChild(s);
+}
+</script>
+</body>
+</html>
